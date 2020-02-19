@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DetectPatternsAction extends AnAction {
+
+    private static Integer patternInstanceID = 0;
+
     @Override
     public void actionPerformed(AnActionEvent e) {
         try {
@@ -42,7 +45,7 @@ public class DetectPatternsAction extends AnAction {
 
         discardLine(in);
 
-        Map<Integer, PatternInstance> patternInstanceById;
+        Map<Integer, PatternInstance> patternInstanceById = new HashMap<>();
         ArrayList<PatternCandidate> patternCandidates = new ArrayList<>();
         String patternName = "";
 
@@ -78,10 +81,58 @@ public class DetectPatternsAction extends AnAction {
         pro.waitFor();
         System.out.println(patternCandidates.size());
 
+        PatternInstance currentPatternInstance = null;
+        PatternCandidate currentPatternCandidate = null;
+        boolean unsavedPatternInstance = false;
+
         for(PatternCandidate candidate : patternCandidates)
         {
+            if(currentPatternInstance == null)
+            {
+                currentPatternInstance = new PatternInstance(patternName, candidate);
+                currentPatternCandidate = candidate;
+                continue;
+            }
 
+            if(belongToSamePattern(candidate,currentPatternCandidate))
+            {
+                currentPatternInstance.addObjectToRole(candidate);
+                unsavedPatternInstance = true;
+            }
+            else
+            {
+                patternInstanceById.put(patternInstanceID, currentPatternInstance);
+                patternInstanceID++;
+                unsavedPatternInstance = false;
+                currentPatternInstance = new PatternInstance(patternName, candidate);
+                currentPatternCandidate = candidate;
+            }
         }
+
+        if(unsavedPatternInstance)
+        {
+            patternInstanceById.put(patternInstanceID, currentPatternInstance);
+            patternInstanceID++;
+        }
+
+        System.out.println(patternCandidates.size());
+    }
+
+    private static boolean belongToSamePattern(PatternCandidate candidate, PatternCandidate currentPatternCandidate) {
+        int objectsInCommon = 0;
+        for (Map.Entry<String, String> candidateObjectByRole : candidate.getObjectByRole().entrySet())
+        {
+            String role1 = candidateObjectByRole.getKey();
+            String object1 = candidateObjectByRole.getValue();
+
+            String object2 = currentPatternCandidate.getObjectByRole().get(role1);
+            if(object1.equals(object2))
+            {
+                objectsInCommon++;
+            }
+        }
+
+        return objectsInCommon >= 2;
     }
 
     private static void discardLine(BufferedReader in) throws IOException {

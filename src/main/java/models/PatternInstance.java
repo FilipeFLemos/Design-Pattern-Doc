@@ -1,13 +1,11 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class PatternInstance {
 
     private String patternName;
-    private Map<String, ArrayList<String>> objectsByRole;
+    private Map<String, Set<String>> objectsByRole;
 
     public PatternInstance(String patternName, PatternCandidate patternCandidate){
         this.patternName = patternName;
@@ -20,7 +18,7 @@ public class PatternInstance {
         for (Map.Entry<String, String> entry : patternCandidate.getObjectByRole().entrySet())
         {
             String role = entry.getKey();
-            ArrayList<String> objects = new ArrayList<>();
+            Set<String> objects = new HashSet<>();
             objects.add(entry.getValue());
             objectsByRole.put(role,objects);
         }
@@ -30,7 +28,7 @@ public class PatternInstance {
         for (Map.Entry<String, String> entry : patternCandidate.getObjectByRole().entrySet())
         {
             String role = entry.getKey();
-            ArrayList<String> objects = objectsByRole.get(role);
+            Set<String> objects = objectsByRole.get(role);
 
             if(objects == null)
             {
