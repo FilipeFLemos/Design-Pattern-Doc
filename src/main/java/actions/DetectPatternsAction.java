@@ -16,14 +16,61 @@ import java.util.Map;
 public class DetectPatternsAction extends AnAction {
 
     private static Integer patternInstanceID = 0;
+    private final String executeJAR = "java -Dfile.encoding=windows-1252 -jar \"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\out\\artifacts\\DP_CORE_jar\\DP-CORE.jar\"";
+    private final String patternRepoPath = "-pattern=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\patterns\\";
+    private final String projectPath = " -project=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\examples\\Abstract Factory Example\" ";
 
     @Override
     public void actionPerformed(AnActionEvent e) {
+
+        scanForPatterns();
+    }
+
+    private void scanForPatterns() {
+
+        String pattern = "Abstract Factory.pattern\"";
         try {
-            runProcess("java -Dfile.encoding=windows-1252 -jar \"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\out\\artifacts\\DP_CORE_jar\\DP-CORE.jar\" -project=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\examples\\Abstract Factory Example\" -pattern=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\patterns\\Abstract Factory.pattern\" -group=false");
+            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
         } catch (Exception e1) {
             e1.printStackTrace();
         }
+
+        pattern = "Bridge.pattern\"";
+        try {
+            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+
+        pattern = "Builder.pattern\"";
+        try {
+            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+
+        pattern = "Command.pattern\"";
+        try {
+            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+
+        pattern = "Observer.pattern\"";
+        try {
+            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+
+        pattern = "Visitor.pattern\"";
+        try {
+            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+
+        System.out.println("Finished scanning!");
     }
 
     private static void runProcess(String command) throws Exception {
@@ -79,7 +126,6 @@ public class DetectPatternsAction extends AnAction {
         }
 
         pro.waitFor();
-        System.out.println(patternCandidates.size());
 
         PatternInstance currentPatternInstance = null;
         PatternCandidate currentPatternCandidate = null;
@@ -115,7 +161,6 @@ public class DetectPatternsAction extends AnAction {
             patternInstanceID++;
         }
 
-        System.out.println(patternCandidates.size());
     }
 
     private static boolean belongToSamePattern(PatternCandidate candidate, PatternCandidate currentPatternCandidate) {
