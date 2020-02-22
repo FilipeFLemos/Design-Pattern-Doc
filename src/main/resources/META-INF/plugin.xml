@@ -2,7 +2,7 @@
     <id>org.softeng.Design-Pattern-Doc</id>
     <name>Design Pattern Doc</name>
     <version>1.0-SNAPSHOT</version>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <vendor>FilipeLemos</vendor>
 
     <description><![CDATA[
     Plugin for documenting and detecting design patterns.
@@ -22,7 +22,8 @@
         <!-- Add your actions here -->
         <group id="DesignPatternDoc.menu" text="DesignPatternDoc">
             <add-to-group group-id="MainMenu" anchor="last"/>
-            <action class="actions.DetectPatternsAction" id="DesignPatternDoc" text="Scan for Patterns"/>
+            <action class="actions.DetectPatternsAction" id="detectPatterns" text="Scan for Patterns"/>
+            <action class="actions.DocumentPatternAction" id="documentPattern" text="Document Pattern Instance"/>
         </group>
     </actions>
 </idea-plugin>

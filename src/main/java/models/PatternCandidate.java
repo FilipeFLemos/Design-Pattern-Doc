@@ -6,7 +6,7 @@ public class PatternCandidate {
 
     private Map<String, String> objectByRole;
 
-    public PatternCandidate(Map<String, String> objectByRole){
+    public PatternCandidate(Map<String, String> objectByRole) {
         this.objectByRole = objectByRole;
     }
 
