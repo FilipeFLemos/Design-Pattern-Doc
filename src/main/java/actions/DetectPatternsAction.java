@@ -4,6 +4,8 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import models.PatternCandidate;
 import models.PatternInstance;
+import models.PersistentDataManager;
+import utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,17 +17,26 @@ import java.util.Map;
 
 public class DetectPatternsAction extends AnAction {
 
-    private static Integer patternInstanceID = 0;
     private final String executeJAR = "java -Dfile.encoding=windows-1252 -jar \"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\out\\artifacts\\DP_CORE_jar\\DP-CORE.jar\"";
     private final String patternRepoPath = "-pattern=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\patterns\\";
     private final String projectPath = " -project=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\examples\\Abstract Factory Example\" ";
 
     private static String patternName = "";
+    private static Map<String, PatternInstance> patternInstanceById;
 
     @Override
     public void actionPerformed(AnActionEvent e) {
 
+        patternInstanceById = new HashMap<>();
         scanForPatterns();
+
+        PersistentDataManager persistentDataManager = PersistentDataManager.getInstance();
+        for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
+            String id = entry.getKey();
+            PatternInstance patternInstance = entry.getValue();
+            persistentDataManager.addPatternInstance(id, patternInstance);
+        }
+
     }
 
     /**
@@ -103,7 +114,6 @@ public class DetectPatternsAction extends AnAction {
 
         discardLine(in);
 
-        Map<Integer, PatternInstance> patternInstanceById = new HashMap<>();
         ArrayList<PatternCandidate> patternCandidates = new ArrayList<>();
 
         if (!parsedPatternCandidates(in, numCandidates, patternCandidates)) {
@@ -121,10 +131,11 @@ public class DetectPatternsAction extends AnAction {
      * @param patternInstanceById - Maps for each pattern instance ID, the actual pattern instance
      * @param patternCandidates   - The list of objects and their roles
      */
-    private static void groupPatternObjects(Map<Integer, PatternInstance> patternInstanceById, ArrayList<PatternCandidate> patternCandidates) {
+    private static void groupPatternObjects(Map<String, PatternInstance> patternInstanceById, ArrayList<PatternCandidate> patternCandidates) {
         PatternInstance currentPatternInstance = null;
         PatternCandidate currentPatternCandidate = null;
         boolean unsavedPatternInstance = false;
+
 
         for (PatternCandidate candidate : patternCandidates) {
             if (currentPatternInstance == null) {
@@ -137,8 +148,8 @@ public class DetectPatternsAction extends AnAction {
                 currentPatternInstance.addObjectToRole(candidate);
                 unsavedPatternInstance = true;
             } else {
-                patternInstanceById.put(patternInstanceID, currentPatternInstance);
-                patternInstanceID++;
+                addPatternInstance(patternInstanceById, currentPatternInstance);
+
                 unsavedPatternInstance = false;
                 currentPatternInstance = new PatternInstance(patternName, candidate);
                 currentPatternCandidate = candidate;
@@ -146,9 +157,22 @@ public class DetectPatternsAction extends AnAction {
         }
 
         if (unsavedPatternInstance) {
-            patternInstanceById.put(patternInstanceID, currentPatternInstance);
-            patternInstanceID++;
+            addPatternInstance(patternInstanceById, currentPatternInstance);
         }
+    }
+
+    /**
+     * Generates a pattern instance ID (map key) and adds the pattern instance to the map.
+     * @param patternInstanceById - Maps for each pattern instance ID, the actual pattern instance
+     * @param currentPatternInstance - The pattern instance to be added
+     */
+    private static void addPatternInstance(Map<String, PatternInstance> patternInstanceById, PatternInstance currentPatternInstance) {
+        String id = "";
+        do {
+            id = Utils.generateAlphaNumericString();
+        } while (patternInstanceById.containsKey(id));
+
+        patternInstanceById.put(id, currentPatternInstance);
     }
 
     /**
