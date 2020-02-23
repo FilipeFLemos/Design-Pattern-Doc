@@ -1,33 +1,16 @@
 package models;
 
-import utils.Utils;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PersistentDataManager {
+public class PersistentState{
 
-    private ConcurrentHashMap<String, PatternInstance> patternInstanceById;
-    private final String fileName = "patternInstances";
+    public ConcurrentHashMap<String, PatternInstance> patternInstanceById = new ConcurrentHashMap<>();
 
-    private static PersistentDataManager instance = null;
+    public PersistentState(){}
 
-    private PersistentDataManager()
-    {
-        patternInstanceById = (ConcurrentHashMap) Utils.loadObject(fileName);
-
-        if(patternInstanceById == null){
-            patternInstanceById = new ConcurrentHashMap<>();
-        }
-    }
-
-    public static PersistentDataManager getInstance()
-    {
-        if (instance == null) {
-            instance = new PersistentDataManager();
-        }
-
-        return instance;
+    public ConcurrentHashMap<String, PatternInstance> getPatternInstanceById() {
+        return patternInstanceById;
     }
 
     public PatternInstance getPatternInstance(String id){
@@ -36,13 +19,11 @@ public class PersistentDataManager {
 
     public void updatePatternInstance(String id, PatternInstance patternInstance){
         patternInstanceById.put(id, patternInstance);
-        Utils.saveObject(fileName, patternInstanceById);
     }
 
-    public void addPatternInstance(String id, PatternInstance patternInstance){
+    public void storePatternInstanceIfAbsent(String id, PatternInstance patternInstance){
         if(!isAlreadyStored(patternInstance)){
             patternInstanceById.putIfAbsent(id, patternInstance);
-            Utils.saveObject(fileName, patternInstanceById);
         }
     }
 

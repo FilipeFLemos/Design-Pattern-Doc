@@ -12,6 +12,10 @@ public class PatternInstance implements Serializable {
     private String collaborations;
     private Map<String, Set<String>> objectsByRole;
 
+    public PatternInstance(){
+
+    }
+
     public PatternInstance(String patternName, PatternCandidate patternCandidate) {
         this.patternName = patternName;
         objectsByRole = new HashMap<>();
@@ -64,5 +68,29 @@ public class PatternInstance implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(patternName, intent, collaborations, objectsByRole);
+    }
+
+    public String getPatternName() {
+        return patternName;
+    }
+
+    public void setPatternName(String patternName) {
+        this.patternName = patternName;
+    }
+
+    public String getIntent() {
+        return intent;
+    }
+
+    public String getCollaborations() {
+        return collaborations;
+    }
+
+    public Map<String, Set<String>> getObjectsByRole() {
+        return objectsByRole;
+    }
+
+    public void setObjectsByRole(Map<String, Set<String>> objectsByRole) {
+        this.objectsByRole = objectsByRole;
     }
 }

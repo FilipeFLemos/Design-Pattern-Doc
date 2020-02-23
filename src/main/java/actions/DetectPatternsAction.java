@@ -4,12 +4,12 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import models.PatternCandidate;
 import models.PatternInstance;
-import models.PersistentDataManager;
+import models.PersistentState;
+import models.PersistentStateManager;
 import utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,11 +30,11 @@ public class DetectPatternsAction extends AnAction {
         patternInstanceById = new HashMap<>();
         scanForPatterns();
 
-        PersistentDataManager persistentDataManager = PersistentDataManager.getInstance();
+        PersistentState persistentState = (PersistentState) PersistentStateManager.getInstance().getState();
         for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
             String id = entry.getKey();
             PatternInstance patternInstance = entry.getValue();
-            persistentDataManager.addPatternInstance(id, patternInstance);
+            persistentState.storePatternInstanceIfAbsent(id, patternInstance);
         }
 
     }

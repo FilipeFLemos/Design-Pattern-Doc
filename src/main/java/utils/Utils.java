@@ -19,33 +19,4 @@ public class Utils {
 
         return generatedString;
     }
-
-    public static synchronized void saveObject(String filename, Object object) {
-        try {
-            FileOutputStream fos = new FileOutputStream(filename);
-            ObjectOutputStream os = new ObjectOutputStream(fos);
-
-            os.writeObject(object);
-
-            os.close();
-            fos.close();
-        } catch (IOException ignored) {
-        }
-    }
-
-    public static synchronized Object loadObject(String filename) {
-        Object object = null;
-        try {
-            FileInputStream fis = new FileInputStream(filename);
-            ObjectInputStream is = new ObjectInputStream(fis);
-
-            object = is.readObject();
-
-            is.close();
-            fis.close();
-        } catch (IOException | ClassNotFoundException ignored) {
-        }
-
-        return object;
-    }
 }
