@@ -56,7 +56,11 @@ public class DocumentDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        super.doOKAction();
+        String name = patternName.getText();
+        String intent = patternIntent.getText();
+        String collaborations = patternCollaborations.getText();
+        System.out.println("");
+        close(OK_EXIT_CODE);
     }
 
     private JBLabel getLabel(String text){

@@ -12,6 +12,8 @@ public class PatternInstance implements Serializable {
     private String collaborations;
     private Map<String, Set<String>> objectsByRole;
 
+    private boolean isAnHint = false;
+
     public PatternInstance(){
 
     }
@@ -92,5 +94,13 @@ public class PatternInstance implements Serializable {
 
     public void setObjectsByRole(Map<String, Set<String>> objectsByRole) {
         this.objectsByRole = objectsByRole;
+    }
+
+    public boolean isAnHint() {
+        return isAnHint;
+    }
+
+    public void setAnHint(boolean anHint) {
+        isAnHint = anHint;
     }
 }

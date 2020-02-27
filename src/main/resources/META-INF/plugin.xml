@@ -14,8 +14,17 @@
     <depends>com.intellij.modules.lang</depends>
     -->
 
+
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="models.PersistentStateManager"/>
+        <applicationService serviceImplementation="storage.PluginState"/>
+        <localInspection language="JAVA"
+                          displayName="Suggestion of Pattern Role"
+                          groupPath="Java"
+                          groupBundle="messages.InspectionsBundle"
+                          groupKey="group.names.probable.bugs"
+                          enabledByDefault="true"
+                          level="WARNING"
+                          implementationClass="inspections.PatternSuggestionsInspection"/>
     </extensions>
 
     <actions>
