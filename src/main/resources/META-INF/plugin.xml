@@ -13,18 +13,22 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
+    <depends>com.intellij.modules.lang</depends>
 
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="storage.PluginState"/>
         <localInspection language="JAVA"
                           displayName="Suggestion of Pattern Role"
+                          groupName="Example inspections"
                           groupPath="Java"
-                          groupBundle="messages.InspectionsBundle"
-                          groupKey="group.names.probable.bugs"
                           enabledByDefault="true"
                           level="WARNING"
                           implementationClass="inspections.PatternSuggestionsInspection"/>
+
+        <editor.linePainter implementation="utils.PatternHints"/>
+
+        <lang.documentationProvider language="JAVA" implementationClass="ui.PatternDocumentation"/>
     </extensions>
 
     <actions>

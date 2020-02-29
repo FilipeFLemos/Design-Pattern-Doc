@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Bias
+ */
 public class PersistentState{
 
     public ConcurrentHashMap<String, PatternInstance> patternInstanceById = new ConcurrentHashMap<>();

@@ -1,0 +1,19 @@
+<conversion>
+  <applied-converters>
+    <converter id="kotlin-non-jvm-source-roots" />
+    <converter id="junit-to-android-junit-configurations" />
+    <converter id="android-sdk-library" />
+    <converter id="android-module-to-java-module" />
+    <converter id="android-proguard-options" />
+  </applied-converters>
+  <project-files>
+    <file path="C:\Users\filip\IdeaProjects\Design-Pattern-Doc\.idea\vcs.xml" timestamp="1581629196473" />
+    <file path="C:\Users\filip\IdeaProjects\Design-Pattern-Doc\.idea\gradle.xml" timestamp="1581629066542" />
+    <file path="C:\Users\filip\IdeaProjects\Design-Pattern-Doc\.idea\misc.xml" timestamp="1582975185638" />
+    <file path="C:\Users\filip\IdeaProjects\Design-Pattern-Doc\.idea\Design-Pattern-Doc.iml" timestamp="1582839159650" />
+    <file path="C:\Users\filip\IdeaProjects\Design-Pattern-Doc\.idea\uiDesigner.xml" timestamp="1582395733747" />
+    <file path="C:\Users\filip\IdeaProjects\Design-Pattern-Doc\.idea\jarRepositories.xml" timestamp="1581626495685" />
+    <file path="C:\Users\filip\IdeaProjects\Design-Pattern-Doc\.idea\modules.xml" timestamp="1581629140676" />
+    <file path="C:\Users\filip\IdeaProjects\Design-Pattern-Doc\.idea\workspace.xml" timestamp="1583006086720" />
+  </project-files>
+</conversion>

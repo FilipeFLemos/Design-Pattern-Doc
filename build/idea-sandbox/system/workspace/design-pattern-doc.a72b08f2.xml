@@ -1,0 +1,33 @@
+<project version="4">
+  <component name="GradleLocalSettings">
+    <option name="modificationStamps">
+      <map>
+        <entry key="$PROJECT_DIR$" value="6327713533903" />
+        <entry key="$PROJECT_DIR$/.gradle" value="0" />
+        <entry key="$PROJECT_DIR$/build.gradle" value="3841521181" />
+        <entry key="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" value="1157257741" />
+        <entry key="$PROJECT_DIR$/settings.gradle" value="1451389911" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State />
+          <State>
+            <id>Example inspectionsJava</id>
+          </State>
+          <State>
+            <id>Java</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>PatternSuggestions</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+</project>
