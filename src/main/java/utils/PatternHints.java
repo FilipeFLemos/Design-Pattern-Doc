@@ -12,12 +12,17 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.ui.JBColor;
+import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import storage.PersistentState;
+import storage.PluginState;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PatternHints extends EditorLinePainter {
     @Nullable
@@ -37,12 +42,31 @@ public class PatternHints extends EditorLinePainter {
         for(int i = offsetStart; i <= offsetEnd; i++){
             PsiElement psiElement = psiFile.findElementAt(i);
             if(psiElement == null)
-                return collection;
+                break;
 
-            if(psiElement.textMatches("PluginState")) {
-                LineExtensionInfo lineExtensionInfo = new LineExtensionInfo(" Composite:Component", JBColor.GRAY, null, null, 8);
-                collection.add(lineExtensionInfo);
-                return collection;
+            PluginState pluginState = (PluginState) PluginState.getInstance();
+            ConcurrentHashMap<String, PatternInstance> hints = pluginState.getState().getPatternInstanceById();
+            if(hints == null)
+                break;
+
+            for (Map.Entry<String, PatternInstance> entry : hints.entrySet()) {
+                PatternInstance patternInstance = entry.getValue();
+                String patternName = patternInstance.getPatternName();
+
+                for (Map.Entry<String, Set<String>> entry2 : patternInstance.getObjectsByRole().entrySet()) {
+                    String role = entry2.getKey();
+                    Set<String> objects = entry2.getValue();
+                    String hintText = patternName + ":" + role;
+
+                    for(String object : objects){
+
+                        if(psiElement.textMatches(object)) {
+                            LineExtensionInfo lineExtensionInfo = new LineExtensionInfo(hintText, JBColor.GRAY, null, null, 8);
+                            collection.add(lineExtensionInfo);
+                            return collection;
+                        }
+                    }
+                }
             }
         }
 

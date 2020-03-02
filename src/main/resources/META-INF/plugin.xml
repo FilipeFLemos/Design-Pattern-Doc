@@ -28,7 +28,9 @@
 
         <editor.linePainter implementation="utils.PatternHints"/>
 
-        <lang.documentationProvider language="JAVA" implementationClass="ui.PatternDocumentation"/>
+        <lang.documentationProvider language="JAVA"
+                                    order="first"
+                                    implementationClass="ui.PatternDocumentation"/>
     </extensions>
 
     <actions>

@@ -16,7 +16,7 @@ public class PatternDocumentation implements DocumentationProvider{
     @Nullable
     @Override
     public String getQuickNavigateInfo(PsiElement element, PsiElement originalElement) {
-        return generateDoc(element,originalElement);
+        return "This class plays the role of a Component of the Composite GoF design pattern.";
     }
 
     @Nullable
