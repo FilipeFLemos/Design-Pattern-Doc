@@ -1,43 +1,31 @@
-package actions;
+package detection;
 
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import models.PatternCandidate;
 import models.PatternInstance;
-import storage.PluginState;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class DetectPatternsAction extends AnAction {
+public class DPCORE_DetectionTool extends AbstractDetectionTool {
 
     private final String executeJAR = "java -Dfile.encoding=windows-1252 -jar \"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\out\\artifacts\\DP_CORE_jar\\DP-CORE.jar\"";
     private final String patternRepoPath = "-pattern=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\patterns\\";
     private final String projectPath = " -project=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\examples\\Abstract Factory Example\" ";
 
-    private static String patternName = "";
-    private static Set<PatternInstance> patternInstances;
+    private String patternName = "";
+    private Set<PatternInstance> patternInstances;
 
-    @Override
-    public void actionPerformed(AnActionEvent e) {
-
+    public DPCORE_DetectionTool(){
         patternInstances = new HashSet<>();
-        scanForPatterns();
-
-        PluginState pluginState = (PluginState) PluginState.getInstance();
-        Set<PatternInstance> hints = pluginState.getHints();
-
-        for(PatternInstance patternInstance : patternInstances){
-            hints.add(patternInstance);
-        }
     }
 
     /**
      * Runs the DP-CORE tool for each of the implemented tool's patterns.
      */
-    private void scanForPatterns() {
+    @Override
+    public Set<PatternInstance> scanForPatterns() {
 
         String pattern = "Abstract Factory.pattern\"";
         try {
@@ -82,6 +70,8 @@ public class DetectPatternsAction extends AnAction {
         }
 
         System.out.println("Finished scanning!");
+
+        return patternInstances;
     }
 
     /**
@@ -90,7 +80,7 @@ public class DetectPatternsAction extends AnAction {
      * @param command - The DP-CORE tool command for a specific pattern
      * @throws Exception - Any exception while executing the process or reading the text output
      */
-    private static void runProcess(String command) throws Exception {
+    private void runProcess(String command) throws Exception {
         Process pro = Runtime.getRuntime().exec(command);
         BufferedReader in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
 
@@ -126,7 +116,7 @@ public class DetectPatternsAction extends AnAction {
      * @param patternInstances - Set with all the pattern instances detected
      * @param patternCandidates   - The list of objects and their roles
      */
-    private static void groupPatternObjects(Set<PatternInstance> patternInstances, ArrayList<PatternCandidate> patternCandidates) {
+    private void groupPatternObjects(Set<PatternInstance> patternInstances, ArrayList<PatternCandidate> patternCandidates) {
         PatternInstance currentPatternInstance = null;
         PatternCandidate currentPatternCandidate = null;
         boolean unsavedPatternInstance = false;
@@ -180,7 +170,7 @@ public class DetectPatternsAction extends AnAction {
      * @return false if it could not parse the pattern name and true if all the candidates were correctly parsed
      * @throws IOException - Any exception retrieved while reading the text output
      */
-    private static boolean parsedPatternCandidates(BufferedReader in, int numCandidates, ArrayList<PatternCandidate> patternCandidates) throws IOException {
+    private boolean parsedPatternCandidates(BufferedReader in, int numCandidates, ArrayList<PatternCandidate> patternCandidates) throws IOException {
         String line;
         for (int i = 0; i < numCandidates; i++) {
             patternName = retrievePatternName(in);
@@ -216,7 +206,7 @@ public class DetectPatternsAction extends AnAction {
      * @param currentPatternCandidate - The other candidate
      * @return true if they belong to the same pattern and false if otherwise
      */
-    private static boolean belongToSamePattern(PatternCandidate candidate, PatternCandidate currentPatternCandidate) {
+    private boolean belongToSamePattern(PatternCandidate candidate, PatternCandidate currentPatternCandidate) {
         int objectsInCommon = 0;
         for (Map.Entry<String, String> candidateObjectByRole : candidate.getObjectByRole().entrySet()) {
             String role1 = candidateObjectByRole.getKey();
@@ -237,7 +227,7 @@ public class DetectPatternsAction extends AnAction {
      * @param in - The tool's output text
      * @throws IOException - Any exception retrieved while reading the text output
      */
-    private static void discardLine(BufferedReader in) throws IOException {
+    private void discardLine(BufferedReader in) throws IOException {
         in.readLine();
     }
 
@@ -248,7 +238,7 @@ public class DetectPatternsAction extends AnAction {
      * @return the pattern name or the empty string
      * @throws IOException - Any exception retrieved while reading the text output
      */
-    private static String retrievePatternName(BufferedReader in) throws IOException {
+    private String retrievePatternName(BufferedReader in) throws IOException {
         String line = in.readLine();
         if (line == null) {
             return "";

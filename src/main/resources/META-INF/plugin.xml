@@ -10,14 +10,11 @@
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
-    <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
-    -->
-    <depends>com.intellij.modules.lang</depends>
-
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="storage.PluginState"/>
+
         <localInspection language="JAVA"
                           displayName="Suggestion of Pattern Role"
                           groupName="Example inspections"
@@ -37,7 +34,7 @@
         <!-- Add your actions here -->
         <group id="DesignPatternDoc.menu" text="DesignPatternDoc">
             <add-to-group group-id="MainMenu" anchor="last"/>
-            <action class="actions.DetectPatternsAction" id="detectPatterns" text="Scan for Patterns"/>
+            <action class="detection.DetectPatternsAction" id="detectPatterns" text="Scan for Patterns"/>
             <action class="actions.DocumentPatternAction" id="documentPattern" text="Document Pattern Instance"/>
         </group>
     </actions>
