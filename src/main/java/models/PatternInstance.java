@@ -3,9 +3,6 @@ package models;
 import java.io.Serializable;
 import java.util.*;
 
-/**
- * Tambem apareço no hover
- */
 public class PatternInstance implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -13,7 +10,8 @@ public class PatternInstance implements Serializable {
     private String patternName;
     private String intent;
     private String collaborations;
-    private Map<String, Set<String>> objectsByRole;
+    private Map<String, Set<String>> roleObjects;
+    private Map<String, Set<String>> objectRoles;
 
     private boolean isAnHint = false;
 
@@ -22,9 +20,10 @@ public class PatternInstance implements Serializable {
     }
 
     public PatternInstance(String patternName, PatternCandidate patternCandidate) {
-        this.patternName = patternName;
-        objectsByRole = new HashMap<>();
+        roleObjects = new HashMap<>();
+        objectRoles = new HashMap<>();
 
+        setPatternName(patternName);
         setIntent("");
         setCollaborations("");
         setPatternRoles(patternCandidate);
@@ -35,21 +34,35 @@ public class PatternInstance implements Serializable {
             String role = entry.getKey();
             Set<String> objects = new HashSet<>();
             objects.add(entry.getValue());
-            objectsByRole.put(role, objects);
+            roleObjects.put(role, objects);
+
+            for(String object : objects){
+                addRoleToObject(object, role);
+            }
         }
+    }
+
+    private void addRoleToObject(String object, String role){
+        Set<String> roles = objectRoles.get(object);
+        if(roles == null){
+            roles = new HashSet<>();
+        }
+        roles.add(role);
+
+        objectRoles.put(object,roles);
     }
 
     public void addObjectToRole(PatternCandidate patternCandidate) {
         for (Map.Entry<String, String> entry : patternCandidate.getObjectByRole().entrySet()) {
             String role = entry.getKey();
-            Set<String> objects = objectsByRole.get(role);
+            Set<String> objects = roleObjects.get(role);
 
             if (objects == null) {
                 return;
             }
 
             objects.add(entry.getValue());
-            objectsByRole.put(role, objects);
+            roleObjects.put(role, objects);
         }
     }
 
@@ -67,12 +80,12 @@ public class PatternInstance implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         PatternInstance that = (PatternInstance) o;
         return Objects.equals(patternName, that.patternName) &&
-                Objects.equals(objectsByRole, that.objectsByRole);
+                Objects.equals(roleObjects, that.roleObjects);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(patternName, intent, collaborations, objectsByRole);
+        return Objects.hash(patternName, intent, collaborations, roleObjects);
     }
 
     public String getPatternName() {
@@ -91,12 +104,20 @@ public class PatternInstance implements Serializable {
         return collaborations;
     }
 
-    public Map<String, Set<String>> getObjectsByRole() {
-        return objectsByRole;
+    public Map<String, Set<String>> getRoleObjects() {
+        return roleObjects;
     }
 
-    public void setObjectsByRole(Map<String, Set<String>> objectsByRole) {
-        this.objectsByRole = objectsByRole;
+    public void setRoleObjects(Map<String, Set<String>> roleObjects) {
+        this.roleObjects = roleObjects;
+    }
+
+    public Map<String, Set<String>> getObjectRoles() {
+        return objectRoles;
+    }
+
+    public void setObjectRoles(Map<String, Set<String>> objectRoles) {
+        this.objectRoles = objectRoles;
     }
 
     public boolean isAnHint() {

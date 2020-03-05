@@ -1,10 +1,8 @@
 package ui;
 
 import com.intellij.lang.documentation.DocumentationProvider;
-import com.intellij.openapi.editor.LineExtensionInfo;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
-import com.intellij.ui.JBColor;
 import models.PatternInstance;
 import org.jetbrains.annotations.Nullable;
 import storage.PluginState;
@@ -55,36 +53,53 @@ public class PatternDocumentation implements DocumentationProvider{
         if(persistedPatternInstances == null)
             return null;
 
-        for (Map.Entry<String, PatternInstance> entry : persistedPatternInstances.entrySet()) {
-            PatternInstance patternInstance = entry.getValue();
+        for (Map.Entry<String, PatternInstance> patternInstanceEntry : persistedPatternInstances.entrySet()) {
+            PatternInstance patternInstance = patternInstanceEntry.getValue();
             String patternName = patternInstance.getPatternName();
 
-            for (Map.Entry<String, Set<String>> entry2 : patternInstance.getObjectsByRole().entrySet()) {
-                String role = entry2.getKey();
-                Set<String> objects = entry2.getValue();
+            Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
+            if(!objectRoles.containsKey(psiElement.getText())){
+                return null;
+            }
 
-                for(String object : objects){
+            StringBuilder documentationText = new StringBuilder();
 
-                    if(psiElement.textMatches(object)) {
-                        StringBuilder documentationText = new StringBuilder();
-                        documentationText.append("This class plays the role ").append(role).append("on the Design Pattern ").append(patternName).append(".");
+            Set<String> roles = objectRoles.get(psiElement.getText());
+            for(String role : roles){
+                documentationText.append("This class plays the role <b><u>").append(role).append("</b></u> of the <b><u>").append(patternName).append("</b></u> Design Pattern.");
+            }
 
-                        String patternIntent = patternInstance.getIntent();
-                        if(patternIntent != null){
-                            documentationText.append("\n\n").append("Intent: ").append(patternIntent);
-                        }
+            String patternIntent = patternInstance.getIntent();
+            if(!patternIntent.equals("")){
+                documentationText.append("\n\n<br><br>").append("<b>Intent: </b>").append(patternIntent);
+            }
 
-                        String collaborations = patternInstance.getCollaborations();
-                        if(collaborations != null){
-                            documentationText.append("\n\n").append("Collaborations: ").append(collaborations);
-                        }
+            String collaborations = patternInstance.getCollaborations();
+            if(!collaborations.equals("")){
+                documentationText.append("\n\n<br><br>").append("<b>Collaborations: </b>").append(collaborations);
+            }
 
-                        //TODO: Roles
+            documentationText.append("\n\n<br><br>").append("<b>Roles:</b>");
 
-                        return documentationText.toString();
+            Map<String, Set<String>> objectsByRole = patternInstance.getRoleObjects();
+            for (Map.Entry<String, Set<String>> objectsByRoleEntry : objectsByRole.entrySet()) {
+                String patternRole = objectsByRoleEntry.getKey();
+                Set<String> objectsPlayingRole = objectsByRoleEntry.getValue();
+
+                documentationText.append("\n<br><u>").append(patternRole).append("</u> - ");
+
+                int i = 0;
+                for(String objectPlayingRole : objectsPlayingRole){
+                    if(i == objectsPlayingRole.size() - 1){
+                        documentationText.append(objectPlayingRole);
+                    }
+                    else {
+                        documentationText.append(objectPlayingRole).append(", ");
                     }
                 }
             }
+
+            return documentationText.toString();
         }
 
         return null;

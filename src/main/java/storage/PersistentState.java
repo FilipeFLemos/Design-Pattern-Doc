@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PersistentState{
 
     public ConcurrentHashMap<String, PatternInstance> patternInstanceById = new ConcurrentHashMap<>();
-    private Set<PatternInstance> hints = new HashSet<>();
 
     public PersistentState(){}
 
@@ -47,23 +46,5 @@ public class PersistentState{
         }
 
         return hasAlreadyStored;
-    }
-
-    public void addHint(PatternInstance patternInstance){
-        if(hints.contains(patternInstance)){
-            return;
-        }
-
-        boolean isAnHint = true;
-        if(hasAlreadyStored(patternInstance)){
-            isAnHint = false;
-        }
-
-        patternInstance.setAnHint(isAnHint);
-        hints.add(patternInstance);
-    }
-
-    public Set<PatternInstance> getHints() {
-        return hints;
     }
 }

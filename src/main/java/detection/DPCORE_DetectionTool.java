@@ -12,7 +12,7 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
 
     private final String executeJAR = "java -Dfile.encoding=windows-1252 -jar \"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\out\\artifacts\\DP_CORE_jar\\DP-CORE.jar\"";
     private final String patternRepoPath = "-pattern=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\patterns\\";
-    private final String projectPath = " -project=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\examples\\Abstract Factory Example\" ";
+    private final String projectPath = " -project=\"C:\\Users\\filip\\IdeaProjects\\ThesisTest\\src\\examples\\Abstract Factory Example\" ";
 
     private String patternName = "";
     private Set<PatternInstance> patternInstances;

@@ -28,7 +28,7 @@ public class PatternSuggestionsInspection extends AbstractBaseJavaLocalInspectio
                 for (PatternInstance patternInstance : suggestions) {
                     String patternName = patternInstance.getPatternName();
 
-                    for (Map.Entry<String, Set<String>> entry2 : patternInstance.getObjectsByRole().entrySet()) {
+                    for (Map.Entry<String, Set<String>> entry2 : patternInstance.getRoleObjects().entrySet()) {
                         String role = entry2.getKey();
                         Set<String> objects = entry2.getValue();
                         String suggestionText = "We believe that this class plays the role " + role +" of the Design Pattern " + patternName + ".";

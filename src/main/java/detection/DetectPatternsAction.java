@@ -24,7 +24,7 @@ public class DetectPatternsAction extends AnAction {
         Set<PatternInstance> hints = pluginState.getHints();
 
         for(PatternInstance patternInstance : patternInstances){
-            hints.add(patternInstance);
+            pluginState.addHint(patternInstance);
         }
     }
 }

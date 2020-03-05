@@ -50,7 +50,7 @@ public class PatternHints extends EditorLinePainter {
                 PatternInstance patternInstance = entry.getValue();
                 String patternName = patternInstance.getPatternName();
 
-                for (Map.Entry<String, Set<String>> entry2 : patternInstance.getObjectsByRole().entrySet()) {
+                for (Map.Entry<String, Set<String>> entry2 : patternInstance.getRoleObjects().entrySet()) {
                     String role = entry2.getKey();
                     Set<String> objects = entry2.getValue();
                     String hintText = patternName + ":" + role;
