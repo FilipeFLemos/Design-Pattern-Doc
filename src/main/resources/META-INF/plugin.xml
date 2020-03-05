@@ -23,7 +23,7 @@
                           level="WARNING"
                           implementationClass="inspections.PatternSuggestionsInspection"/>
 
-        <editor.linePainter implementation="utils.PatternHints"/>
+        <editor.linePainter implementation="ui.PatternHints"/>
 
         <lang.documentationProvider language="JAVA"
                                     order="first"

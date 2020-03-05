@@ -48,7 +48,7 @@ public class PluginState implements PersistentStateComponent<PersistentState> {
         patternInstance.setAnHint(isAnHint);
         hints.add(patternInstance);
         //TODO: REMOVE AFTER DEBUGGING
-        persistentState.storePatternInstanceIfAbsent("ok", patternInstance);
+        //persistentState.storePatternInstanceIfAbsent("ok", patternInstance);
     }
 
     public HashSet<PatternInstance> getHints() {

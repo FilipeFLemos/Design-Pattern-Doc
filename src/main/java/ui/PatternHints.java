@@ -1,8 +1,9 @@
-package utils;
+package ui;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorLinePainter;
 import com.intellij.openapi.editor.LineExtensionInfo;
+import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDocumentManager;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import storage.PluginState;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -36,37 +38,49 @@ public class PatternHints extends EditorLinePainter {
         int offsetStart = document.getLineStartOffset(lineNumber);
         int offsetEnd = document.getLineEndOffset(lineNumber);
 
+        PluginState pluginState = (PluginState) PluginState.getInstance();
+        ConcurrentHashMap<String, PatternInstance> hints = pluginState.getState().getPatternInstanceById();
+        if(hints == null)
+            return collection;
+
+        StringBuilder lineHint = new StringBuilder();
+        lineHint.append(" ");
+
         for(int i = offsetStart; i <= offsetEnd; i++){
             PsiElement psiElement = psiFile.findElementAt(i);
             if(psiElement == null)
-                break;
+                continue;
 
-            PluginState pluginState = (PluginState) PluginState.getInstance();
-            ConcurrentHashMap<String, PatternInstance> hints = pluginState.getState().getPatternInstanceById();
-            if(hints == null)
-                break;
+            String className = psiElement.getText();
 
             for (Map.Entry<String, PatternInstance> entry : hints.entrySet()) {
                 PatternInstance patternInstance = entry.getValue();
                 String patternName = patternInstance.getPatternName();
 
-                for (Map.Entry<String, Set<String>> entry2 : patternInstance.getRoleObjects().entrySet()) {
-                    String role = entry2.getKey();
-                    Set<String> objects = entry2.getValue();
-                    String hintText = patternName + ":" + role;
+                Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
+                if(!objectRoles.containsKey(className)){
+                    continue;
+                }
 
-                    for(String object : objects){
+                lineHint.append("  ").append(className).append(" -> ");
 
-                        if(psiElement.textMatches(object)) {
-                            LineExtensionInfo lineExtensionInfo = new LineExtensionInfo(hintText, JBColor.GRAY, null, null, 8);
-                            collection.add(lineExtensionInfo);
-                            return collection;
-                        }
+                Set<String> roles = objectRoles.get(psiElement.getText());
+                int index = 0;
+                for(String role : roles){
+                    lineHint.append(patternName).append(":").append(role);
+
+                    if(index != roles.size()-1){
+                        lineHint.append(", ");
                     }
+                    index++;
                 }
             }
+
+            i += psiElement.getTextLength();
         }
 
+        LineExtensionInfo lineExtensionInfo = new LineExtensionInfo(lineHint.toString(), JBColor.CYAN, null, null, Font.ITALIC);
+        collection.add(lineExtensionInfo);
         return collection;
     }
 }

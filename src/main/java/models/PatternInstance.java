@@ -33,12 +33,11 @@ public class PatternInstance implements Serializable {
         for (Map.Entry<String, String> entry : patternCandidate.getObjectByRole().entrySet()) {
             String role = entry.getKey();
             Set<String> objects = new HashSet<>();
-            objects.add(entry.getValue());
-            roleObjects.put(role, objects);
+            String object = entry.getValue();
 
-            for(String object : objects){
-                addRoleToObject(object, role);
-            }
+            objects.add(object);
+            roleObjects.put(role, objects);
+            addRoleToObject(object,role);
         }
     }
 
@@ -55,14 +54,16 @@ public class PatternInstance implements Serializable {
     public void addObjectToRole(PatternCandidate patternCandidate) {
         for (Map.Entry<String, String> entry : patternCandidate.getObjectByRole().entrySet()) {
             String role = entry.getKey();
+            String object = entry.getValue();
             Set<String> objects = roleObjects.get(role);
 
             if (objects == null) {
                 return;
             }
 
-            objects.add(entry.getValue());
+            objects.add(object);
             roleObjects.put(role, objects);
+            addRoleToObject(object,role);
         }
     }
 

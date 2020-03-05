@@ -48,6 +48,8 @@ public class PatternDocumentation implements DocumentationProvider{
 
     private String getDocumentationText(PsiElement psiElement){
 
+        String className = psiElement.toString().split(":")[1];
+
         PluginState pluginState = (PluginState) PluginState.getInstance();
         ConcurrentHashMap<String, PatternInstance> persistedPatternInstances = pluginState.getState().getPatternInstanceById();
         if(persistedPatternInstances == null)
@@ -58,13 +60,13 @@ public class PatternDocumentation implements DocumentationProvider{
             String patternName = patternInstance.getPatternName();
 
             Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
-            if(!objectRoles.containsKey(psiElement.getText())){
-                return null;
+            if(!objectRoles.containsKey(className)){
+                continue;
             }
 
             StringBuilder documentationText = new StringBuilder();
 
-            Set<String> roles = objectRoles.get(psiElement.getText());
+            Set<String> roles = objectRoles.get(className);
             for(String role : roles){
                 documentationText.append("This class plays the role <b><u>").append(role).append("</b></u> of the <b><u>").append(patternName).append("</b></u> Design Pattern.");
             }
@@ -96,6 +98,7 @@ public class PatternDocumentation implements DocumentationProvider{
                     else {
                         documentationText.append(objectPlayingRole).append(", ");
                     }
+                    i++;
                 }
             }
 
