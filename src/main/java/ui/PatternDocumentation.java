@@ -55,6 +55,8 @@ public class PatternDocumentation implements DocumentationProvider{
         if(persistedPatternInstances == null)
             return null;
 
+        StringBuilder documentationText = new StringBuilder();
+
         for (Map.Entry<String, PatternInstance> patternInstanceEntry : persistedPatternInstances.entrySet()) {
             PatternInstance patternInstance = patternInstanceEntry.getValue();
             String patternName = patternInstance.getPatternName();
@@ -64,7 +66,9 @@ public class PatternDocumentation implements DocumentationProvider{
                 continue;
             }
 
-            StringBuilder documentationText = new StringBuilder();
+            if(!documentationText.toString().equals("")){
+                documentationText.append("\n\n\n<br><br><br>");
+            }
 
             Set<String> roles = objectRoles.get(className);
             for(String role : roles){
@@ -101,11 +105,14 @@ public class PatternDocumentation implements DocumentationProvider{
                     i++;
                 }
             }
-
-            return documentationText.toString();
         }
 
-        return null;
+        if(documentationText.toString().equals("")){
+            return null;
+        }
+        else{
+            return documentationText.toString();
+        }
     }
 
 }

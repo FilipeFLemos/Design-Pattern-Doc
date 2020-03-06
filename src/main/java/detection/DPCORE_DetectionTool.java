@@ -147,20 +147,6 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
     }
 
     /**
-     * Generates a pattern instance ID (map key) and adds the pattern instance to the map.
-     * @param patternInstances - Set with all the pattern instances detected
-     * @param currentPatternInstance - The pattern instance to be added
-     */
-//    private static void addPatternInstance(Set<String, PatternInstance> patternInstanceById, PatternInstance currentPatternInstance) {
-//        String id = "";
-//        do {
-//            id = Utils.generateAlphaNumericString();
-//        } while (patternInstanceById.containsKey(id));
-//
-//        patternInstanceById.put(id, currentPatternInstance);
-//    }
-
-    /**
      * Parses the output from the DP-CORE tool, extracting the roles and objects of each pattern candidate.
      * Also retrieves the name of the pattern where the object is inserted.
      *

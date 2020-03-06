@@ -29,6 +29,14 @@ public class PatternInstance implements Serializable {
         setPatternRoles(patternCandidate);
     }
 
+    public PatternInstance(String name, String intent, Map<String, Set<String>> roleObjects, Map<String, Set<String>> objectRoles) {
+        setPatternName(name);
+        setIntent(intent);
+        setRoleObjects(roleObjects);
+        setObjectRoles(objectRoles);
+        setCollaborations("");
+    }
+
     private void setPatternRoles(PatternCandidate patternCandidate) {
         for (Map.Entry<String, String> entry : patternCandidate.getObjectByRole().entrySet()) {
             String role = entry.getKey();

@@ -1,23 +1,31 @@
 package ui;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.components.JBLabel;
-import com.intellij.uiDesigner.core.AbstractLayout;
-import com.intellij.util.ui.GridBag;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import models.CollaborationListItem;
+import models.PatternInstance;
 import org.jetbrains.annotations.Nullable;
+import storage.PersistentState;
+import storage.PluginState;
+import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DocumentDialog extends DialogWrapper {
 
     private JPanel panel;
     private JTextField patternName;
     private JTextArea patternIntent;
-    private JTextArea patternCollaborations;
+    private JButton addCollabRowBtn;
+    private ArrayList<CollaborationListItem> collaborationList;
+
+    private int gridHeight = 0;
 
     public DocumentDialog(boolean canBeParent) {
         super(canBeParent);
@@ -26,8 +34,8 @@ public class DocumentDialog extends DialogWrapper {
         patternName = new JTextField();
         patternIntent = new JTextArea();
         patternIntent.setLineWrap(true);
-        patternCollaborations = new JTextArea();
-        patternCollaborations.setLineWrap(true);
+        addCollabRowBtn = new JButton("Add Row");
+        collaborationList = new ArrayList<>();
 
         init();
         setTitle("Document Pattern Instance");
@@ -37,30 +45,171 @@ public class DocumentDialog extends DialogWrapper {
     @Override
     protected JComponent createCenterPanel() {
 
-        GridBag gridBag = new GridBag();
-        gridBag.setDefaultInsets(JBUI.insets(0, 0, AbstractLayout.DEFAULT_VGAP, AbstractLayout.DEFAULT_HGAP));
-        gridBag.setDefaultWeightX(1.0);
-        gridBag.setDefaultFill(GridBagConstraints.HORIZONTAL);
+        panel.setPreferredSize(new Dimension(500,200));
 
-        panel.setPreferredSize(new Dimension(400,200));
+        addElementToPanel(getLabel("Pattern Name"));
+        addElementToPanel(patternName);
+        addElementToPanel(getLabel("Intent"));
+        addElementToPanel(patternIntent);
+        addCollaborationHeaderToPanel();
 
-        panel.add(getLabel("Pattern Name"), gridBag.nextLine().next().weightx(0.2));
-        panel.add(patternName, gridBag.nextLine().next().weightx(0.2));
-        panel.add(getLabel("Intent"), gridBag.nextLine().next().weightx(0.2));
-        panel.add(patternIntent, gridBag.nextLine().next().weightx(0.2));
-        panel.add(getLabel("Collaborations"), gridBag.nextLine().next().weightx(0.2));
-        panel.add(patternCollaborations, gridBag.nextLine().next().weightx(0.2));
+        for(int i= 0; i < 3; i++) {
+            addCollaborationRowToPanel();
+        }
+
+        addCollabRowBtn.addActionListener(e -> {
+            addCollaborationRowToPanel();
+            panel.revalidate();
+        });
 
         return panel;
+    }
+
+    private void addElementToPanel(JComponent jComponent){
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 4;
+        c.gridx = 0;
+        c.gridy = gridHeight;
+        c.insets = JBUI.insetsBottom(5);
+        panel.add(jComponent, c);
+
+        gridHeight++;
+    }
+
+    private void addCollaborationHeaderToPanel(){
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 2;
+        c.gridx = 0;
+        c.gridy = gridHeight;
+        c.insets = JBUI.insets(5,0,5,0);
+        panel.add(getLabel("Collaborations (Class -> Role)"), c);
+
+        c.gridx = 2;
+        c.gridy = gridHeight;
+        panel.add(addCollabRowBtn,c);
+
+        gridHeight++;
+    }
+
+    private void addCollaborationRowToPanel(){
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0.5;
+        JTextField object = new JTextField();
+        c.gridwidth = 1;
+        c.gridx = 0;
+        c.gridy = gridHeight;
+        panel.add(object, c);
+
+        c.weightx = 0.0;
+        c.gridx = 1;
+        JLabel arrow = getLabel("->");
+        panel.add(arrow, c);
+
+        JTextField role = new JTextField();
+        c.weightx = 1.0;
+        c.gridx = 2;
+        panel.add(role, c);
+
+        JButton deleteRowBtn = new JButton("X");
+        c.weightx = 0.0;
+        c.gridx = 3;
+        panel.add(deleteRowBtn,c);
+
+        CollaborationListItem listItem = new CollaborationListItem(object, role);
+        collaborationList.add(listItem);
+
+        deleteRowBtn.addActionListener(e -> {
+            panel.remove(object);
+            panel.remove(arrow);
+            panel.remove(role);
+            panel.remove(deleteRowBtn);
+            panel.revalidate();
+            panel.repaint();
+            gridHeight--;
+            collaborationList.remove(listItem);
+        });
+
+        gridHeight++;
+    }
+
+    @Nullable
+    @Override
+    protected ValidationInfo doValidate() {
+        String name = patternName.getText();
+        if(name.equals("")){
+            return new ValidationInfo("This field is mandatory!", patternName);
+        }
+
+        if(collaborationList.isEmpty()){
+            return new ValidationInfo("There must be at least one collaboration row!", addCollabRowBtn);
+        }
+
+        for(CollaborationListItem listItem : collaborationList){
+            String className = listItem.getClassName().getText();
+            String role = listItem.getRole().getText();
+
+            if(className.equals("")){
+                return new ValidationInfo("This field is mandatory! If you do not need the row, consider removing it.", listItem.getClassName());
+            }
+            else if(role.equals("")){
+                return new ValidationInfo("This field is mandatory! If you do not need the row, consider removing it.", listItem.getRole());
+            }
+        }
+
+        return null;
     }
 
     @Override
     protected void doOKAction() {
         String name = patternName.getText();
         String intent = patternIntent.getText();
-        String collaborations = patternCollaborations.getText();
+
+        Map<String, Set<String>> roleObjects = new HashMap<>();
+        Map<String, Set<String>> objectRoles = new HashMap<>();
+        for(CollaborationListItem listItem : collaborationList){
+            String className = listItem.getClassName().getText();
+            String role = listItem.getRole().getText();
+
+            Set<String> roles = new HashSet<>();
+            if(objectRoles.containsKey(className)){
+                roles = objectRoles.get(className);
+            }
+
+            roles.add(role);
+            objectRoles.put(className, roles);
+
+            Set<String> objects = new HashSet<>();
+            if(roleObjects.containsKey(role)){
+                objects = roleObjects.get(role);
+            }
+
+            objects.add(className);
+            roleObjects.put(role, objects);
+        }
+
+        PatternInstance patternInstance = new PatternInstance(name, intent, roleObjects, objectRoles);
+
+        PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
+        ConcurrentHashMap<String, PatternInstance> patternInstanceById = persistentState.getPatternInstanceById();
+
+        String id = generatePatternInstanceId(patternInstanceById);
+        persistentState.storePatternInstanceIfAbsent(id, patternInstance);
+
         System.out.println("");
         close(OK_EXIT_CODE);
+    }
+
+
+    private String generatePatternInstanceId(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
+        String id;
+        do {
+            id = Utils.generateAlphaNumericString();
+        } while (patternInstanceById.containsKey(id));
+
+        return id;
     }
 
     private JBLabel getLabel(String text){
