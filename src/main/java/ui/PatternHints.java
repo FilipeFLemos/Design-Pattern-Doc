@@ -52,6 +52,7 @@ public class PatternHints extends EditorLinePainter {
                 continue;
 
             String className = psiElement.getText();
+            boolean addedClassName = false;
 
             for (Map.Entry<String, PatternInstance> entry : hints.entrySet()) {
                 PatternInstance patternInstance = entry.getValue();
@@ -62,7 +63,13 @@ public class PatternHints extends EditorLinePainter {
                     continue;
                 }
 
-                lineHint.append("  ").append(className).append(" -> ");
+                if(!addedClassName) {
+                    lineHint.append("  ").append(className).append(" -> ");
+                    addedClassName = true;
+                }
+                else{
+                    lineHint.append(", ");
+                }
 
                 Set<String> roles = objectRoles.get(psiElement.getText());
                 int index = 0;
