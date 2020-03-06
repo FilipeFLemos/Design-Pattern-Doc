@@ -1,5 +1,6 @@
 package ui;
 
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.components.JBLabel;
@@ -24,10 +25,12 @@ public class DocumentDialog extends DialogWrapper {
     private JTextArea patternIntent;
     private JButton addCollabRowBtn;
     private ArrayList<CollaborationListItem> collaborationList;
+    private JComboBox jComboBox;
 
     private int gridHeight = 0;
+    private boolean editingDocumentation = false;
 
-    public DocumentDialog(boolean canBeParent) {
+    public DocumentDialog(boolean canBeParent, boolean editingDocumentation) {
         super(canBeParent);
 
         panel = new JPanel(new GridBagLayout());
@@ -36,6 +39,8 @@ public class DocumentDialog extends DialogWrapper {
         patternIntent.setLineWrap(true);
         addCollabRowBtn = new JButton("Add Row");
         collaborationList = new ArrayList<>();
+
+        this.editingDocumentation = editingDocumentation;
 
         init();
         setTitle("Document Pattern Instance");
@@ -47,13 +52,35 @@ public class DocumentDialog extends DialogWrapper {
 
         panel.setPreferredSize(new Dimension(500,200));
 
+        int numOfCollaborationRows = 3;
+
+        if(editingDocumentation){
+            PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
+            ConcurrentHashMap<String, PatternInstance> patternInstanceById = persistentState.getPatternInstanceById();
+
+            //TODO if there is no pattern instance stored
+
+            String[] patternInstancesIds = new String[patternInstanceById.size()];
+            int index = 0;
+            for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
+                patternInstancesIds[index] = entry.getKey();
+            }
+            jComboBox = new ComboBox(patternInstancesIds);
+
+            String id = (String) jComboBox.getSelectedItem();
+            numOfCollaborationRows = patternInstanceById.get(id).getCollaborationRows().size()/2;
+
+            addElementToPanel(getLabel("Stored Pattern Instances"));
+            addElementToPanel(jComboBox);
+        }
+
         addElementToPanel(getLabel("Pattern Name"));
         addElementToPanel(patternName);
         addElementToPanel(getLabel("Intent"));
         addElementToPanel(patternIntent);
         addCollaborationHeaderToPanel();
 
-        for(int i= 0; i < 3; i++) {
+        for(int i= 0; i < numOfCollaborationRows; i++) {
             addCollaborationRowToPanel();
         }
 
@@ -62,7 +89,39 @@ public class DocumentDialog extends DialogWrapper {
             panel.revalidate();
         });
 
+
+        if(editingDocumentation){
+            fillFields();
+        }
+
         return panel;
+    }
+
+    private void fillFields() {
+        PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
+        ConcurrentHashMap<String, PatternInstance> patternInstanceById = persistentState.getPatternInstanceById();
+
+        String id = (String) jComboBox.getSelectedItem();
+        PatternInstance patternInstance = patternInstanceById.get(id);
+
+        patternName.setText(patternInstance.getPatternName());
+        patternIntent.setText(patternInstance.getIntent());
+
+
+        ArrayList<String> collaborationRows = patternInstance.getCollaborationRows();
+        int index = 0;
+        for(CollaborationListItem listItem : collaborationList){
+            JTextField classNameField = listItem.getClassName();
+            JTextField roleField = listItem.getRole();
+
+            String className = collaborationRows.get(index);
+            String role = collaborationRows.get(index+1);
+
+            classNameField.setText(className);
+            roleField.setText(role);
+
+            index += 2;
+        }
     }
 
     private void addElementToPanel(JComponent jComponent){
@@ -195,10 +254,15 @@ public class DocumentDialog extends DialogWrapper {
         PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
         ConcurrentHashMap<String, PatternInstance> patternInstanceById = persistentState.getPatternInstanceById();
 
-        String id = generatePatternInstanceId(patternInstanceById);
-        persistentState.storePatternInstanceIfAbsent(id, patternInstance);
 
-        System.out.println("");
+        if(editingDocumentation){
+            String id = (String) jComboBox.getSelectedItem();
+            persistentState.updatePatternInstance(id, patternInstance);
+        }else {
+            String id = generatePatternInstanceId(patternInstanceById);
+            persistentState.storePatternInstanceIfAbsent(id, patternInstance);
+        }
+
         close(OK_EXIT_CODE);
     }
 

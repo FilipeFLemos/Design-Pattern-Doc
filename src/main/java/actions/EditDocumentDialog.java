@@ -4,10 +4,10 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import ui.DocumentDialog;
 
-public class DocumentPatternAction extends AnAction {
+public class EditDocumentDialog extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
-        if(new DocumentDialog(true, false).showAndGet()){
+        if(new DocumentDialog(true, true).showAndGet()){
             //ok
         }
     }

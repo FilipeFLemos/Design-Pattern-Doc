@@ -1,6 +1,7 @@
 package models;
 
 import java.io.Serializable;
+import java.sql.Array;
 import java.util.*;
 
 public class PatternInstance implements Serializable {
@@ -73,6 +74,22 @@ public class PatternInstance implements Serializable {
             roleObjects.put(role, objects);
             addRoleToObject(object,role);
         }
+    }
+
+    public ArrayList<String> getCollaborationRows(){
+        ArrayList<String> collaborationRows = new ArrayList<>();
+
+        for (Map.Entry<String, Set<String>> entry : objectRoles.entrySet()) {
+            String className = entry.getKey();
+            Set<String> roles = entry.getValue();
+
+            for(String role : roles){
+                collaborationRows.add(className);
+                collaborationRows.add(role);
+            }
+        }
+
+        return collaborationRows;
     }
 
     public void setIntent(String intent) {
