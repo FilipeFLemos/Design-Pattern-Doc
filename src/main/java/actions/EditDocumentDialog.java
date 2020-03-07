@@ -6,7 +6,8 @@ import com.intellij.openapi.ui.Messages;
 import models.PatternInstance;
 import storage.PersistentState;
 import storage.PluginState;
-import ui.DocumentDialog;
+import ui.DocumentationDialog;
+import ui.EditDocumentationDialog;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,7 +25,7 @@ public class EditDocumentDialog extends AnAction {
             return;
         }
 
-        DocumentDialog documentDialog = new DocumentDialog(true, true);
+        DocumentationDialog documentDialog = new EditDocumentationDialog(true);
         documentDialog.show();
         if(documentDialog.getExitCode() == NEXT_USER_EXIT_CODE){
             Messages.showMessageDialog(e.getProject(), "The selected pattern instance documentation was deleted from the persistent storage!", "Info", Messages.getInformationIcon());
