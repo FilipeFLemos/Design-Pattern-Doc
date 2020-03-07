@@ -8,6 +8,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import models.CollaborationListItem;
 import models.PatternInstance;
+import models.Relation;
 import org.jetbrains.annotations.Nullable;
 import storage.PersistentState;
 import storage.PluginState;
@@ -29,6 +30,7 @@ public class DocumentDialog extends DialogWrapper {
 
     private int gridHeight = 0;
     private boolean editingDocumentation = false;
+    private final int DEFAULT_NUM_ROWS = 3;
 
     public DocumentDialog(boolean canBeParent, boolean editingDocumentation) {
         super(canBeParent);
@@ -52,23 +54,17 @@ public class DocumentDialog extends DialogWrapper {
 
         panel.setPreferredSize(new Dimension(500,200));
 
-        int numOfCollaborationRows = 3;
+        int numOfCollaborationRows = DEFAULT_NUM_ROWS;
 
         if(editingDocumentation){
             PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
             ConcurrentHashMap<String, PatternInstance> patternInstanceById = persistentState.getPatternInstanceById();
 
-            //TODO if there is no pattern instance stored
-
-            String[] patternInstancesIds = new String[patternInstanceById.size()];
-            int index = 0;
-            for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
-                patternInstancesIds[index] = entry.getKey();
-            }
-            jComboBox = new ComboBox(patternInstancesIds);
+            setJComboBox(patternInstanceById);
+            setJComboListener(patternInstanceById);
 
             String id = (String) jComboBox.getSelectedItem();
-            numOfCollaborationRows = patternInstanceById.get(id).getCollaborationRows().size()/2;
+            numOfCollaborationRows = patternInstanceById.get(id).getCollaborationRows().size();
 
             addElementToPanel(getLabel("Stored Pattern Instances"));
             addElementToPanel(jComboBox);
@@ -79,10 +75,7 @@ public class DocumentDialog extends DialogWrapper {
         addElementToPanel(getLabel("Intent"));
         addElementToPanel(patternIntent);
         addCollaborationHeaderToPanel();
-
-        for(int i= 0; i < numOfCollaborationRows; i++) {
-            addCollaborationRowToPanel();
-        }
+        addCollaborationListToPanel(numOfCollaborationRows);
 
         addCollabRowBtn.addActionListener(e -> {
             addCollaborationRowToPanel();
@@ -97,6 +90,35 @@ public class DocumentDialog extends DialogWrapper {
         return panel;
     }
 
+    private void setJComboListener(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
+        jComboBox.addActionListener(e->{
+            String id = (String) jComboBox.getSelectedItem();
+            int numRows = patternInstanceById.get(id).getCollaborationRows().size();
+            removeCollaborationRoles();
+            addCollaborationListToPanel(numRows);
+            fillFields();
+            panel.revalidate();
+            panel.repaint();
+        });
+    }
+
+    private void setJComboBox(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
+        String[] patternInstancesIds = new String[patternInstanceById.size()];
+        int index = 0;
+        for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
+            patternInstancesIds[index] = entry.getKey();
+            index++;
+        }
+        jComboBox = new ComboBox(patternInstancesIds);
+    }
+
+    private void addCollaborationListToPanel(int numOfCollaborationRows) {
+        for (int i = 0; i < numOfCollaborationRows; i++) {
+            addCollaborationRowToPanel();
+        }
+    }
+
+
     private void fillFields() {
         PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
         ConcurrentHashMap<String, PatternInstance> patternInstanceById = persistentState.getPatternInstanceById();
@@ -107,20 +129,20 @@ public class DocumentDialog extends DialogWrapper {
         patternName.setText(patternInstance.getPatternName());
         patternIntent.setText(patternInstance.getIntent());
 
-
-        ArrayList<String> collaborationRows = patternInstance.getCollaborationRows();
+        ArrayList<Relation> collaborationRows = patternInstance.getCollaborationRows();
         int index = 0;
         for(CollaborationListItem listItem : collaborationList){
             JTextField classNameField = listItem.getClassName();
             JTextField roleField = listItem.getRole();
 
-            String className = collaborationRows.get(index);
-            String role = collaborationRows.get(index+1);
+            Relation relation = collaborationRows.get(index);
+            String className = relation.getObject1();
+            String role = relation.getObject2();
 
             classNameField.setText(className);
             roleField.setText(role);
 
-            index += 2;
+            index++;
         }
     }
 
@@ -177,7 +199,7 @@ public class DocumentDialog extends DialogWrapper {
         c.gridx = 3;
         panel.add(deleteRowBtn,c);
 
-        CollaborationListItem listItem = new CollaborationListItem(object, role);
+        CollaborationListItem listItem = new CollaborationListItem(object, role, arrow, deleteRowBtn);
         collaborationList.add(listItem);
 
         deleteRowBtn.addActionListener(e -> {
@@ -192,6 +214,24 @@ public class DocumentDialog extends DialogWrapper {
         });
 
         gridHeight++;
+    }
+
+    private void removeCollaborationRoles(){
+        for(CollaborationListItem listItem : collaborationList){
+            JTextField className = listItem.getClassName();
+            JTextField role = listItem.getRole();
+            JLabel jLabel = listItem.getjLabel();
+            JButton jButton = listItem.getjButton();
+
+            panel.remove(className);
+            panel.remove(role);
+            panel.remove(jLabel);
+            panel.remove(jButton);
+        }
+
+        gridHeight -= collaborationList.size();
+        collaborationList = new ArrayList<>();
+
     }
 
     @Nullable

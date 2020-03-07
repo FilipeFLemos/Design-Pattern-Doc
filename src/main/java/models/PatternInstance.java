@@ -76,16 +76,16 @@ public class PatternInstance implements Serializable {
         }
     }
 
-    public ArrayList<String> getCollaborationRows(){
-        ArrayList<String> collaborationRows = new ArrayList<>();
+    public ArrayList<Relation> getCollaborationRows(){
+        ArrayList<Relation> collaborationRows = new ArrayList<>();
 
         for (Map.Entry<String, Set<String>> entry : objectRoles.entrySet()) {
             String className = entry.getKey();
             Set<String> roles = entry.getValue();
 
             for(String role : roles){
-                collaborationRows.add(className);
-                collaborationRows.add(role);
+                Relation relation = new Relation(className, role);
+                collaborationRows.add(relation);
             }
         }
 
