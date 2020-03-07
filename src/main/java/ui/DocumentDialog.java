@@ -2,7 +2,10 @@ package ui;
 
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
@@ -26,10 +29,11 @@ public class DocumentDialog extends DialogWrapper {
     private JTextArea patternIntent;
     private JButton addCollabRowBtn;
     private ArrayList<CollaborationListItem> collaborationList;
-    private JComboBox jComboBox;
+    private ComboBox jComboBox;
+    private JButton deletePatternInstance;
 
     private int gridHeight = 0;
-    private boolean editingDocumentation = false;
+    private boolean editingDocumentation;
     private final int DEFAULT_NUM_ROWS = 3;
 
     public DocumentDialog(boolean canBeParent, boolean editingDocumentation) {
@@ -45,7 +49,13 @@ public class DocumentDialog extends DialogWrapper {
         this.editingDocumentation = editingDocumentation;
 
         init();
-        setTitle("Document Pattern Instance");
+
+        if(editingDocumentation){
+            setTitle("Edit Pattern Instance Documentation");
+        }
+        else {
+            setTitle("Document Pattern Instance");
+        }
     }
 
     @Nullable
@@ -67,7 +77,7 @@ public class DocumentDialog extends DialogWrapper {
             numOfCollaborationRows = patternInstanceById.get(id).getCollaborationRows().size();
 
             addElementToPanel(getLabel("Stored Pattern Instances"));
-            addElementToPanel(jComboBox);
+            addPatternInstancesHeaderToPanel();
         }
 
         addElementToPanel(getLabel("Pattern Name"));
@@ -88,6 +98,36 @@ public class DocumentDialog extends DialogWrapper {
         }
 
         return panel;
+    }
+
+    private void addPatternInstancesHeaderToPanel() {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 3;
+        c.gridx = 0;
+        c.gridy = gridHeight;
+        c.insets = JBUI.insetsBottom(5);
+        panel.add(jComboBox, c);
+
+        deletePatternInstance = new JButton("DELETE");
+        setDeletePatternInstanceDocListener();
+
+        c.gridx = 3;
+        c.insets = JBUI.insetsLeft(5);
+        panel.add(deletePatternInstance,c);
+
+        gridHeight++;
+    }
+
+    private void setDeletePatternInstanceDocListener() {
+        deletePatternInstance.addActionListener(e -> {
+            PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
+
+            String id = (String) jComboBox.getSelectedItem();
+            persistentState.deletePatternInstance(id);
+
+            close(NEXT_USER_EXIT_CODE);
+        });
     }
 
     private void setJComboListener(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
@@ -121,10 +161,9 @@ public class DocumentDialog extends DialogWrapper {
 
     private void fillFields() {
         PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
-        ConcurrentHashMap<String, PatternInstance> patternInstanceById = persistentState.getPatternInstanceById();
 
         String id = (String) jComboBox.getSelectedItem();
-        PatternInstance patternInstance = patternInstanceById.get(id);
+        PatternInstance patternInstance = persistentState.getPatternInstance(id);
 
         patternName.setText(patternInstance.getPatternName());
         patternIntent.setText(patternInstance.getIntent());
@@ -161,14 +200,13 @@ public class DocumentDialog extends DialogWrapper {
     private void addCollaborationHeaderToPanel(){
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridwidth = 2;
+        c.gridwidth = 3;
         c.gridx = 0;
         c.gridy = gridHeight;
         c.insets = JBUI.insets(5,0,5,0);
         panel.add(getLabel("Collaborations (Class -> Role)"), c);
 
-        c.gridx = 2;
-        c.gridy = gridHeight;
+        c.gridx = 3;
         panel.add(addCollabRowBtn,c);
 
         gridHeight++;
@@ -201,19 +239,15 @@ public class DocumentDialog extends DialogWrapper {
 
         CollaborationListItem listItem = new CollaborationListItem(object, role, arrow, deleteRowBtn);
         collaborationList.add(listItem);
+        gridHeight++;
 
         deleteRowBtn.addActionListener(e -> {
-            panel.remove(object);
-            panel.remove(arrow);
-            panel.remove(role);
-            panel.remove(deleteRowBtn);
+            removeCollaborationRowObjects(object,role,arrow,deleteRowBtn);
             panel.revalidate();
             panel.repaint();
             gridHeight--;
             collaborationList.remove(listItem);
         });
-
-        gridHeight++;
     }
 
     private void removeCollaborationRoles(){
@@ -223,16 +257,21 @@ public class DocumentDialog extends DialogWrapper {
             JLabel jLabel = listItem.getjLabel();
             JButton jButton = listItem.getjButton();
 
-            panel.remove(className);
-            panel.remove(role);
-            panel.remove(jLabel);
-            panel.remove(jButton);
+            removeCollaborationRowObjects(className, role, jLabel, jButton);
         }
 
         gridHeight -= collaborationList.size();
         collaborationList = new ArrayList<>();
 
     }
+
+    private void removeCollaborationRowObjects(JTextField className, JTextField role, JLabel jLabel, JButton jButton) {
+        panel.remove(className);
+        panel.remove(role);
+        panel.remove(jLabel);
+        panel.remove(jButton);
+    }
+
 
     @Nullable
     @Override

@@ -10,6 +10,8 @@ import ui.DocumentDialog;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.intellij.openapi.ui.DialogWrapper.NEXT_USER_EXIT_CODE;
+
 public class EditDocumentDialog extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
@@ -18,12 +20,14 @@ public class EditDocumentDialog extends AnAction {
         ConcurrentHashMap<String, PatternInstance> patternInstanceById = persistentState.getPatternInstanceById();
 
         if(patternInstanceById == null || patternInstanceById.isEmpty()){
-            Messages.showMessageDialog(e.getProject(), "You need at least one pattern instance stored to use this feature!", "Warning", Messages.getInformationIcon());
+            Messages.showMessageDialog(e.getProject(), "You need at least one pattern instance stored to use this feature!", "Info", Messages.getInformationIcon());
             return;
         }
 
-        if(new DocumentDialog(true, true).showAndGet()){
-            //ok
+        DocumentDialog documentDialog = new DocumentDialog(true, true);
+        documentDialog.show();
+        if(documentDialog.getExitCode() == NEXT_USER_EXIT_CODE){
+            Messages.showMessageDialog(e.getProject(), "The selected pattern instance documentation was deleted from the persistent storage!", "Info", Messages.getInformationIcon());
         }
     }
 }

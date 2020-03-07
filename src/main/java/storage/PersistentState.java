@@ -2,9 +2,7 @@ package storage;
 
 import models.PatternInstance;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -22,6 +20,10 @@ public class PersistentState{
 
     public PatternInstance getPatternInstance(String id){
         return patternInstanceById.get(id);
+    }
+
+    public void deletePatternInstance(String id){
+        patternInstanceById.remove(id);
     }
 
     public void updatePatternInstance(String id, PatternInstance patternInstance){

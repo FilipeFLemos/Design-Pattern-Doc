@@ -7,8 +7,6 @@ import ui.DocumentDialog;
 public class DocumentPatternAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
-        if(new DocumentDialog(true, false).showAndGet()){
-            //ok
-        }
+        new DocumentDialog(true, false).showAndGet();
     }
 }
