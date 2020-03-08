@@ -20,6 +20,10 @@ public class EditDocumentationDialog extends DocumentationDialog{
     private ComboBox jComboBox;
     private JButton deletePatternInstance;
 
+    PersistentState persistentState;
+    ConcurrentHashMap<String, PatternInstance> patternInstanceById;
+
+
     public EditDocumentationDialog(boolean canBeParent) {
         super(canBeParent);
         setTitle("Edit Pattern Instance Documentation");
@@ -28,24 +32,41 @@ public class EditDocumentationDialog extends DocumentationDialog{
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        panel.setPreferredSize(new Dimension(500,200));
+        try{
+            setPersistentStorage();
+            setPatternInstanceById();
+            panel.setPreferredSize(new Dimension(500,200));
 
-        PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
-        ConcurrentHashMap<String, PatternInstance> patternInstanceById = persistentState.getPatternInstanceById();
+            setJComboBox();
+            setJComboListener();
+            setSelectedPatternInstanceNumCollaborationRows();
 
-        setJComboBox(patternInstanceById);
-        setJComboListener(patternInstanceById);
+            addElementToPanel(getLabel("Stored Pattern Instances"));
+            addPatternInstancesHeaderToPanel();
+            addDocumentationInvariableBody();
 
-        String id = (String) jComboBox.getSelectedItem();
-        numOfCollaborationRows = patternInstanceById.get(id).getCollaborationRows().size();
+            fillFields();
+        }catch(Exception ignored){
 
-        addElementToPanel(getLabel("Stored Pattern Instances"));
-        addPatternInstancesHeaderToPanel();
-        addDocumentationInvariableBody();
-
-        fillFields();
+        }
 
         return panel;
+    }
+
+    private void setNumCollaborationRows(int value) {
+        numCollaborationRows = value;
+    }
+
+    private void setPersistentStorage() throws NullPointerException {
+        this.persistentState = (PersistentState) PluginState.getInstance().getState();
+        if(this.persistentState == null)
+            throw new NullPointerException();
+    }
+
+    private void setPatternInstanceById() throws NullPointerException {
+        this.patternInstanceById = persistentState.getPatternInstanceById();
+        if(this.patternInstanceById == null)
+            throw new NullPointerException();
     }
 
     private void addPatternInstancesHeaderToPanel() {
@@ -68,29 +89,34 @@ public class EditDocumentationDialog extends DocumentationDialog{
     }
 
     private void setDeletePatternInstanceDocListener() {
-        deletePatternInstance.addActionListener(e -> {
-            PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
-
-            String id = (String) jComboBox.getSelectedItem();
+        deletePatternInstance.addActionListener(e ->
+        {
+            String id = getSelectedPatternInstanceId();
             persistentState.deletePatternInstance(id);
-
             close(NEXT_USER_EXIT_CODE);
         });
     }
 
-    private void setJComboListener(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
-        jComboBox.addActionListener(e->{
-            String id = (String) jComboBox.getSelectedItem();
-            int numRows = patternInstanceById.get(id).getCollaborationRows().size();
+    private void setJComboListener() {
+        jComboBox.addActionListener(e->
+        {
+            setSelectedPatternInstanceNumCollaborationRows();
+
             removeCollaborationRoles();
-            addCollaborationListToPanel(numRows);
+            addCollaborationListToPanel();
             fillFields();
             panel.revalidate();
             panel.repaint();
         });
     }
 
-    private void setJComboBox(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
+    private void setSelectedPatternInstanceNumCollaborationRows() {
+        String id = getSelectedPatternInstanceId();
+        int numRows = patternInstanceById.get(id).getCollaborationRows().size();
+        setNumCollaborationRows(numRows);
+    }
+
+    private void setJComboBox() {
         String[] patternInstancesIds = new String[patternInstanceById.size()];
         int index = 0;
         for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
@@ -100,15 +126,16 @@ public class EditDocumentationDialog extends DocumentationDialog{
         jComboBox = new ComboBox(patternInstancesIds);
     }
 
-    private void fillFields() {
-        PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
-
-        String id = (String) jComboBox.getSelectedItem();
+    private void fillFields(){
+        String id = getSelectedPatternInstanceId();
         PatternInstance patternInstance = persistentState.getPatternInstance(id);
 
         patternName.setText(patternInstance.getPatternName());
         patternIntent.setText(patternInstance.getIntent());
+        fillCollaborationRows(patternInstance);
+    }
 
+    private void fillCollaborationRows(PatternInstance patternInstance) {
         ArrayList<Relation> collaborationRows = patternInstance.getCollaborationRows();
         int index = 0;
         for(CollaborationListItem listItem : collaborationList){
@@ -129,12 +156,16 @@ public class EditDocumentationDialog extends DocumentationDialog{
     @Override
     protected void doOKAction() {
         PatternInstance patternInstance = generatePatternInstanceFromUserInput();
+        String id = getSelectedPatternInstanceId();
 
-        PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
-
-        String id = (String) jComboBox.getSelectedItem();
         persistentState.updatePatternInstance(id, patternInstance);
-
         close(OK_EXIT_CODE);
+    }
+
+    private String getSelectedPatternInstanceId() throws NullPointerException {
+        String id = (String) jComboBox.getSelectedItem();
+        if (id == null)
+            throw new NullPointerException();
+        return id;
     }
 }

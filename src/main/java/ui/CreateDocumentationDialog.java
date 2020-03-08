@@ -22,7 +22,7 @@ public class CreateDocumentationDialog extends DocumentationDialog{
     protected JComponent createCenterPanel() {
         panel.setPreferredSize(new Dimension(500,200));
 
-        numOfCollaborationRows = DEFAULT_NUM_ROWS;
+        numCollaborationRows = DEFAULT_NUM_ROWS;
 
         addDocumentationInvariableBody();
 

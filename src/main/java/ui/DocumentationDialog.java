@@ -24,7 +24,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
 
     protected int gridHeight = 0;
     protected final int DEFAULT_NUM_ROWS = 3;
-    protected int numOfCollaborationRows;
+    protected int numCollaborationRows;
 
     public DocumentationDialog(boolean canBeParent) {
         super(canBeParent);
@@ -49,7 +49,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
         addElementToPanel(getLabel("Intent"));
         addElementToPanel(patternIntent);
         addCollaborationHeaderToPanel();
-        addCollaborationListToPanel(numOfCollaborationRows);
+        addCollaborationListToPanel();
 
         addCollabRowBtn.addActionListener(e -> {
             addCollaborationRowToPanel();
@@ -57,8 +57,8 @@ public abstract class DocumentationDialog extends DialogWrapper {
         });
     }
 
-    protected void addCollaborationListToPanel(int numOfCollaborationRows) {
-        for (int i = 0; i < numOfCollaborationRows; i++) {
+    protected void addCollaborationListToPanel() {
+        for (int i = 0; i < numCollaborationRows; i++) {
             addCollaborationRowToPanel();
         }
     }
