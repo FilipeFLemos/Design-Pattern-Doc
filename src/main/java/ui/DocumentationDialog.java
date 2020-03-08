@@ -46,7 +46,7 @@ public class DocumentationDialog extends DialogWrapper {
         try {
             setPersistentStorage();
             setPatternInstanceById();
-        }catch(Exception ignored){
+        } catch (Exception ignored) {
 
         }
 
@@ -230,7 +230,7 @@ public class DocumentationDialog extends DialogWrapper {
         updateMapStringSet(className, role, objectRoles);
     }
 
-    private void updateMapStringSet(String mapKey, String newSetElement, Map<String, Set<String>> map){
+    private void updateMapStringSet(String mapKey, String newSetElement, Map<String, Set<String>> map) {
         Set<String> mapValue = new HashSet<>();
         if (map.containsKey(mapKey)) {
             mapValue = map.get(mapKey);

@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import models.PatternInstance;
 import org.jetbrains.annotations.Nullable;
+import storage.PersistentState;
 import storage.PluginState;
 
 import java.util.ArrayList;
@@ -14,6 +15,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PatternDocumentation implements DocumentationProvider{
+
+    private String documentationText;
+    private String className;
+    private StringBuilder documentationTextBuilder;
+    private ConcurrentHashMap<String, PatternInstance> persistedPatternInstances;
 
     @Nullable
     @Override
@@ -48,71 +54,123 @@ public class PatternDocumentation implements DocumentationProvider{
 
     private String getDocumentationText(PsiElement psiElement){
 
-        String className = psiElement.toString().split(":")[1];
+        try {
+            documentationTextBuilder = new StringBuilder();
+            className = psiElement.toString().split(":")[1];
+            persistedPatternInstances = getPersistedPatternInstances();
 
-        PluginState pluginState = (PluginState) PluginState.getInstance();
-        ConcurrentHashMap<String, PatternInstance> persistedPatternInstances = pluginState.getState().getPatternInstanceById();
-        if(persistedPatternInstances == null)
-            return null;
+            generatePatternInstancesDocumentationForClass();
+            if(!documentationTextBuilder.toString().equals("")){
+                documentationText = documentationTextBuilder.toString();
+            }
+        }catch (Exception ignored){
 
-        StringBuilder documentationText = new StringBuilder();
+        }
 
+        return documentationText;
+    }
+
+    private ConcurrentHashMap<String, PatternInstance> getPersistedPatternInstances() throws NullPointerException{
+        PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
+        if(persistentState == null){
+            throw new NullPointerException();
+        }
+        return persistentState.getPatternInstanceById();
+    }
+
+    private void generatePatternInstancesDocumentationForClass() {
         for (Map.Entry<String, PatternInstance> patternInstanceEntry : persistedPatternInstances.entrySet()) {
             PatternInstance patternInstance = patternInstanceEntry.getValue();
             String patternName = patternInstance.getPatternName();
 
             Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
-            if(!objectRoles.containsKey(className)){
-                continue;
+            try {
+                classPlaysRoleInPatternInstance(objectRoles);
+                includeSeparationBetweenPatternInstances();
+                includeClassPlayedRoles(objectRoles);
+                includePatternName(patternName);
+                includePatternInstanceIntent(patternInstance);
+                includePatternInstanceRolesHeader();
+                includePatternInstanceCollaborations(patternInstance);
+            }catch (Exception ignored){
+
             }
-
-            if(!documentationText.toString().equals("")){
-                documentationText.append("\n\n\n<br><br><br>");
-            }
-
-            Set<String> roles = objectRoles.get(className);
-            for(String role : roles){
-                documentationText.append("This class plays the role <b><u>").append(role).append("</b></u> of the <b><u>").append(patternName).append("</b></u> Design Pattern.");
-            }
-
-            String patternIntent = patternInstance.getIntent();
-            if(!patternIntent.equals("")){
-                documentationText.append("\n\n<br><br>").append("<b>Intent: </b>").append(patternIntent);
-            }
-
-            String collaborations = patternInstance.getCollaborations();
-            if(!collaborations.equals("")){
-                documentationText.append("\n\n<br><br>").append("<b>Collaborations: </b>").append(collaborations);
-            }
-
-            documentationText.append("\n\n<br><br>").append("<b>Roles:</b>");
-
-            Map<String, Set<String>> objectsByRole = patternInstance.getRoleObjects();
-            for (Map.Entry<String, Set<String>> objectsByRoleEntry : objectsByRole.entrySet()) {
-                String patternRole = objectsByRoleEntry.getKey();
-                Set<String> objectsPlayingRole = objectsByRoleEntry.getValue();
-
-                documentationText.append("\n<br><u>").append(patternRole).append("</u> - ");
-
-                int i = 0;
-                for(String objectPlayingRole : objectsPlayingRole){
-                    if(i == objectsPlayingRole.size() - 1){
-                        documentationText.append(objectPlayingRole);
-                    }
-                    else {
-                        documentationText.append(objectPlayingRole).append(", ");
-                    }
-                    i++;
-                }
-            }
-        }
-
-        if(documentationText.toString().equals("")){
-            return null;
-        }
-        else{
-            return documentationText.toString();
         }
     }
 
+    private void classPlaysRoleInPatternInstance(Map<String, Set<String>> objectRoles) throws NullPointerException {
+        if(!objectRoles.containsKey(className)){
+            throw new NullPointerException();
+        }
+    }
+
+    private void includeClassPlayedRoles(Map<String, Set<String>> objectRoles) {
+        documentationTextBuilder.append("This class plays the role(s) <b><u>");
+        Set<String> roles = objectRoles.get(className);
+        int i = 0;
+        for(String role : roles){
+            if(i == roles.size() - 1){
+                documentationTextBuilder.append(role);
+            }
+            else {
+                documentationTextBuilder.append(role).append(", ");
+            }
+            i++;
+        }
+    }
+
+    private void includeSeparationBetweenPatternInstances() {
+        if(!documentationTextBuilder.toString().equals("")){
+            documentationTextBuilder.append("\n\n\n<br><br><br>");
+        }
+    }
+
+    private void includePatternName(String patternName){
+        documentationTextBuilder.append("</b></u> of the <b><u>").append(patternName).append("</b></u> Design Pattern.");
+    }
+
+    private void includePatternInstanceIntent(PatternInstance patternInstance) {
+        String patternIntent = patternInstance.getIntent();
+        if(!patternIntent.equals("")){
+            includeSeparationBetweenPatternInstanceFields();
+            documentationTextBuilder.append("<b>Intent: </b>").append(patternIntent);
+        }
+    }
+
+    private void includePatternInstanceRolesHeader() {
+        includeSeparationBetweenPatternInstanceFields();
+        documentationTextBuilder.append("<b>Roles:</b>");
+    }
+
+    private void includeSeparationBetweenPatternInstanceFields(){
+        documentationTextBuilder.append("\n\n<br><br>");
+    }
+
+    private void includePatternInstanceCollaborations(PatternInstance patternInstance) {
+        Map<String, Set<String>> objectsByRole = patternInstance.getRoleObjects();
+        for (Map.Entry<String, Set<String>> objectsByRoleEntry : objectsByRole.entrySet()) {
+            String patternRole = objectsByRoleEntry.getKey();
+            Set<String> objectsPlayingRole = objectsByRoleEntry.getValue();
+
+            includePatternInstanceRole(patternRole);
+            includeObjectsPlayingRole(objectsPlayingRole);
+        }
+    }
+
+    private void includePatternInstanceRole(String patternRole) {
+        documentationTextBuilder.append("\n<br><u>").append(patternRole).append("</u> - ");
+    }
+
+    private void includeObjectsPlayingRole(Set<String> objectsPlayingRole) {
+        int i = 0;
+        for(String objectPlayingRole : objectsPlayingRole){
+            if(i == objectsPlayingRole.size() - 1){
+                documentationTextBuilder.append(objectPlayingRole);
+            }
+            else {
+                documentationTextBuilder.append(objectPlayingRole).append(", ");
+            }
+            i++;
+        }
+    }
 }
