@@ -9,22 +9,29 @@ import models.CollaborationListItem;
 import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import storage.PersistentState;
+import storage.PluginState;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class DocumentationDialog extends DialogWrapper {
+public class DocumentationDialog extends DialogWrapper {
 
+    protected final int DEFAULT_NUM_ROWS = 3;
     protected JPanel panel;
     protected JTextField patternName;
     protected JTextArea patternIntent;
-    protected JButton addCollabRowBtn;
+    protected JButton addCollaborationRowBtn;
     protected ArrayList<CollaborationListItem> collaborationList;
-
     protected int gridHeight = 0;
-    protected final int DEFAULT_NUM_ROWS = 3;
     protected int numCollaborationRows;
+
+    protected PersistentState persistentState;
+    protected ConcurrentHashMap<String, PatternInstance> patternInstanceById;
+    private Map<String, Set<String>> roleObjects;
+    private Map<String, Set<String>> objectRoles;
 
     public DocumentationDialog(boolean canBeParent) {
         super(canBeParent);
@@ -33,17 +40,26 @@ public abstract class DocumentationDialog extends DialogWrapper {
         patternName = new JTextField();
         patternIntent = new JTextArea();
         patternIntent.setLineWrap(true);
-        addCollabRowBtn = new JButton("Add Row");
+        addCollaborationRowBtn = new JButton("Add Row");
         collaborationList = new ArrayList<>();
+
+        try {
+            setPersistentStorage();
+            setPatternInstanceById();
+        }catch(Exception ignored){
+
+        }
 
         init();
     }
 
     @Nullable
     @Override
-    protected abstract JComponent createCenterPanel();
+    protected JComponent createCenterPanel() {
+        return null;
+    }
 
-    protected void addDocumentationInvariableBody() {
+    protected void addDocumentationDialogInvariableBody() {
         addElementToPanel(getLabel("Pattern Name"));
         addElementToPanel(patternName);
         addElementToPanel(getLabel("Intent"));
@@ -51,19 +67,21 @@ public abstract class DocumentationDialog extends DialogWrapper {
         addCollaborationHeaderToPanel();
         addCollaborationListToPanel();
 
-        addCollabRowBtn.addActionListener(e -> {
+        addCollaborationRowBtn.addActionListener(e -> {
             addCollaborationRowToPanel();
-            panel.revalidate();
+            updatePanel();
         });
     }
 
-    protected void addCollaborationListToPanel() {
-        for (int i = 0; i < numCollaborationRows; i++) {
-            addCollaborationRowToPanel();
-        }
+    protected JBLabel getLabel(String text) {
+        JBLabel jLabel = new JBLabel(text);
+        jLabel.setComponentStyle(UIUtil.ComponentStyle.SMALL);
+        jLabel.setFontColor(UIUtil.FontColor.BRIGHTER);
+        jLabel.setBorder(JBUI.Borders.empty(0, 5, 2, 0));
+        return jLabel;
     }
 
-    protected void addElementToPanel(JComponent jComponent){
+    protected void addElementToPanel(JComponent jComponent) {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridwidth = 4;
@@ -75,22 +93,28 @@ public abstract class DocumentationDialog extends DialogWrapper {
         gridHeight++;
     }
 
-    protected void addCollaborationHeaderToPanel(){
+    protected void addCollaborationHeaderToPanel() {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridwidth = 3;
         c.gridx = 0;
         c.gridy = gridHeight;
-        c.insets = JBUI.insets(5,0,5,0);
+        c.insets = JBUI.insets(5, 0, 5, 0);
         panel.add(getLabel("Collaborations (Class -> Role)"), c);
 
         c.gridx = 3;
-        panel.add(addCollabRowBtn,c);
+        panel.add(addCollaborationRowBtn, c);
 
         gridHeight++;
     }
 
-    protected void addCollaborationRowToPanel(){
+    protected void addCollaborationListToPanel() {
+        for (int i = 0; i < numCollaborationRows; i++) {
+            addCollaborationRowToPanel();
+        }
+    }
+
+    protected void addCollaborationRowToPanel() {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 0.5;
@@ -113,71 +137,65 @@ public abstract class DocumentationDialog extends DialogWrapper {
         JButton deleteRowBtn = new JButton("X");
         c.weightx = 0.0;
         c.gridx = 3;
-        panel.add(deleteRowBtn,c);
+        panel.add(deleteRowBtn, c);
 
         CollaborationListItem listItem = new CollaborationListItem(object, role, arrow, deleteRowBtn);
         collaborationList.add(listItem);
         gridHeight++;
 
         deleteRowBtn.addActionListener(e -> {
-            removeCollaborationRowObjects(object,role,arrow,deleteRowBtn);
-            panel.revalidate();
-            panel.repaint();
+            removeCollaborationRowObjects(listItem);
+            updatePanel();
             gridHeight--;
             collaborationList.remove(listItem);
         });
     }
 
-    protected void removeCollaborationRoles(){
-        for(CollaborationListItem listItem : collaborationList){
-            JTextField className = listItem.getClassName();
-            JTextField role = listItem.getRole();
-            JLabel jLabel = listItem.getjLabel();
-            JButton jButton = listItem.getjButton();
-
-            removeCollaborationRowObjects(className, role, jLabel, jButton);
-        }
-
-        gridHeight -= collaborationList.size();
-        collaborationList = new ArrayList<>();
-
+    protected void updatePanel() {
+        panel.revalidate();
+        panel.repaint();
     }
 
-    protected void removeCollaborationRowObjects(JTextField className, JTextField role, JLabel jLabel, JButton jButton) {
+    protected void removeCollaborationRowObjects(CollaborationListItem listItem) {
+        JTextField className = listItem.getClassName();
+        JTextField role = listItem.getRole();
+        JLabel jLabel = listItem.getjLabel();
+        JButton jButton = listItem.getjButton();
+
         panel.remove(className);
         panel.remove(role);
         panel.remove(jLabel);
         panel.remove(jButton);
     }
 
-    protected JBLabel getLabel(String text){
-        JBLabel jLabel = new JBLabel(text);
-        jLabel.setComponentStyle(UIUtil.ComponentStyle.SMALL);
-        jLabel.setFontColor(UIUtil.FontColor.BRIGHTER);
-        jLabel.setBorder(JBUI.Borders.empty(0,5,2,0));
-        return jLabel;
+    protected void removeAllCollaborationRoles() {
+        for (CollaborationListItem listItem : collaborationList) {
+            removeCollaborationRowObjects(listItem);
+        }
+
+        gridHeight -= collaborationList.size();
+        collaborationList = new ArrayList<>();
     }
 
     @Nullable
     @Override
     protected ValidationInfo doValidate() {
         String name = patternName.getText();
-        if(name.equals("")){
+        if (name.equals("")) {
             return new ValidationInfo("This field is mandatory!", patternName);
         }
 
-        if(collaborationList.isEmpty()){
-            return new ValidationInfo("There must be at least one collaboration row!", addCollabRowBtn);
+        if (collaborationList.isEmpty()) {
+            return new ValidationInfo("There must be at least one collaboration row!", addCollaborationRowBtn);
         }
 
-        for(CollaborationListItem listItem : collaborationList){
+        for (CollaborationListItem listItem : collaborationList) {
             String className = listItem.getClassName().getText();
             String role = listItem.getRole().getText();
 
-            if(className.equals("")){
+            if (className.equals("")) {
                 return new ValidationInfo("This field is mandatory! If you do not need the row, consider removing it.", listItem.getClassName());
-            }
-            else if(role.equals("")){
+            } else if (role.equals("")) {
                 return new ValidationInfo("This field is mandatory! If you do not need the row, consider removing it.", listItem.getRole());
             }
         }
@@ -190,29 +208,50 @@ public abstract class DocumentationDialog extends DialogWrapper {
         String name = patternName.getText();
         String intent = patternIntent.getText();
 
-        Map<String, Set<String>> roleObjects = new HashMap<>();
-        Map<String, Set<String>> objectRoles = new HashMap<>();
-        for(CollaborationListItem listItem : collaborationList){
+        roleObjects = new HashMap<>();
+        objectRoles = new HashMap<>();
+
+        for (CollaborationListItem listItem : collaborationList) {
             String className = listItem.getClassName().getText();
             String role = listItem.getRole().getText();
 
-            Set<String> roles = new HashSet<>();
-            if(objectRoles.containsKey(className)){
-                roles = objectRoles.get(className);
-            }
-
-            roles.add(role);
-            objectRoles.put(className, roles);
-
-            Set<String> objects = new HashSet<>();
-            if(roleObjects.containsKey(role)){
-                objects = roleObjects.get(role);
-            }
-
-            objects.add(className);
-            roleObjects.put(role, objects);
+            updateObjectRoles(className, role);
+            updateRoleObjects(className, role);
         }
 
         return new PatternInstance(name, intent, roleObjects, objectRoles);
+    }
+
+    private void updateRoleObjects(String className, String role) {
+        updateMapStringSet(className, role, roleObjects);
+    }
+
+    private void updateObjectRoles(String className, String role) {
+        updateMapStringSet(className, role, objectRoles);
+    }
+
+    private void updateMapStringSet(String mapKey, String newSetElement, Map<String, Set<String>> map){
+        Set<String> mapValue = new HashSet<>();
+        if (map.containsKey(mapKey)) {
+            mapValue = map.get(mapKey);
+        }
+        mapValue.add(newSetElement);
+        map.put(mapKey, mapValue);
+    }
+
+    protected void setPersistentStorage() throws NullPointerException {
+        this.persistentState = (PersistentState) PluginState.getInstance().getState();
+        if (this.persistentState == null)
+            throw new NullPointerException();
+    }
+
+    protected void setPatternInstanceById() throws NullPointerException {
+        this.patternInstanceById = persistentState.getPatternInstanceById();
+        if (this.patternInstanceById == null)
+            throw new NullPointerException();
+    }
+
+    protected void setNumCollaborationRows(int numCollaborationRows) {
+        this.numCollaborationRows = numCollaborationRows;
     }
 }

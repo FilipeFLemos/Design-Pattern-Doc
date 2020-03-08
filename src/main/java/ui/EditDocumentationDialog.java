@@ -6,23 +6,16 @@ import models.CollaborationListItem;
 import models.PatternInstance;
 import models.Relation;
 import org.jetbrains.annotations.Nullable;
-import storage.PersistentState;
-import storage.PluginState;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class EditDocumentationDialog extends DocumentationDialog{
 
     private ComboBox jComboBox;
     private JButton deletePatternInstance;
-
-    PersistentState persistentState;
-    ConcurrentHashMap<String, PatternInstance> patternInstanceById;
-
 
     public EditDocumentationDialog(boolean canBeParent) {
         super(canBeParent);
@@ -33,8 +26,6 @@ public class EditDocumentationDialog extends DocumentationDialog{
     @Override
     protected JComponent createCenterPanel() {
         try{
-            setPersistentStorage();
-            setPatternInstanceById();
             panel.setPreferredSize(new Dimension(500,200));
 
             setJComboBox();
@@ -43,7 +34,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
 
             addElementToPanel(getLabel("Stored Pattern Instances"));
             addPatternInstancesHeaderToPanel();
-            addDocumentationInvariableBody();
+            addDocumentationDialogInvariableBody();
 
             fillFields();
         }catch(Exception ignored){
@@ -51,22 +42,6 @@ public class EditDocumentationDialog extends DocumentationDialog{
         }
 
         return panel;
-    }
-
-    private void setNumCollaborationRows(int value) {
-        numCollaborationRows = value;
-    }
-
-    private void setPersistentStorage() throws NullPointerException {
-        this.persistentState = (PersistentState) PluginState.getInstance().getState();
-        if(this.persistentState == null)
-            throw new NullPointerException();
-    }
-
-    private void setPatternInstanceById() throws NullPointerException {
-        this.patternInstanceById = persistentState.getPatternInstanceById();
-        if(this.patternInstanceById == null)
-            throw new NullPointerException();
     }
 
     private void addPatternInstancesHeaderToPanel() {
@@ -102,11 +77,10 @@ public class EditDocumentationDialog extends DocumentationDialog{
         {
             setSelectedPatternInstanceNumCollaborationRows();
 
-            removeCollaborationRoles();
+            removeAllCollaborationRoles();
             addCollaborationListToPanel();
             fillFields();
-            panel.revalidate();
-            panel.repaint();
+            updatePanel();
         });
     }
 
