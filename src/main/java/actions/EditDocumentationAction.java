@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.intellij.openapi.ui.DialogWrapper.NEXT_USER_EXIT_CODE;
 
-public class EditDocumentDialog extends AnAction {
+public class EditDocumentationAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
 
