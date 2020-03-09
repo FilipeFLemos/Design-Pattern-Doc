@@ -11,7 +11,9 @@ import com.intellij.ui.JBColor;
 import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import storage.PersistentState;
 import storage.PluginState;
+import storage.ProjectState;
 
 import java.awt.*;
 import java.util.*;
@@ -98,8 +100,8 @@ public class PatternHints extends EditorLinePainter {
     }
 
     private void setPatternInstanceById() {
-        PluginState pluginState = (PluginState) PluginState.getInstance();
-        patternInstanceById = pluginState.getState().getPatternInstanceById();
+        ProjectState projectState = ((PluginState) PluginState.getInstance()).getProjectState();
+        patternInstanceById = projectState.getPatternInstanceById();
     }
 
     private boolean isInvalidPatternInstanceById() {

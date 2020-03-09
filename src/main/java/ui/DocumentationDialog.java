@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import storage.PersistentState;
 import storage.PluginState;
+import storage.ProjectState;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,7 +29,7 @@ public class DocumentationDialog extends DialogWrapper {
     protected int gridHeight = 0;
     protected int numCollaborationRows;
 
-    protected PersistentState persistentState;
+    protected ProjectState projectState;
     protected ConcurrentHashMap<String, PatternInstance> patternInstanceById;
     private Map<String, Set<String>> roleObjects;
     private Map<String, Set<String>> objectRoles;
@@ -44,7 +45,7 @@ public class DocumentationDialog extends DialogWrapper {
         collaborationList = new ArrayList<>();
 
         try {
-            setPersistentStorage();
+            setProjectState();
             setPatternInstanceById();
         } catch (Exception ignored) {
 
@@ -239,14 +240,12 @@ public class DocumentationDialog extends DialogWrapper {
         map.put(mapKey, mapValue);
     }
 
-    protected void setPersistentStorage() throws NullPointerException {
-        this.persistentState = (PersistentState) PluginState.getInstance().getState();
-        if (this.persistentState == null)
-            throw new NullPointerException();
+    protected void setProjectState() throws NullPointerException {
+        this.projectState = ((PluginState) PluginState.getInstance()).getProjectState();
     }
 
     protected void setPatternInstanceById() throws NullPointerException {
-        this.patternInstanceById = persistentState.getPatternInstanceById();
+        this.patternInstanceById = projectState.getPatternInstanceById();
         if (this.patternInstanceById == null)
             throw new NullPointerException();
     }

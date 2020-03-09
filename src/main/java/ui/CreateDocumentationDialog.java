@@ -38,7 +38,7 @@ public class CreateDocumentationDialog extends DocumentationDialog {
     protected void doOKAction() {
         PatternInstance patternInstance = generatePatternInstanceFromUserInput();
         String id = generatePatternInstanceId(patternInstanceById);
-        persistentState.storePatternInstanceIfAbsent(id, patternInstance);
+        projectState.storePatternInstanceIfAbsent(id, patternInstance);
         close(OK_EXIT_CODE);
     }
 }

@@ -7,6 +7,7 @@ import models.PatternInstance;
 import org.jetbrains.annotations.Nullable;
 import storage.PersistentState;
 import storage.PluginState;
+import storage.ProjectState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,11 +72,8 @@ public class PatternDocumentation implements DocumentationProvider{
     }
 
     private ConcurrentHashMap<String, PatternInstance> getPersistedPatternInstances() throws NullPointerException{
-        PersistentState persistentState = (PersistentState) PluginState.getInstance().getState();
-        if(persistentState == null){
-            throw new NullPointerException();
-        }
-        return persistentState.getPatternInstanceById();
+        ProjectState projectState = ((PluginState) PluginState.getInstance()).getProjectState();
+        return projectState.getPatternInstanceById();
     }
 
     private void generatePatternInstancesDocumentationForClass() {
@@ -107,16 +105,7 @@ public class PatternDocumentation implements DocumentationProvider{
     private void includeClassPlayedRoles(Map<String, Set<String>> objectRoles) {
         documentationTextBuilder.append("This class plays the role(s) <b><u>");
         Set<String> roles = objectRoles.get(className);
-        int i = 0;
-        for(String role : roles){
-            if(i == roles.size() - 1){
-                documentationTextBuilder.append(role);
-            }
-            else {
-                documentationTextBuilder.append(role).append(", ");
-            }
-            i++;
-        }
+        includeSetObjectsSeparatedByComma(roles);
     }
 
     private void includeSeparationBetweenPatternInstances() {
@@ -162,13 +151,15 @@ public class PatternDocumentation implements DocumentationProvider{
     }
 
     private void includeObjectsPlayingRole(Set<String> objectsPlayingRole) {
+        includeSetObjectsSeparatedByComma(objectsPlayingRole);
+    }
+
+    private void includeSetObjectsSeparatedByComma(Set<String> objectsSet){
         int i = 0;
-        for(String objectPlayingRole : objectsPlayingRole){
-            if(i == objectsPlayingRole.size() - 1){
-                documentationTextBuilder.append(objectPlayingRole);
-            }
-            else {
-                documentationTextBuilder.append(objectPlayingRole).append(", ");
+        for(String object : objectsSet){
+            documentationTextBuilder.append(object);
+            if(i != objectsSet.size() - 1){
+                documentationTextBuilder.append(", ");
             }
             i++;
         }

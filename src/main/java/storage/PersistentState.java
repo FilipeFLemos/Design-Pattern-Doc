@@ -1,52 +1,30 @@
 package storage;
 
-import models.PatternInstance;
-
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Bias
- */
 public class PersistentState{
 
-    public ConcurrentHashMap<String, PatternInstance> patternInstanceById = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ProjectState> persistedStateByProject = new ConcurrentHashMap<>();
 
     public PersistentState(){}
 
-    public ConcurrentHashMap<String, PatternInstance> getPatternInstanceById() {
-        return patternInstanceById;
+    public boolean containsProject(String projectName){
+        return persistedStateByProject.containsKey(projectName);
     }
 
-    public PatternInstance getPatternInstance(String id){
-        return patternInstanceById.get(id);
+    public ProjectState getProjectState(String projectName){
+        return persistedStateByProject.get(projectName);
     }
 
-    public void deletePatternInstance(String id){
-        patternInstanceById.remove(id);
+    public void putProjectState(String projectName){
+        persistedStateByProject.put(projectName, new ProjectState());
     }
 
-    public void updatePatternInstance(String id, PatternInstance patternInstance){
-        patternInstanceById.put(id, patternInstance);
+    public void setPersistedStateByProject(ConcurrentHashMap<String, ProjectState> persistedStateByProject) {
+        this.persistedStateByProject = persistedStateByProject;
     }
 
-    public void storePatternInstanceIfAbsent(String id, PatternInstance patternInstance){
-        if(!hasAlreadyStored(patternInstance)){
-            patternInstanceById.putIfAbsent(id, patternInstance);
-        }
-    }
-
-    public boolean hasAlreadyStored(PatternInstance patternInstance){
-        boolean hasAlreadyStored = false;
-
-        for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
-            PatternInstance storedInstance = entry.getValue();
-            if(patternInstance.equals(storedInstance)){
-                hasAlreadyStored = true;
-                break;
-            }
-        }
-
-        return hasAlreadyStored;
+    public ConcurrentHashMap<String, ProjectState> getPersistedStateByProject() {
+        return persistedStateByProject;
     }
 }
