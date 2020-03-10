@@ -25,19 +25,10 @@ public class CreateDocumentationDialog extends DocumentationDialog {
         return panel;
     }
 
-    private String generatePatternInstanceId(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
-        String id;
-        do {
-            id = Utils.generateAlphaNumericString();
-        } while (patternInstanceById.containsKey(id));
-
-        return id;
-    }
-
     @Override
     protected void doOKAction() {
         PatternInstance patternInstance = generatePatternInstanceFromUserInput();
-        String id = generatePatternInstanceId(patternInstanceById);
+        String id = Utils.generatePatternInstanceId(patternInstanceById);
         projectState.storePatternInstanceIfAbsent(id, patternInstance);
         close(OK_EXIT_CODE);
     }

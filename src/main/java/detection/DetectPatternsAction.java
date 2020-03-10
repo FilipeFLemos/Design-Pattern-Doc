@@ -20,10 +20,10 @@ public class DetectPatternsAction extends AnAction {
         AbstractDetectionTool detectionTool = new DPCORE_DetectionTool();
         Set<PatternInstance> patternInstances = detectionTool.scanForPatterns();
 
-        PluginState pluginState = (PluginState) PluginState.getInstance();
+        PluginState pluginState = PluginState.getInstance();
 
         for(PatternInstance patternInstance : patternInstances){
-            pluginState.addHint(patternInstance);
+            pluginState.addSuggestion(patternInstance);
         }
     }
 }

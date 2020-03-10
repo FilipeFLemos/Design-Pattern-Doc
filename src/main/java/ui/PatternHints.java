@@ -100,7 +100,7 @@ public class PatternHints extends EditorLinePainter {
     }
 
     private void setPatternInstanceById() {
-        ProjectState projectState = ((PluginState) PluginState.getInstance()).getProjectState();
+        ProjectState projectState = PluginState.getInstance().getProjectState();
         patternInstanceById = projectState.getPatternInstanceById();
     }
 

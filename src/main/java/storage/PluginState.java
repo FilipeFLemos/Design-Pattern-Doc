@@ -10,6 +10,7 @@ import com.intellij.openapi.wm.WindowManager;
 import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.Utils;
 
 import java.awt.*;
 import java.util.HashSet;
@@ -22,7 +23,7 @@ import java.util.HashSet;
 public class PluginState implements PersistentStateComponent<PersistentState> {
 
     private PersistentState persistentState = new PersistentState();
-    private HashSet<PatternInstance> hints = new HashSet<>();
+    private HashSet<PatternInstance> suggestions = new HashSet<>();
     private ProjectState projectState;
     private String projectName;
 
@@ -46,8 +47,8 @@ public class PluginState implements PersistentStateComponent<PersistentState> {
         persistentState = state;
     }
 
-    public void addHint(PatternInstance patternInstance) {
-        if (hints.contains(patternInstance)) {
+    public void addSuggestion(PatternInstance patternInstance) {
+        if (suggestions.contains(patternInstance)) {
             return;
         }
 
@@ -59,13 +60,23 @@ public class PluginState implements PersistentStateComponent<PersistentState> {
         }
 
         patternInstance.setAnHint(isAnHint);
-        hints.add(patternInstance);
+        suggestions.add(patternInstance);
         //TODO: REMOVE AFTER DEBUGGING
         //projectState.storePatternInstanceIfAbsent("ok", patternInstance);
     }
 
-    public HashSet<PatternInstance> getHints() {
-        return hints;
+    public void updateStorage(PatternInstance patternInstance){
+        String id = Utils.generatePatternInstanceId(projectState.getPatternInstanceById());
+        projectState.storePatternInstanceIfAbsent(id, patternInstance);
+        if (suggestions.contains(patternInstance)) {
+            patternInstance.setAnHint(false);
+            suggestions.remove(patternInstance);
+            suggestions.add(patternInstance);
+        }
+    }
+
+    public HashSet<PatternInstance> getSuggestions() {
+        return suggestions;
     }
 
     public ProjectState getProjectState() {

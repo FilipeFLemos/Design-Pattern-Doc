@@ -1,7 +1,6 @@
 package models;
 
 import java.io.Serializable;
-import java.sql.Array;
 import java.util.*;
 
 public class PatternInstance implements Serializable {

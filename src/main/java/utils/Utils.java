@@ -1,11 +1,23 @@
 package utils;
 
 
+import models.PatternInstance;
+
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Utils {
 
-    public static String generateAlphaNumericString(){
+    public static String generatePatternInstanceId(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
+        String id;
+        do {
+            id = Utils.generateAlphaNumericString();
+        } while (patternInstanceById.containsKey(id));
+
+        return id;
+    }
+
+    private static String generateAlphaNumericString(){
         int leftLimit = 48;
         int rightLimit = 122;
         int targetLength = 10;

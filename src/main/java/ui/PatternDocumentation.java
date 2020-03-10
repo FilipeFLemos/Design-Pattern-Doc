@@ -72,7 +72,7 @@ public class PatternDocumentation implements DocumentationProvider{
     }
 
     private ConcurrentHashMap<String, PatternInstance> getPersistedPatternInstances() throws NullPointerException{
-        ProjectState projectState = ((PluginState) PluginState.getInstance()).getProjectState();
+        ProjectState projectState = PluginState.getInstance().getProjectState();
         return projectState.getPatternInstanceById();
     }
 
