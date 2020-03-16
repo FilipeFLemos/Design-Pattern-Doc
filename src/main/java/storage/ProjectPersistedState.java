@@ -6,13 +6,13 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ProjectState implements Serializable {
+public class ProjectPersistedState implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     public ConcurrentHashMap<String, PatternInstance> patternInstanceById = new ConcurrentHashMap<>();
 
-    public ProjectState(){}
+    public ProjectPersistedState(){}
 
     public ConcurrentHashMap<String, PatternInstance> getPatternInstanceById() {
         return patternInstanceById;

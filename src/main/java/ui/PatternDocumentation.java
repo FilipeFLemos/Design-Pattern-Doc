@@ -5,9 +5,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import models.PatternInstance;
 import org.jetbrains.annotations.Nullable;
-import storage.PersistentState;
 import storage.PluginState;
-import storage.ProjectState;
+import storage.ProjectPersistedState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,8 +71,8 @@ public class PatternDocumentation implements DocumentationProvider{
     }
 
     private ConcurrentHashMap<String, PatternInstance> getPersistedPatternInstances() throws NullPointerException{
-        ProjectState projectState = PluginState.getInstance().getProjectState();
-        return projectState.getPatternInstanceById();
+        ProjectPersistedState projectPersistedState = PluginState.getInstance().getProjectPersistedState();
+        return projectPersistedState.getPatternInstanceById();
     }
 
     private void generatePatternInstancesDocumentationForClass() {

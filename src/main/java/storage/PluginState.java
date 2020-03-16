@@ -4,15 +4,11 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
-import com.intellij.openapi.wm.WindowManager;
 import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.Utils;
 
-import java.awt.*;
 import java.util.HashSet;
 
 
@@ -20,16 +16,14 @@ import java.util.HashSet;
         name = "PatternInstances",
         storages = @Storage("pattern_instances.xml")
 )
-public class PluginState implements PersistentStateComponent<PersistentState> {
+public class PluginState implements PersistentStateComponent<ProjectsPersistedState> {
 
-    private PersistentState persistentState = new PersistentState();
+    private ProjectsPersistedState persistentState = new ProjectsPersistedState();
     private HashSet<PatternInstance> suggestions = new HashSet<>();
-    private ProjectState projectState;
-    private String projectName;
+    private ProjectDetails projectDetails;
 
     public PluginState() {
-        String activeProjectName = getActiveProjectName();
-        setProjectName(activeProjectName);
+        projectDetails = new ProjectDetails();
     }
 
     public static PluginState getInstance() {
@@ -38,12 +32,12 @@ public class PluginState implements PersistentStateComponent<PersistentState> {
 
     @Nullable
     @Override
-    public PersistentState getState() {
+    public ProjectsPersistedState getState() {
         return persistentState;
     }
 
     @Override
-    public void loadState(@NotNull PersistentState state) {
+    public void loadState(@NotNull ProjectsPersistedState state) {
         persistentState = state;
     }
 
@@ -53,9 +47,9 @@ public class PluginState implements PersistentStateComponent<PersistentState> {
         }
 
         boolean isAnHint = true;
-        ProjectState projectState = getProjectState();
+        ProjectPersistedState projectPersistedState = getProjectPersistedState();
 
-        if (projectState.hasAlreadyStored(patternInstance)) {
+        if (projectPersistedState.hasAlreadyStored(patternInstance)) {
             isAnHint = false;
         }
 
@@ -66,8 +60,7 @@ public class PluginState implements PersistentStateComponent<PersistentState> {
     }
 
     public void updateStorage(PatternInstance patternInstance){
-        String id = Utils.generatePatternInstanceId(projectState.getPatternInstanceById());
-        projectState.storePatternInstanceIfAbsent(id, patternInstance);
+        projectDetails.updateProjectPersistedState(patternInstance);
         if (suggestions.contains(patternInstance)) {
             patternInstance.setAnHint(false);
             suggestions.remove(patternInstance);
@@ -79,45 +72,11 @@ public class PluginState implements PersistentStateComponent<PersistentState> {
         return suggestions;
     }
 
-    public ProjectState getProjectState() {
-        String activeProjectName = getActiveProjectName();
-        if (!existsProjectState() || !projectName.equals(activeProjectName)) {
-            setActiveProject();
-        }
-        return projectState;
+    public ProjectPersistedState getProjectPersistedState() {
+       return projectDetails.getActiveProjectPersistedState();
     }
 
-    private boolean existsProjectState() {
-        return projectState != null;
-    }
-
-    private void setActiveProject() {
-        String activeProjectName = getActiveProjectName();
-        setProjectName(activeProjectName);
-        setProjectState();
-    }
-
-    private void setProjectState() {
-        if (!persistentState.containsProject(projectName)) {
-            persistentState.putProjectState(projectName);
-        }
-        projectState = persistentState.getProjectState(projectName);
-    }
-
-    private String getActiveProjectName() {
-        String activeProjectName = "";
-        Project[] projects = ProjectManager.getInstance().getOpenProjects();
-        for (Project project : projects) {
-            Window window = WindowManager.getInstance().suggestParentWindow(project);
-            if (window != null && window.isActive()) {
-                activeProjectName = project.getName();
-                break;
-            }
-        }
-        return activeProjectName;
-    }
-
-    private void setProjectName(String projectName) {
-        this.projectName = projectName;
+    public String getProjectPath(){
+        return projectDetails.getPath();
     }
 }

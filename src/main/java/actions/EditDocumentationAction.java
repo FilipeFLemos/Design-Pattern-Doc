@@ -4,9 +4,8 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.Messages;
 import models.PatternInstance;
-import storage.PersistentState;
 import storage.PluginState;
-import storage.ProjectState;
+import storage.ProjectPersistedState;
 import ui.EditDocumentationDialog;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,8 +29,8 @@ public class EditDocumentationAction extends AnAction {
     }
 
     private void checkDocumentationStorage() throws NullPointerException {
-        ProjectState projectState = ((PluginState) PluginState.getInstance()).getProjectState();
-        ConcurrentHashMap<String, PatternInstance> patternInstanceById = projectState.getPatternInstanceById();
+        ProjectPersistedState projectPersistedState = ((PluginState) PluginState.getInstance()).getProjectPersistedState();
+        ConcurrentHashMap<String, PatternInstance> patternInstanceById = projectPersistedState.getPatternInstanceById();
         if(patternInstanceById == null || patternInstanceById.isEmpty()){
             throw new NullPointerException();
         }

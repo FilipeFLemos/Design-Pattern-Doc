@@ -67,7 +67,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
         deletePatternInstance.addActionListener(e ->
         {
             String id = getSelectedPatternInstanceId();
-            projectState.deletePatternInstance(id);
+            projectPersistedState.deletePatternInstance(id);
             close(NEXT_USER_EXIT_CODE);
         });
     }
@@ -102,7 +102,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
 
     private void fillFields(){
         String id = getSelectedPatternInstanceId();
-        PatternInstance patternInstance = projectState.getPatternInstance(id);
+        PatternInstance patternInstance = projectPersistedState.getPatternInstance(id);
 
         patternName.setText(patternInstance.getPatternName());
         patternIntent.setText(patternInstance.getIntent());
@@ -132,7 +132,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
         PatternInstance patternInstance = generatePatternInstanceFromUserInput();
         String id = getSelectedPatternInstanceId();
 
-        projectState.updatePatternInstance(id, patternInstance);
+        projectPersistedState.updatePatternInstance(id, patternInstance);
         close(OK_EXIT_CODE);
     }
 

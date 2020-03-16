@@ -2,6 +2,7 @@ package detection;
 
 import models.PatternCandidate;
 import models.PatternInstance;
+import storage.PluginState;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +13,6 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
 
     private final String executeJAR = "java -Dfile.encoding=windows-1252 -jar \"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\out\\artifacts\\DP_CORE_jar\\DP-CORE.jar\"";
     private final String patternRepoPath = "-pattern=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\patterns\\";
-    private final String projectPath = " -project=\"C:\\Users\\filip\\IdeaProjects\\ThesisTest\\src\\abstractFactory\" ";
 
     private String patternName = "";
     private Set<PatternInstance> patternInstances;
@@ -26,6 +26,9 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
      */
     @Override
     public Set<PatternInstance> scanForPatterns() {
+
+        String projectPath = PluginState.getInstance().getProjectPath().replace("/","\\");
+        projectPath = " -project=\"" + projectPath + "\\src\" ";
 
         String pattern = "Abstract Factory.pattern\"";
         try {

@@ -31,13 +31,5 @@ public class PatternSuggestionQuickFix implements LocalQuickFix {
     @Override
     public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
         PluginState.getInstance().updateStorage(patternInstance);
-
-        PsiElement element = descriptor.getPsiElement();
-        PsiElement replacedElement = element.copy();
-
-        PsiElement nextSibling = element.getNextSibling();
-        PsiElement father = element.getParent();
-        father.addBefore(replacedElement, nextSibling);
-        element.delete();
     }
 }

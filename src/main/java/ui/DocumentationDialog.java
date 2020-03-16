@@ -9,9 +9,8 @@ import models.CollaborationListItem;
 import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import storage.PersistentState;
 import storage.PluginState;
-import storage.ProjectState;
+import storage.ProjectPersistedState;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,7 +28,7 @@ public class DocumentationDialog extends DialogWrapper {
     protected int gridHeight = 0;
     protected int numCollaborationRows;
 
-    protected ProjectState projectState;
+    protected ProjectPersistedState projectPersistedState;
     protected ConcurrentHashMap<String, PatternInstance> patternInstanceById;
     private Map<String, Set<String>> roleObjects;
     private Map<String, Set<String>> objectRoles;
@@ -241,11 +240,11 @@ public class DocumentationDialog extends DialogWrapper {
     }
 
     protected void setProjectState() throws NullPointerException {
-        this.projectState = ((PluginState) PluginState.getInstance()).getProjectState();
+        this.projectPersistedState = ((PluginState) PluginState.getInstance()).getProjectPersistedState();
     }
 
     protected void setPatternInstanceById() throws NullPointerException {
-        this.patternInstanceById = projectState.getPatternInstanceById();
+        this.patternInstanceById = projectPersistedState.getPatternInstanceById();
         if (this.patternInstanceById == null)
             throw new NullPointerException();
     }

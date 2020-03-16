@@ -6,7 +6,6 @@ import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class CreateDocumentationDialog extends DocumentationDialog {
 
@@ -29,7 +28,7 @@ public class CreateDocumentationDialog extends DocumentationDialog {
     protected void doOKAction() {
         PatternInstance patternInstance = generatePatternInstanceFromUserInput();
         String id = Utils.generatePatternInstanceId(patternInstanceById);
-        projectState.storePatternInstanceIfAbsent(id, patternInstance);
+        projectPersistedState.storePatternInstanceIfAbsent(id, patternInstance);
         close(OK_EXIT_CODE);
     }
 }
