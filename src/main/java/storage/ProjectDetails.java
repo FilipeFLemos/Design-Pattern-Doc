@@ -37,8 +37,15 @@ public class ProjectDetails {
     }
 
     public void updateProjectPersistedState(PatternInstance patternInstance){
-        String id = Utils.generatePatternInstanceId(persistedState.getPatternInstanceById());
-        persistedState.storePatternInstanceIfAbsent(id, patternInstance);
+        String id = persistedState.getPatternInstanceId(patternInstance);
+        if(isPatternInstanceNotStored(id)){
+            id = Utils.generatePatternInstanceId(persistedState.getPatternInstanceById());
+        }
+        persistedState.updatePatternInstance(id, patternInstance);
+    }
+
+    private boolean isPatternInstanceNotStored(String id){
+        return id.equals("");
     }
 
     public String getPath() {

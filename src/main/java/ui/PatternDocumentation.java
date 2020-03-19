@@ -55,6 +55,7 @@ public class PatternDocumentation implements DocumentationProvider{
     private String getDocumentationText(PsiElement psiElement){
 
         try {
+            documentationText = null;
             documentationTextBuilder = new StringBuilder();
             className = psiElement.toString().split(":")[1];
             persistedPatternInstances = getPersistedPatternInstances();

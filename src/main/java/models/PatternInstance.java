@@ -3,17 +3,14 @@ package models;
 import java.io.Serializable;
 import java.util.*;
 
-public class PatternInstance implements Serializable {
+public class PatternInstance implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
     private String patternName;
     private String intent;
-    private String collaborations;
     private Map<String, Set<String>> roleObjects;
     private Map<String, Set<String>> objectRoles;
-
-    private boolean isAnHint = false;
 
     public PatternInstance(){
 
@@ -25,7 +22,6 @@ public class PatternInstance implements Serializable {
 
         setPatternName(patternName);
         setIntent("");
-        setCollaborations("");
         setPatternRoles(patternCandidate);
     }
 
@@ -34,7 +30,39 @@ public class PatternInstance implements Serializable {
         setIntent(intent);
         setRoleObjects(roleObjects);
         setObjectRoles(objectRoles);
-        setCollaborations("");
+    }
+
+    public PatternInstance(PatternInstance patternInstance){
+        this(patternInstance.getPatternName(), patternInstance.getIntent(), new HashMap<>(), new HashMap<>());
+        mergePatternParticipants(patternInstance);
+    }
+
+    public void mergePatternParticipants(PatternInstance newPatternInstance){
+        Map<String, Set<String>> objectRoles = newPatternInstance.getObjectRoles();
+        for (Map.Entry<String, Set<String>> entry : objectRoles.entrySet()) {
+            String object = entry.getKey();
+            Set<String> roles = entry.getValue();
+            for(String role : roles) {
+                addRoleToObject(object, role);
+                addObjectToRole(role, object);
+            }
+        }
+    }
+
+    public PatternInstance(PatternInstance oldPatternInstance, PatternInstance newPatternInstance){
+        this.patternName = oldPatternInstance.getPatternName();
+        this.intent = oldPatternInstance.getIntent();
+        this.roleObjects = oldPatternInstance.getRoleObjects();
+        this.objectRoles = oldPatternInstance.getObjectRoles();
+        Map<String, Set<String>> objectRoles = newPatternInstance.getObjectRoles();
+        for (Map.Entry<String, Set<String>> entry : objectRoles.entrySet()) {
+            String object = entry.getKey();
+            Set<String> roles = entry.getValue();
+            for(String role : roles) {
+                addRoleToObject(object, role);
+                addObjectToRole(role, object);
+            }
+        }
     }
 
     private void setPatternRoles(PatternCandidate patternCandidate) {
@@ -59,6 +87,16 @@ public class PatternInstance implements Serializable {
         objectRoles.put(object,roles);
     }
 
+    private void addObjectToRole(String role, String object){
+        Set<String> objects = roleObjects.get(role);
+        if(objects == null){
+            objects = new HashSet<>();
+        }
+        objects.add(object);
+
+        roleObjects.put(role,objects);
+    }
+
     public void addObjectToRole(PatternCandidate patternCandidate) {
         for (Map.Entry<String, String> entry : patternCandidate.getObjectByRole().entrySet()) {
             String role = entry.getKey();
@@ -75,16 +113,16 @@ public class PatternInstance implements Serializable {
         }
     }
 
-    public ArrayList<Relation> getCollaborationRows(){
-        ArrayList<Relation> collaborationRows = new ArrayList<>();
+    public ArrayList<PatternParticipant> getCollaborationRows(){
+        ArrayList<PatternParticipant> collaborationRows = new ArrayList<>();
 
         for (Map.Entry<String, Set<String>> entry : objectRoles.entrySet()) {
             String className = entry.getKey();
             Set<String> roles = entry.getValue();
 
             for(String role : roles){
-                Relation relation = new Relation(className, role);
-                collaborationRows.add(relation);
+                PatternParticipant patternParticipant = new PatternParticipant(className, role);
+                collaborationRows.add(patternParticipant);
             }
         }
 
@@ -95,8 +133,14 @@ public class PatternInstance implements Serializable {
         this.intent = intent;
     }
 
-    public void setCollaborations(String collaborations) {
-        this.collaborations = collaborations;
+    public boolean areTheSamePatternInstance(PatternInstance thatPatternInstance) {
+        if (this.isSubSet(thatPatternInstance) || thatPatternInstance.isSubSet(this)) {
+            return true;
+        }
+
+        //TODO threshold
+
+        return false;
     }
 
     @Override
@@ -105,12 +149,29 @@ public class PatternInstance implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         PatternInstance that = (PatternInstance) o;
         return Objects.equals(patternName, that.patternName) &&
-                Objects.equals(roleObjects, that.roleObjects);
+                Objects.equals(roleObjects, that.roleObjects) &&
+                Objects.equals(objectRoles, that.objectRoles);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(patternName, intent, collaborations, roleObjects);
+        return Objects.hash(patternName, intent, roleObjects, objectRoles);
+    }
+
+    public boolean isSubSet(Object o){
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PatternInstance that = (PatternInstance) o;
+        if(!patternName.equals(that.patternName)) return false;
+
+        ArrayList<PatternParticipant> thisCollaborationRows = getCollaborationRows();
+        ArrayList<PatternParticipant> thatCollaborationRows = that.getCollaborationRows();
+        for(PatternParticipant thisPatternParticipant : thisCollaborationRows){
+            if(!thatCollaborationRows.contains(thisPatternParticipant)){
+                return false;
+            }
+        }
+        return true;
     }
 
     public String getPatternName() {
@@ -123,10 +184,6 @@ public class PatternInstance implements Serializable {
 
     public String getIntent() {
         return intent;
-    }
-
-    public String getCollaborations() {
-        return collaborations;
     }
 
     public Map<String, Set<String>> getRoleObjects() {
@@ -143,13 +200,5 @@ public class PatternInstance implements Serializable {
 
     public void setObjectRoles(Map<String, Set<String>> objectRoles) {
         this.objectRoles = objectRoles;
-    }
-
-    public boolean isAnHint() {
-        return isAnHint;
-    }
-
-    public void setAnHint(boolean anHint) {
-        isAnHint = anHint;
     }
 }

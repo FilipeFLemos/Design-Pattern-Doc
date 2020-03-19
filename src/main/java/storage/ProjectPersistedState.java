@@ -41,12 +41,24 @@ public class ProjectPersistedState implements Serializable {
 
         for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
             PatternInstance storedInstance = entry.getValue();
-            if(patternInstance.equals(storedInstance)){
+            if(patternInstance.areTheSamePatternInstance(storedInstance)){
                 hasAlreadyStored = true;
                 break;
             }
         }
 
         return hasAlreadyStored;
+    }
+
+    public String getPatternInstanceId(PatternInstance patternInstance){
+        String id = "";
+        for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
+            PatternInstance storedInstance = entry.getValue();
+            if(patternInstance.areTheSamePatternInstance(storedInstance)){
+                id = entry.getKey();
+                break;
+            }
+        }
+        return id;
     }
 }

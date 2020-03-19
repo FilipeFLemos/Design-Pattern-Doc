@@ -1,8 +1,7 @@
-package inspections;
+package detection;
 
 
 import com.intellij.codeInspection.AbstractBaseJavaLocalInspectionTool;
-import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.*;
 import models.PatternInstance;
@@ -13,10 +12,11 @@ import java.util.*;
 
 public class PatternSuggestionsInspection extends AbstractBaseJavaLocalInspectionTool {
 
-    private Set<String> classRegisteredByClassName;
+    private Map<String, Set<PatternInstance>> availableSuggestions;
 
     public PatternSuggestionsInspection(){
-        classRegisteredByClassName = new HashSet<>();
+        PatternSuggestions patternSuggestions = PluginState.getInstance().getPatternSuggestions();
+        availableSuggestions = patternSuggestions.getAvailableSuggestions();
     }
 
     @Override
@@ -37,14 +37,12 @@ public class PatternSuggestionsInspection extends AbstractBaseJavaLocalInspectio
                     return;
                 }
 
-                PluginState pluginState = PluginState.getInstance();
-                HashSet<PatternInstance> suggestions = pluginState.getSuggestions();
+                if(!availableSuggestions.containsKey(className)){
+                    return;
+                }
 
-                for (PatternInstance patternInstance : suggestions) {
-                    if(!patternInstance.isAnHint()){
-                        continue;
-                    }
-
+                Set<PatternInstance> patternInstancesAvailableForObject = availableSuggestions.get(className);
+                for(PatternInstance patternInstance : patternInstancesAvailableForObject){
                     String patternName = patternInstance.getPatternName();
                     Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
 
@@ -64,11 +62,9 @@ public class PatternSuggestionsInspection extends AbstractBaseJavaLocalInspectio
                     }
 
                     String suggestionText = "We believe that this class plays the role(s) " + stringBuilder.toString() +" of the " + patternName + " Design Pattern.";
-                    PatternSuggestionQuickFix patternSuggestionQuickFix = new PatternSuggestionQuickFix(patternInstance,holder);
+                    PatternSuggestionQuickFix patternSuggestionQuickFix = new PatternSuggestionQuickFix(patternInstance);
 
                     holder.registerProblem(element, suggestionText, patternSuggestionQuickFix);
-                    classRegisteredByClassName.add(element.toString());
-
                 }
             }
         };

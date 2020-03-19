@@ -1,10 +1,8 @@
-package inspections;
+package detection;
 
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
-import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
 import models.PatternInstance;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -14,11 +12,12 @@ public class PatternSuggestionQuickFix implements LocalQuickFix {
 
     public static final String QUICK_FIX_NAME = "Add Pattern Instance Documentation";
     private PatternInstance patternInstance;
-    private ProblemsHolder problemsHolder;
+    private PatternSuggestions patternSuggestions;
 
-    public PatternSuggestionQuickFix(PatternInstance patternInstance, ProblemsHolder problemsHolder){
+    public PatternSuggestionQuickFix(PatternInstance patternInstance){
         this.patternInstance = patternInstance;
-        this.problemsHolder = problemsHolder;
+        PluginState pluginState = PluginState.getInstance();
+        patternSuggestions = pluginState.getPatternSuggestions();
     }
 
     @Nls(capitalization = Nls.Capitalization.Sentence)
@@ -30,6 +29,8 @@ public class PatternSuggestionQuickFix implements LocalQuickFix {
 
     @Override
     public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
-        PluginState.getInstance().updateStorage(patternInstance);
+        patternSuggestions.acceptAvailableSuggestion(patternInstance);
+        PatternInstance copyPatternInstance = new PatternInstance(patternInstance);
+        PluginState.getInstance().updateStorage(copyPatternInstance);
     }
 }

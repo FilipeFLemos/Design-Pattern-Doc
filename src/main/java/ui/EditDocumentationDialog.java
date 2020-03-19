@@ -4,7 +4,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.util.ui.JBUI;
 import models.CollaborationListItem;
 import models.PatternInstance;
-import models.Relation;
+import models.PatternParticipant;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -110,15 +110,15 @@ public class EditDocumentationDialog extends DocumentationDialog{
     }
 
     private void fillCollaborationRows(PatternInstance patternInstance) {
-        ArrayList<Relation> collaborationRows = patternInstance.getCollaborationRows();
+        ArrayList<PatternParticipant> collaborationRows = patternInstance.getCollaborationRows();
         int index = 0;
         for(CollaborationListItem listItem : collaborationList){
             JTextField classNameField = listItem.getClassName();
             JTextField roleField = listItem.getRole();
 
-            Relation relation = collaborationRows.get(index);
-            String className = relation.getObject1();
-            String role = relation.getObject2();
+            PatternParticipant patternParticipant = collaborationRows.get(index);
+            String className = patternParticipant.getObject();
+            String role = patternParticipant.getRole();
 
             classNameField.setText(className);
             roleField.setText(role);
