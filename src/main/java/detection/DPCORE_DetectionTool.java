@@ -2,6 +2,7 @@ package detection;
 
 import models.PatternCandidate;
 import models.PatternInstance;
+import models.PatternParticipant;
 import storage.PluginState;
 
 import java.io.BufferedReader;
@@ -133,7 +134,7 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
             }
 
             if (belongToSamePattern(candidate, currentPatternCandidate)) {
-                currentPatternInstance.addObjectToRole(candidate);
+                currentPatternInstance.addPatternParticipant(candidate);
                 unsavedPatternInstance = true;
             } else {
                 patternInstances.add(currentPatternInstance);
@@ -167,7 +168,7 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
                 return false;
             }
 
-            Map<String, String> roleClass = new HashMap<>();
+            Set<PatternParticipant> patternParticipants = new HashSet<>();
 
             boolean retrievedAllRoles = false;
             while (!retrievedAllRoles) {
@@ -176,13 +177,13 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
                     retrievedAllRoles = true;
                 } else {
                     String[] parts = line.split("\\(");
-                    String objectRole = parts[1].split("\\)")[0];
-                    String objectClass = line.split(": ")[1];
-                    roleClass.put(objectRole, objectClass);
+                    String role = parts[1].split("\\)")[0];
+                    String object = line.split(": ")[1];
+                    patternParticipants.add(new PatternParticipant(object, role));
                 }
             }
 
-            patternCandidates.add(new PatternCandidate(roleClass));
+            patternCandidates.add(new PatternCandidate(patternParticipants));
         }
         return true;
     }
@@ -191,19 +192,20 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
      * Checks if two pattern candidates belong to the same pattern. This is done by checking if at least two objects
      * play the same roles in both candidates.
      *
-     * @param candidate               - One of the candidates
-     * @param currentPatternCandidate - The other candidate
+     * @param thisPatternCandidate               - One of the candidates
+     * @param thatPatternCandidate - The other candidate
      * @return true if they belong to the same pattern and false if otherwise
      */
-    private boolean belongToSamePattern(PatternCandidate candidate, PatternCandidate currentPatternCandidate) {
+    private boolean belongToSamePattern(PatternCandidate thisPatternCandidate, PatternCandidate thatPatternCandidate) {
         int objectsInCommon = 0;
-        for (Map.Entry<String, String> candidateObjectByRole : candidate.getObjectByRole().entrySet()) {
-            String role1 = candidateObjectByRole.getKey();
-            String object1 = candidateObjectByRole.getValue();
+        Set<PatternParticipant> thisPatternParticipants = thisPatternCandidate.getPatternParticipants();
+        Set<PatternParticipant> thatPatternParticipants = thatPatternCandidate.getPatternParticipants();
+        for(PatternParticipant thisPatternParticipant : thisPatternParticipants){
 
-            String object2 = currentPatternCandidate.getObjectByRole().get(role1);
-            if (object1.equals(object2)) {
-                objectsInCommon++;
+            for(PatternParticipant thatPatternParticipant : thatPatternParticipants){
+                if(thisPatternParticipant.equals(thatPatternParticipant)){
+                    objectsInCommon++;
+                }
             }
         }
 

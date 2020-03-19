@@ -24,6 +24,34 @@ public class PatternSuggestions {
         return availableSuggestions;
     }
 
+    void acceptAvailableSuggestion(PatternInstance patternInstance){
+        for (Map.Entry<String, Set<String>> entry : patternInstance.getObjectRoles().entrySet()) {
+            try {
+                String object = entry.getKey();
+                removeSuggestionMapEntry(object, patternInstance, availableSuggestions);
+                addSuggestionMapEntry(object, patternInstance, acceptedSuggestions);
+            }
+            catch (NullPointerException ignored){
+
+            }
+        }
+    }
+
+    private void removeSuggestionMapEntry(String object, PatternInstance patternInstance, Map<String, Set<PatternInstance>> suggestionMap){
+        Set<PatternInstance> patternInstances = suggestionMap.get(object);
+        patternInstances.remove(patternInstance);
+        suggestionMap.put(object, patternInstances);
+    }
+
+    private void addSuggestionMapEntry(String object, PatternInstance patternInstance, Map<String, Set<PatternInstance>> suggestionMap){
+        Set<PatternInstance> patternInstances = new HashSet<>();
+        if(suggestionMap.containsKey(object)){
+            patternInstances = suggestionMap.get(object);
+        }
+        patternInstances.add(patternInstance);
+        suggestionMap.put(object, patternInstances);
+    }
+
     void updateSuggestions(Set<PatternInstance> patternInstances) {
         for (PatternInstance patternInstance : patternInstances) {
             ArrayList<PatternParticipant> patternParticipants = patternInstance.getCollaborationRows();
@@ -35,7 +63,7 @@ public class PatternSuggestions {
                     try{
                         PatternInstance patternInstanceFound = getPatternInstanceInSuggestionMap(patternInstance, availableSuggestions);
                         if (!patternInstance.equals(patternInstanceFound)) {
-                            replaceAvailableSuggestions(patternInstance, patternInstanceFound);
+                            patternInstanceFound.mergePatternParticipants(patternInstance);
                         }
                         continue;
                     }catch (NullPointerException ignored){
@@ -48,12 +76,11 @@ public class PatternSuggestions {
                         PatternInstance patternInstanceFound = getPatternInstanceInSuggestionMap(patternInstance, acceptedSuggestions);
                         Set<String> roles = patternInstanceFound.getObjectRoles().get(object);
                         if (!roles.contains(role)) {
-                            PatternInstance mergedPatternInstance = new PatternInstance(patternInstanceFound, patternInstance);
-                            moveAcceptedPatternInstanceToAvailable(object, mergedPatternInstance);
+                            patternInstanceFound.mergePatternParticipants(patternInstance);
+                            moveAcceptedPatternInstanceToAvailable(object, patternInstanceFound);
                         }
                         else if(!patternInstance.equals(patternInstanceFound)){
                             patternInstanceFound.mergePatternParticipants(patternInstance);
-                            //replaceAcceptedSuggestions(patternInstance, patternInstanceFound);
                         }
                         continue;
                     }catch (NullPointerException ignored){
@@ -67,43 +94,18 @@ public class PatternSuggestions {
                     PatternInstance copyPatternInstance = new PatternInstance(patternInstanceFound);
                     copyPatternInstance.mergePatternParticipants(patternInstance);
                     if (roles == null || !roles.contains(role)) {
-                        addAvailableSuggestion(object, copyPatternInstance);
+                        addSuggestionMapEntry(object, copyPatternInstance, availableSuggestions);
                     }
                     else if(roles.contains(role)){
-                        addAcceptedSuggestion(object, copyPatternInstance);
+                        addSuggestionMapEntry(object, copyPatternInstance, acceptedSuggestions);
                     }
                     continue;
                 }catch (NullPointerException ignored){
                 }
 
-                addAvailableSuggestion(object, patternInstance);
+                addSuggestionMapEntry(object, patternInstance, availableSuggestions);
             }
         }
-    }
-
-    private void replaceAvailableSuggestions(PatternInstance patternInstance, PatternInstance patternInstanceFound) {
-        PatternInstance mergedPatternInstance = new PatternInstance(patternInstanceFound, patternInstance);
-        Set<PatternInstance> suggestedPatternInstances = availableSuggestions.get(object);
-        suggestedPatternInstances.remove(patternInstanceFound);
-        suggestedPatternInstances.add(mergedPatternInstance);
-        availableSuggestions.put(object, suggestedPatternInstances);
-    }
-
-    private void replaceAcceptedSuggestions(PatternInstance patternInstance, PatternInstance patternInstanceFound) {
-        patternInstanceFound.mergePatternParticipants(patternInstance);
-        PatternInstance mergedPatternInstance = new PatternInstance(patternInstanceFound, patternInstance);
-        Set<PatternInstance> suggestedPatternInstances = acceptedSuggestions.get(object);
-        suggestedPatternInstances.remove(patternInstanceFound);
-        suggestedPatternInstances.add(mergedPatternInstance);
-        acceptedSuggestions.put(object, suggestedPatternInstances);
-    }
-
-    private void replaceSuggestionMapEntry(PatternInstance patternInstance, PatternInstance patternInstanceFound, Map<String, Set<PatternInstance>> suggestionsMap) {
-        PatternInstance mergedPatternInstance = new PatternInstance(patternInstanceFound, patternInstance);
-        Set<PatternInstance> suggestedPatternInstances = suggestionsMap.get(object);
-        suggestedPatternInstances.remove(patternInstanceFound);
-        suggestedPatternInstances.add(mergedPatternInstance);
-        suggestionsMap.put(object, suggestedPatternInstances);
     }
 
     private PatternInstance getPatternInstanceInSuggestionMap(PatternInstance patternInstance, Map<String, Set<PatternInstance>> suggestionsMap) throws NullPointerException{
@@ -116,43 +118,9 @@ public class PatternSuggestions {
         throw new NullPointerException();
     }
 
-    void acceptAvailableSuggestion(PatternInstance patternInstance){
-        for (Map.Entry<String, Set<String>> entry : patternInstance.getObjectRoles().entrySet()) {
-            try {
-                String object = entry.getKey();
-                removeAvailableSuggestion(object, patternInstance);
-                addAcceptedSuggestion(object, patternInstance);
-            }
-            catch (NullPointerException ignored){
-
-            }
-        }
-    }
-
     private void moveAcceptedPatternInstanceToAvailable(String object, PatternInstance patternInstance){
-        addAvailableSuggestion(object, patternInstance);
-        removeAcceptedSuggestion(object, patternInstance);
-    }
-
-    private void addAcceptedSuggestion(String object, PatternInstance patternInstance) {
-        Set<PatternInstance> acceptedPatternInstances = new HashSet<>();
-        if(acceptedSuggestions.containsKey(object)){
-            acceptedPatternInstances = acceptedSuggestions.get(object);
-        }
-        acceptedPatternInstances.add(patternInstance);
-        acceptedSuggestions.put(object, acceptedPatternInstances);
-    }
-
-    private void removeAvailableSuggestion(String object, PatternInstance patternInstance) {
-        Set<PatternInstance> availablePatternInstances = availableSuggestions.get(object);
-        availablePatternInstances.remove(patternInstance);
-        availableSuggestions.put(object, availablePatternInstances);
-    }
-
-    private void removeAcceptedSuggestion(String object, PatternInstance patternInstance) {
-        Set<PatternInstance> acceptedPatternInstances = acceptedSuggestions.get(object);
-        acceptedPatternInstances.remove(patternInstance);
-        acceptedSuggestions.put(object, acceptedPatternInstances);
+        addSuggestionMapEntry(object, patternInstance, availableSuggestions);
+        removeSuggestionMapEntry(object, patternInstance, acceptedSuggestions);
     }
 
     private PatternInstance getPatternInstanceInPersistentStorage(PatternInstance patternInstance) {
@@ -166,11 +134,5 @@ public class PatternSuggestions {
             }
         }
         throw new NullPointerException();
-    }
-
-    private void addAvailableSuggestion(String object, PatternInstance joinedPatternInstance) {
-        Set<PatternInstance> patternInstancesPlayedByObject = new HashSet<>();
-        patternInstancesPlayedByObject.add(joinedPatternInstance);
-        availableSuggestions.put(object, patternInstancesPlayedByObject);
     }
 }

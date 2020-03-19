@@ -1,16 +1,16 @@
 package models;
 
-import java.util.Map;
+import java.util.Set;
 
 public class PatternCandidate {
 
-    private Map<String, String> objectByRole;
+    private Set<PatternParticipant> patternParticipants;
 
-    public PatternCandidate(Map<String, String> objectByRole) {
-        this.objectByRole = objectByRole;
+    public PatternCandidate(Set<PatternParticipant> patternParticipants) {
+        this.patternParticipants = patternParticipants;
     }
 
-    public Map<String, String> getObjectByRole() {
-        return objectByRole;
+    public Set<PatternParticipant> getPatternParticipants() {
+        return patternParticipants;
     }
 }

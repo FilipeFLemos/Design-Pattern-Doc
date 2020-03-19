@@ -19,10 +19,29 @@ public class PatternInstance implements Serializable{
     public PatternInstance(String patternName, PatternCandidate patternCandidate) {
         roleObjects = new HashMap<>();
         objectRoles = new HashMap<>();
-
         setPatternName(patternName);
         setIntent("");
         setPatternRoles(patternCandidate);
+        setPatternParticipant(patternCandidate);
+    }
+
+    private void setPatternRoles(PatternCandidate patternCandidate) {
+        Set<PatternParticipant> patternParticipants = patternCandidate.getPatternParticipants();
+        for (PatternParticipant patternParticipant : patternParticipants) {
+            String role = patternParticipant.getRole();
+            Set<String> objects = new HashSet<>();
+            roleObjects.put(role, objects);
+        }
+    }
+
+    private void setPatternParticipant(PatternCandidate patternCandidate) {
+        Set<PatternParticipant> patternParticipants = patternCandidate.getPatternParticipants();
+        for (PatternParticipant patternParticipant : patternParticipants) {
+            String role = patternParticipant.getRole();
+            String object = patternParticipant.getObject();
+            addObjectToRole(object, role);
+            addRoleToObject(role, object);
+        }
     }
 
     public PatternInstance(String name, String intent, Map<String, Set<String>> roleObjects, Map<String, Set<String>> objectRoles) {
@@ -43,41 +62,13 @@ public class PatternInstance implements Serializable{
             String object = entry.getKey();
             Set<String> roles = entry.getValue();
             for(String role : roles) {
-                addRoleToObject(object, role);
-                addObjectToRole(role, object);
+                addRoleToObject(role, object);
+                addObjectToRole(object, role);
             }
         }
     }
 
-    public PatternInstance(PatternInstance oldPatternInstance, PatternInstance newPatternInstance){
-        this.patternName = oldPatternInstance.getPatternName();
-        this.intent = oldPatternInstance.getIntent();
-        this.roleObjects = oldPatternInstance.getRoleObjects();
-        this.objectRoles = oldPatternInstance.getObjectRoles();
-        Map<String, Set<String>> objectRoles = newPatternInstance.getObjectRoles();
-        for (Map.Entry<String, Set<String>> entry : objectRoles.entrySet()) {
-            String object = entry.getKey();
-            Set<String> roles = entry.getValue();
-            for(String role : roles) {
-                addRoleToObject(object, role);
-                addObjectToRole(role, object);
-            }
-        }
-    }
-
-    private void setPatternRoles(PatternCandidate patternCandidate) {
-        for (Map.Entry<String, String> entry : patternCandidate.getObjectByRole().entrySet()) {
-            String role = entry.getKey();
-            Set<String> objects = new HashSet<>();
-            String object = entry.getValue();
-
-            objects.add(object);
-            roleObjects.put(role, objects);
-            addRoleToObject(object,role);
-        }
-    }
-
-    private void addRoleToObject(String object, String role){
+    private void addRoleToObject(String role, String object){
         Set<String> roles = objectRoles.get(object);
         if(roles == null){
             roles = new HashSet<>();
@@ -87,7 +78,7 @@ public class PatternInstance implements Serializable{
         objectRoles.put(object,roles);
     }
 
-    private void addObjectToRole(String role, String object){
+    private void addObjectToRole(String object, String role){
         Set<String> objects = roleObjects.get(role);
         if(objects == null){
             objects = new HashSet<>();
@@ -97,19 +88,20 @@ public class PatternInstance implements Serializable{
         roleObjects.put(role,objects);
     }
 
-    public void addObjectToRole(PatternCandidate patternCandidate) {
-        for (Map.Entry<String, String> entry : patternCandidate.getObjectByRole().entrySet()) {
-            String role = entry.getKey();
-            String object = entry.getValue();
-            Set<String> objects = roleObjects.get(role);
-
-            if (objects == null) {
+    public void addPatternParticipant(PatternCandidate patternCandidate) {
+        Set<PatternParticipant> patternParticipants = patternCandidate.getPatternParticipants();
+        for (PatternParticipant patternParticipant : patternParticipants) {
+            String role = patternParticipant.getRole();
+            if(!roleObjects.containsKey(role)){
                 return;
             }
 
+            Set<String> objects = roleObjects.get(role);
+            String object = patternParticipant.getObject();
+
             objects.add(object);
             roleObjects.put(role, objects);
-            addRoleToObject(object,role);
+            addRoleToObject(role, object);
         }
     }
 
