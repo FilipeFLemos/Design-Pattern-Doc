@@ -7,6 +7,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import models.CollaborationListItem;
 import models.PatternInstance;
+import models.PatternParticipant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import storage.PluginState;
@@ -210,16 +211,21 @@ public class DocumentationDialog extends DialogWrapper {
 
         roleObjects = new HashMap<>();
         objectRoles = new HashMap<>();
+        Set<String> roles = new HashSet<>();
+        Set<PatternParticipant> patternParticipants = new HashSet<>();
 
         for (CollaborationListItem listItem : collaborationList) {
-            String className = listItem.getClassName().getText();
+            String object = listItem.getClassName().getText();
             String role = listItem.getRole().getText();
 
-            updateObjectRoles(className, role);
-            updateRoleObjects(className, role);
+            roles.add(role);
+            updateObjectRoles(object, role);
+            updateRoleObjects(object, role);
+            patternParticipants.add(new PatternParticipant(object, role));
         }
 
-        return new PatternInstance(name, intent, roleObjects, objectRoles);
+        return new PatternInstance(name, intent, roles, patternParticipants);
+        //return new PatternInstance(name, intent, roleObjects, objectRoles, patternParticipants);
     }
 
     private void updateRoleObjects(String className, String role) {

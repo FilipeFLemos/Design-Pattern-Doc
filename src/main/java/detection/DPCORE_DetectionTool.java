@@ -134,7 +134,7 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
             }
 
             if (belongToSamePattern(candidate, currentPatternCandidate)) {
-                currentPatternInstance.addPatternParticipant(candidate);
+                currentPatternInstance.updatePatternParticipantsContainers(candidate.getPatternParticipants());
                 unsavedPatternInstance = true;
             } else {
                 patternInstances.add(currentPatternInstance);
@@ -169,6 +169,7 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
             }
 
             Set<PatternParticipant> patternParticipants = new HashSet<>();
+            Set<String> roles = new HashSet<>();
 
             boolean retrievedAllRoles = false;
             while (!retrievedAllRoles) {
@@ -180,10 +181,11 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
                     String role = parts[1].split("\\)")[0];
                     String object = line.split(": ")[1];
                     patternParticipants.add(new PatternParticipant(object, role));
+                    roles.add(role);
                 }
             }
 
-            patternCandidates.add(new PatternCandidate(patternParticipants));
+            patternCandidates.add(new PatternCandidate(patternParticipants, roles));
         }
         return true;
     }

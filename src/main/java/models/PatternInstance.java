@@ -1,9 +1,11 @@
 package models;
 
+import utils.Utils;
+
 import java.io.Serializable;
 import java.util.*;
 
-public class PatternInstance implements Serializable{
+public class PatternInstance implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -11,118 +13,73 @@ public class PatternInstance implements Serializable{
     private String intent;
     private Map<String, Set<String>> roleObjects;
     private Map<String, Set<String>> objectRoles;
+    private Set<PatternParticipant> patternParticipants;
 
-    public PatternInstance(){
+    public PatternInstance() {
 
     }
 
     public PatternInstance(String patternName, PatternCandidate patternCandidate) {
-        roleObjects = new HashMap<>();
-        objectRoles = new HashMap<>();
-        setPatternName(patternName);
-        setIntent("");
-        setPatternRoles(patternCandidate);
-        setPatternParticipant(patternCandidate);
+        this(patternName, "", patternCandidate.getRoles(), patternCandidate.getPatternParticipants());
     }
 
-    private void setPatternRoles(PatternCandidate patternCandidate) {
-        Set<PatternParticipant> patternParticipants = patternCandidate.getPatternParticipants();
-        for (PatternParticipant patternParticipant : patternParticipants) {
-            String role = patternParticipant.getRole();
+    public PatternInstance(PatternInstance patternInstance) {
+        this(patternInstance.getPatternName(), patternInstance.getIntent(), patternInstance.roleObjects.keySet(), patternInstance.getPatternParticipants());
+    }
+
+    public PatternInstance(String patternName, String intent, Set<String> roles, Set<PatternParticipant> patternParticipants) {
+        setPatternName(patternName);
+        setIntent(intent);
+        setRoleObjects(new HashMap<>());
+        setObjectRoles(new HashMap<>());
+        setPatternParticipants(new HashSet<>());
+
+        setPatternRoles(roles);
+        updatePatternParticipantsContainers(patternParticipants);
+    }
+
+    private void setPatternRoles(Set<String> roles) {
+        for (String role : roles) {
             Set<String> objects = new HashSet<>();
             roleObjects.put(role, objects);
         }
     }
 
-    private void setPatternParticipant(PatternCandidate patternCandidate) {
-        Set<PatternParticipant> patternParticipants = patternCandidate.getPatternParticipants();
+    public void updatePatternParticipantsContainers(Set<PatternParticipant> patternParticipants) {
         for (PatternParticipant patternParticipant : patternParticipants) {
-            String role = patternParticipant.getRole();
-            String object = patternParticipant.getObject();
-            addObjectToRole(object, role);
-            addRoleToObject(role, object);
+            updateContainers(patternParticipant);
         }
     }
 
-    public PatternInstance(String name, String intent, Map<String, Set<String>> roleObjects, Map<String, Set<String>> objectRoles) {
-        setPatternName(name);
-        setIntent(intent);
-        setRoleObjects(roleObjects);
-        setObjectRoles(objectRoles);
+    private void updateContainers(PatternParticipant patternParticipant) {
+        String role = patternParticipant.getRole();
+        String object = patternParticipant.getObject();
+        addRoleToObject(role, object);
+        addObjectToRole(object, role);
+        addPatternParticipant(role, object);
     }
 
-    public PatternInstance(PatternInstance patternInstance){
-        this(patternInstance.getPatternName(), patternInstance.getIntent(), new HashMap<>(), new HashMap<>());
-        mergePatternParticipants(patternInstance);
-    }
-
-    public void mergePatternParticipants(PatternInstance newPatternInstance){
-        Map<String, Set<String>> objectRoles = newPatternInstance.getObjectRoles();
-        for (Map.Entry<String, Set<String>> entry : objectRoles.entrySet()) {
-            String object = entry.getKey();
-            Set<String> roles = entry.getValue();
-            for(String role : roles) {
-                addRoleToObject(role, object);
-                addObjectToRole(object, role);
-            }
-        }
-    }
-
-    private void addRoleToObject(String role, String object){
-        Set<String> roles = objectRoles.get(object);
-        if(roles == null){
-            roles = new HashSet<>();
+    private void addRoleToObject(String role, String object) {
+        Set<String> roles = new HashSet<>();
+        if (objectRoles.containsKey(object)) {
+            roles = objectRoles.get(object);
         }
         roles.add(role);
-
-        objectRoles.put(object,roles);
+        objectRoles.put(object, roles);
     }
 
-    private void addObjectToRole(String object, String role){
-        Set<String> objects = roleObjects.get(role);
-        if(objects == null){
-            objects = new HashSet<>();
-        }
-        objects.add(object);
-
-        roleObjects.put(role,objects);
-    }
-
-    public void addPatternParticipant(PatternCandidate patternCandidate) {
-        Set<PatternParticipant> patternParticipants = patternCandidate.getPatternParticipants();
-        for (PatternParticipant patternParticipant : patternParticipants) {
-            String role = patternParticipant.getRole();
-            if(!roleObjects.containsKey(role)){
-                return;
-            }
-
+    private void addObjectToRole(String object, String role) {
+        try {
             Set<String> objects = roleObjects.get(role);
-            String object = patternParticipant.getObject();
-
             objects.add(object);
             roleObjects.put(role, objects);
-            addRoleToObject(role, object);
+        } catch (NullPointerException ignored) {
+
         }
     }
 
-    public ArrayList<PatternParticipant> getCollaborationRows(){
-        ArrayList<PatternParticipant> collaborationRows = new ArrayList<>();
-
-        for (Map.Entry<String, Set<String>> entry : objectRoles.entrySet()) {
-            String className = entry.getKey();
-            Set<String> roles = entry.getValue();
-
-            for(String role : roles){
-                PatternParticipant patternParticipant = new PatternParticipant(className, role);
-                collaborationRows.add(patternParticipant);
-            }
-        }
-
-        return collaborationRows;
-    }
-
-    public void setIntent(String intent) {
-        this.intent = intent;
+    private void addPatternParticipant(String role, String object) {
+        this.patternParticipants.add(new PatternParticipant(object, role));
     }
 
     public boolean areTheSamePatternInstance(PatternInstance thatPatternInstance) {
@@ -130,9 +87,37 @@ public class PatternInstance implements Serializable{
             return true;
         }
 
-        //TODO threshold
+        if (!patternName.equals(thatPatternInstance.getPatternName())) {
+            return false;
+        }
 
-        return false;
+        return hasEnoughParticipantsInCommon(thatPatternInstance);
+    }
+
+    private boolean isSubSet(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PatternInstance that = (PatternInstance) o;
+        if (!patternName.equals(that.patternName)) return false;
+
+        Set<PatternParticipant> thatPatternParticipants = that.getPatternParticipants();
+        for (PatternParticipant thisPatternParticipant : patternParticipants) {
+            if (!thatPatternParticipants.contains(thisPatternParticipant)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean hasEnoughParticipantsInCommon(PatternInstance thatPatternInstance) {
+        int patternParticipantsInCommon = 0;
+        Set<PatternParticipant> thatPatternParticipants = thatPatternInstance.getPatternParticipants();
+        for (PatternParticipant thisPatternParticipant : patternParticipants) {
+            if (thatPatternParticipants.contains(thisPatternParticipant)) {
+                patternParticipantsInCommon++;
+            }
+        }
+        return patternParticipantsInCommon >= Utils.MIN_PATTERN_PARTICIPANTS_IN_COMMON;
     }
 
     @Override
@@ -150,22 +135,6 @@ public class PatternInstance implements Serializable{
         return Objects.hash(patternName, intent, roleObjects, objectRoles);
     }
 
-    public boolean isSubSet(Object o){
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PatternInstance that = (PatternInstance) o;
-        if(!patternName.equals(that.patternName)) return false;
-
-        ArrayList<PatternParticipant> thisCollaborationRows = getCollaborationRows();
-        ArrayList<PatternParticipant> thatCollaborationRows = that.getCollaborationRows();
-        for(PatternParticipant thisPatternParticipant : thisCollaborationRows){
-            if(!thatCollaborationRows.contains(thisPatternParticipant)){
-                return false;
-            }
-        }
-        return true;
-    }
-
     public String getPatternName() {
         return patternName;
     }
@@ -176,6 +145,10 @@ public class PatternInstance implements Serializable{
 
     public String getIntent() {
         return intent;
+    }
+
+    public void setIntent(String intent) {
+        this.intent = intent;
     }
 
     public Map<String, Set<String>> getRoleObjects() {
@@ -192,5 +165,13 @@ public class PatternInstance implements Serializable{
 
     public void setObjectRoles(Map<String, Set<String>> objectRoles) {
         this.objectRoles = objectRoles;
+    }
+
+    public Set<PatternParticipant> getPatternParticipants() {
+        return patternParticipants;
+    }
+
+    public void setPatternParticipants(Set<PatternParticipant> patternParticipants) {
+        this.patternParticipants = patternParticipants;
     }
 }

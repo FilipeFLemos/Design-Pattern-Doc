@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 public class EditDocumentationDialog extends DocumentationDialog{
 
@@ -86,7 +87,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
 
     private void setSelectedPatternInstanceNumCollaborationRows() {
         String id = getSelectedPatternInstanceId();
-        int numRows = patternInstanceById.get(id).getCollaborationRows().size();
+        int numRows = patternInstanceById.get(id).getPatternParticipants().size();
         setNumCollaborationRows(numRows);
     }
 
@@ -110,13 +111,13 @@ public class EditDocumentationDialog extends DocumentationDialog{
     }
 
     private void fillCollaborationRows(PatternInstance patternInstance) {
-        ArrayList<PatternParticipant> collaborationRows = patternInstance.getCollaborationRows();
+        ArrayList<PatternParticipant> patternParticipants = new ArrayList<>(patternInstance.getPatternParticipants());
         int index = 0;
         for(CollaborationListItem listItem : collaborationList){
             JTextField classNameField = listItem.getClassName();
             JTextField roleField = listItem.getRole();
 
-            PatternParticipant patternParticipant = collaborationRows.get(index);
+            PatternParticipant patternParticipant = patternParticipants.get(index);
             String className = patternParticipant.getObject();
             String role = patternParticipant.getRole();
 

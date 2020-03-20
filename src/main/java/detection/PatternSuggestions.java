@@ -54,7 +54,7 @@ public class PatternSuggestions {
 
     void updateSuggestions(Set<PatternInstance> patternInstances) {
         for (PatternInstance patternInstance : patternInstances) {
-            ArrayList<PatternParticipant> patternParticipants = patternInstance.getCollaborationRows();
+            Set<PatternParticipant> patternParticipants = patternInstance.getPatternParticipants();
             for (PatternParticipant patternParticipant : patternParticipants) {
                 object = patternParticipant.getObject();
                 role = patternParticipant.getRole();
@@ -63,7 +63,7 @@ public class PatternSuggestions {
                     try{
                         PatternInstance patternInstanceFound = getPatternInstanceInSuggestionMap(patternInstance, availableSuggestions);
                         if (!patternInstance.equals(patternInstanceFound)) {
-                            patternInstanceFound.mergePatternParticipants(patternInstance);
+                            patternInstanceFound.updatePatternParticipantsContainers(patternInstance.getPatternParticipants());
                         }
                         continue;
                     }catch (NullPointerException ignored){
@@ -76,11 +76,11 @@ public class PatternSuggestions {
                         PatternInstance patternInstanceFound = getPatternInstanceInSuggestionMap(patternInstance, acceptedSuggestions);
                         Set<String> roles = patternInstanceFound.getObjectRoles().get(object);
                         if (!roles.contains(role)) {
-                            patternInstanceFound.mergePatternParticipants(patternInstance);
+                            patternInstanceFound.updatePatternParticipantsContainers(patternInstance.getPatternParticipants());
                             moveAcceptedPatternInstanceToAvailable(object, patternInstanceFound);
                         }
                         else if(!patternInstance.equals(patternInstanceFound)){
-                            patternInstanceFound.mergePatternParticipants(patternInstance);
+                            patternInstanceFound.updatePatternParticipantsContainers(patternInstance.getPatternParticipants());
                         }
                         continue;
                     }catch (NullPointerException ignored){
@@ -92,7 +92,7 @@ public class PatternSuggestions {
                     PatternInstance patternInstanceFound = getPatternInstanceInPersistentStorage(patternInstance);
                     Set<String> roles = patternInstanceFound.getObjectRoles().get(object);
                     PatternInstance copyPatternInstance = new PatternInstance(patternInstanceFound);
-                    copyPatternInstance.mergePatternParticipants(patternInstance);
+                    copyPatternInstance.updatePatternParticipantsContainers(patternInstance.getPatternParticipants());
                     if (roles == null || !roles.contains(role)) {
                         addSuggestionMapEntry(object, copyPatternInstance, availableSuggestions);
                     }

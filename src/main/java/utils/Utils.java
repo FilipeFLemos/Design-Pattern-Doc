@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Utils {
 
+    public static int MIN_PATTERN_PARTICIPANTS_IN_COMMON = 2;
+
     public static String generatePatternInstanceId(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
         String id;
         do {
