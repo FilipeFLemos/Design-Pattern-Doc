@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class DPCORE_DetectionTool extends AbstractDetectionTool {
+public class DPCORE implements DetectionTool {
 
     private final String executeJAR = "java -Dfile.encoding=windows-1252 -jar \"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\out\\artifacts\\DP_CORE_jar\\DP-CORE.jar\"";
     private final String patternRepoPath = "-pattern=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\patterns\\";
@@ -18,13 +18,10 @@ public class DPCORE_DetectionTool extends AbstractDetectionTool {
     private String patternName = "";
     private Set<PatternInstance> patternInstances;
 
-    public DPCORE_DetectionTool(){
+    public DPCORE(){
         patternInstances = new HashSet<>();
     }
 
-    /**
-     * Runs the DP-CORE tool for each of the implemented tool's patterns.
-     */
     @Override
     public Set<PatternInstance> scanForPatterns() {
 
