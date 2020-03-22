@@ -100,4 +100,5 @@ public class ProjectDetails {
     private void setPath(String path) {
         this.path = path;
     }
+
 }

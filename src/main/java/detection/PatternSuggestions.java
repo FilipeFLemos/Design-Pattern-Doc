@@ -15,18 +15,36 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PatternSuggestions {
-    private Map<String, Set<PatternInstance>> acceptedSuggestions;
-    private Map<String, Set<PatternInstance>> availableSuggestions;
+    private ConcurrentHashMap<String, Set<PatternInstance>> acceptedSuggestions;
+    private ConcurrentHashMap<String, Set<PatternInstance>> availableSuggestions;
 
     private PatternParticipant patternParticipant;
 
     public PatternSuggestions() {
-        acceptedSuggestions = new HashMap<>();
-        availableSuggestions = new HashMap<>();
+        acceptedSuggestions = new ConcurrentHashMap<>();
+        availableSuggestions = new ConcurrentHashMap<>();
     }
 
     public Map<String, Set<PatternInstance>> getAvailableSuggestions() {
         return availableSuggestions;
+    }
+
+    public void updateClassNameInSuggestions(String oldName, String newName) {
+        if(acceptedSuggestions.containsKey(oldName)){
+            updateClassNameInSuggestionMap(oldName, newName, acceptedSuggestions);
+        }
+        if(availableSuggestions.containsKey(oldName)){
+            updateClassNameInSuggestionMap(oldName, newName, availableSuggestions);
+        }
+    }
+
+    private void updateClassNameInSuggestionMap(String oldName, String newName, Map<String, Set<PatternInstance>> suggestionsMap) {
+        Set<PatternInstance> patternInstances = suggestionsMap.get(oldName);
+        for (PatternInstance patternInstance : patternInstances) {
+            patternInstance.renameParticipantObject(oldName, newName);
+        }
+        suggestionsMap.put(newName, patternInstances);
+        suggestionsMap.remove(oldName);
     }
 
     public void updateSuggestionsAfterManualDocumentation(PatternInstance patternInstance){
@@ -223,4 +241,6 @@ public class PatternSuggestions {
         }
         throw new NullPointerException();
     }
+
+
 }

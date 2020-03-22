@@ -4,6 +4,7 @@ import models.PatternInstance;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ProjectPersistedState implements Serializable {
@@ -60,5 +61,15 @@ public class ProjectPersistedState implements Serializable {
             }
         }
         return id;
+    }
+
+    public void updateClassNameInPersistedState(String oldName, String newName) {
+        for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
+            PatternInstance patternInstance = entry.getValue();
+            Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
+            if(objectRoles.containsKey(oldName)){
+                patternInstance.renameParticipantObject(oldName, newName);
+            }
+        }
     }
 }

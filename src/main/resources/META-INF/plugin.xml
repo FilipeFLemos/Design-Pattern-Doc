@@ -28,6 +28,10 @@
         <lang.documentationProvider language="JAVA"
                                     order="first"
                                     implementationClass="ui.PatternDocumentation"/>
+
+        <refactoring.elementListenerProvider
+                                    order="first"
+                                    implementation="inspections.ClassNameRefactoringListenerProvider"/>
     </extensions>
 
     <actions>
