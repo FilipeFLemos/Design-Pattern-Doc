@@ -5,12 +5,14 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import detection.PatternSuggestions;
 import models.CollaborationListItem;
 import models.PatternInstance;
 import models.PatternParticipant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import storage.PluginState;
+import storage.ProjectDetails;
 import storage.ProjectPersistedState;
 
 import javax.swing.*;
@@ -18,7 +20,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DocumentationDialog extends DialogWrapper {
+public abstract class DocumentationDialog extends DialogWrapper {
 
     protected final int DEFAULT_NUM_ROWS = 3;
     protected JPanel panel;
@@ -31,8 +33,6 @@ public class DocumentationDialog extends DialogWrapper {
 
     protected ProjectPersistedState projectPersistedState;
     protected ConcurrentHashMap<String, PatternInstance> patternInstanceById;
-    private Map<String, Set<String>> roleObjects;
-    private Map<String, Set<String>> objectRoles;
 
     public DocumentationDialog(boolean canBeParent) {
         super(canBeParent);
@@ -56,15 +56,17 @@ public class DocumentationDialog extends DialogWrapper {
 
     @Nullable
     @Override
-    protected JComponent createCenterPanel() {
-        return null;
-    }
+    protected abstract JComponent createCenterPanel();
+
+    @Nullable
+    @Override
+    protected abstract ValidationInfo doValidate();
 
     protected void addDocumentationDialogInvariableBody() {
-        addElementToPanel(getLabel("Pattern Name"));
-        addElementToPanel(patternName);
-        addElementToPanel(getLabel("Intent"));
-        addElementToPanel(patternIntent);
+        addRowElementToPanel(getLabel("Pattern Name"));
+        addRowElementToPanel(patternName);
+        addRowElementToPanel(getLabel("Intent"));
+        addRowElementToPanel(patternIntent);
         addCollaborationHeaderToPanel();
         addCollaborationListToPanel();
 
@@ -82,7 +84,7 @@ public class DocumentationDialog extends DialogWrapper {
         return jLabel;
     }
 
-    protected void addElementToPanel(JComponent jComponent) {
+    protected void addRowElementToPanel(JComponent jComponent) {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridwidth = 4;
@@ -178,9 +180,7 @@ public class DocumentationDialog extends DialogWrapper {
         collaborationList = new ArrayList<>();
     }
 
-    @Nullable
-    @Override
-    protected ValidationInfo doValidate() {
+    protected ValidationInfo getCommonValidationInfo(){
         String name = patternName.getText();
         if (name.equals("")) {
             return new ValidationInfo("This field is mandatory!", patternName);
@@ -204,13 +204,15 @@ public class DocumentationDialog extends DialogWrapper {
         return null;
     }
 
+    protected boolean failedCommonValidation(ValidationInfo validationInfo){
+        return validationInfo != null;
+    }
+
     @NotNull
     protected PatternInstance generatePatternInstanceFromUserInput() {
         String name = patternName.getText();
         String intent = patternIntent.getText();
 
-        roleObjects = new HashMap<>();
-        objectRoles = new HashMap<>();
         Set<String> roles = new HashSet<>();
         Set<PatternParticipant> patternParticipants = new HashSet<>();
 
@@ -219,34 +221,20 @@ public class DocumentationDialog extends DialogWrapper {
             String role = listItem.getRole().getText();
 
             roles.add(role);
-            updateObjectRoles(object, role);
-            updateRoleObjects(object, role);
             patternParticipants.add(new PatternParticipant(object, role));
         }
 
         return new PatternInstance(name, intent, roles, patternParticipants);
-        //return new PatternInstance(name, intent, roleObjects, objectRoles, patternParticipants);
     }
 
-    private void updateRoleObjects(String className, String role) {
-        updateMapStringSet(className, role, roleObjects);
-    }
-
-    private void updateObjectRoles(String className, String role) {
-        updateMapStringSet(className, role, objectRoles);
-    }
-
-    private void updateMapStringSet(String mapKey, String newSetElement, Map<String, Set<String>> map) {
-        Set<String> mapValue = new HashSet<>();
-        if (map.containsKey(mapKey)) {
-            mapValue = map.get(mapKey);
-        }
-        mapValue.add(newSetElement);
-        map.put(mapKey, mapValue);
+    protected void updatePatternSuggestions(PatternInstance patternInstance) {
+        PatternSuggestions patternSuggestions = PluginState.getInstance().getPatternSuggestions();
+        patternSuggestions.updateSuggestionsAfterManualDocumentation(patternInstance);
     }
 
     protected void setProjectState() throws NullPointerException {
-        this.projectPersistedState = ((PluginState) PluginState.getInstance()).getProjectPersistedState();
+        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
+        this.projectPersistedState = projectDetails.getActiveProjectPersistedState();
     }
 
     protected void setPatternInstanceById() throws NullPointerException {

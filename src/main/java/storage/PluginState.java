@@ -1,17 +1,28 @@
 package storage;
 
+import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.codeInspection.QuickFix;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.psi.PsiElement;
+import com.intellij.util.concurrency.AppExecutorUtil;
+import detection.PatternSuggestionQuickFix;
 import detection.PatternSuggestions;
+import detection.SchedulledPatternDetection;
 import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.Utils;
 
-import java.util.HashSet;
-
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @State(
         name = "PatternInstances",
@@ -20,13 +31,14 @@ import java.util.HashSet;
 public class PluginState implements PersistentStateComponent<ProjectsPersistedState> {
 
     private ProjectsPersistedState persistentState = new ProjectsPersistedState();
-    private HashSet<PatternInstance> suggestions = new HashSet<>();
     private ProjectDetails projectDetails;
     private PatternSuggestions patternSuggestions;
+    private ProblemsHolder problemsHolder;
 
     public PluginState() {
         projectDetails = new ProjectDetails();
         patternSuggestions = new PatternSuggestions();
+        AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(new SchedulledPatternDetection(), 0, Utils.PATTERN_DETECTION_DELAY, TimeUnit.SECONDS);
     }
 
     public static PluginState getInstance() {
@@ -46,22 +58,21 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
 
     public void updateStorage(PatternInstance patternInstance){
         projectDetails.updateProjectPersistedState(patternInstance);
-//        if (suggestions.contains(patternInstance)) {
-//            patternInstance.setAnHint(false);
-//            suggestions.remove(patternInstance);
-//            suggestions.add(patternInstance);
-//        }
-    }
-
-    public ProjectPersistedState getProjectPersistedState() {
-       return projectDetails.getActiveProjectPersistedState();
-    }
-
-    public String getProjectPath(){
-        return projectDetails.getPath();
     }
 
     public PatternSuggestions getPatternSuggestions() {
         return patternSuggestions;
+    }
+
+    public ProjectDetails getProjectDetails() {
+        return projectDetails;
+    }
+
+    public void setHolder(ProblemsHolder holder) {
+        this.problemsHolder = holder;
+    }
+
+    public ProblemsHolder getProblemsHolder() {
+        return problemsHolder;
     }
 }

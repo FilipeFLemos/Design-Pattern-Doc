@@ -1,8 +1,14 @@
 package detection;
 
+import com.intellij.codeInspection.ProblemDescriptor;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.codeInspection.QuickFix;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
 import models.PatternInstance;
 import models.PatternParticipant;
 import storage.PluginState;
+import storage.ProjectDetails;
 import storage.ProjectPersistedState;
 
 import java.util.*;
@@ -23,15 +29,83 @@ public class PatternSuggestions {
         return availableSuggestions;
     }
 
+    public void updateSuggestionsAfterManualDocumentation(PatternInstance patternInstance){
+        updateQuickFixes();
+        Set<PatternParticipant> patternParticipants = patternInstance.getPatternParticipants();
+
+        for (PatternParticipant patternParticipant : patternParticipants) {
+            this.patternParticipant = patternParticipant;
+            String object = patternParticipant.getObject();
+
+            if (availableSuggestions.containsKey(object)) {
+                try {
+                    PatternInstance patternInstanceInSuggestionMap = getPatternInstanceInSuggestionMap(patternInstance, availableSuggestions);
+                    Set<PatternParticipant> foundPatternParticipants = patternInstanceInSuggestionMap.getPatternParticipants();
+
+                    if (foundPatternParticipants.contains(patternParticipant)) {
+                        patternInstanceInSuggestionMap.updatePatternParticipantsContainers(patternInstance.getPatternParticipants());
+                        moveAvailablePatternInstanceToAccepted(object, patternInstanceInSuggestionMap);
+                    } else if (!patternInstance.equals(patternInstanceInSuggestionMap)) {
+                        patternInstanceInSuggestionMap.updatePatternParticipantsContainers(patternInstance.getPatternParticipants());
+                    }
+                    continue;
+                } catch (NullPointerException ignored) {
+                }
+            }
+
+            if (acceptedSuggestions.containsKey(object)) {
+                try {
+                    updateAcceptedSuggestionsMap(patternInstance);
+                } catch (NullPointerException ignored) {
+                }
+            }
+        }
+    }
+
+    private void updateQuickFixes(){
+        ProblemsHolder problemsHolder = PluginState.getInstance().getProblemsHolder();
+        ArrayList<ProblemDescriptor> problemDescriptors = (ArrayList<ProblemDescriptor>) problemsHolder.getResults();
+        for(ProblemDescriptor problemDescriptor : problemDescriptors){
+            QuickFix[] quickFixes = problemDescriptor.getFixes();
+
+            for(QuickFix quickFix : quickFixes){
+
+                if(!(quickFix instanceof PatternSuggestionQuickFix)){
+                    continue;
+                }
+                PatternSuggestionQuickFix patternSuggestionQuickFix = (PatternSuggestionQuickFix) quickFix;
+                PsiElement psiElement = problemDescriptor.getPsiElement();
+                String[] parsedObject = psiElement.toString().split(":");
+                String object = parsedObject[1];
+
+                PatternInstance patternInstance = ((PatternSuggestionQuickFix) quickFix).getPatternInstance();
+                Set<PatternInstance> patternInstances = availableSuggestions.get(object);
+
+                for(PatternInstance patternInstanceAvailable : patternInstances){
+                    if(patternInstance.areTheSamePatternInstance(patternInstanceAvailable)){
+                        patternSuggestionQuickFix.removeFixSuggestion(psiElement);
+                        break;
+                    }
+                }
+
+            }
+        }
+    }
+
     void acceptAvailableSuggestion(PatternInstance patternInstance) {
-        for (Map.Entry<String, Set<String>> entry : patternInstance.getObjectRoles().entrySet()) {
+        Set<PatternParticipant> patternInstances = patternInstance.getPatternParticipants();
+        for (PatternParticipant patternParticipant : patternInstances) {
             try {
-                String object = entry.getKey();
-                removeSuggestionMapEntry(object, patternInstance, availableSuggestions);
-                addSuggestionMapEntry(object, patternInstance, acceptedSuggestions);
+                String object = patternParticipant.getObject();
+                moveAvailablePatternInstanceToAccepted(object,patternInstance);
             } catch (NullPointerException ignored) {
             }
         }
+    }
+
+    private void moveAvailablePatternInstanceToAccepted(String object, PatternInstance patternInstance){
+        removeSuggestionMapEntry(object, patternInstance, availableSuggestions);
+        addSuggestionMapEntry(object, patternInstance, acceptedSuggestions);
     }
 
     private void removeSuggestionMapEntry(String object, PatternInstance patternInstance, Map<String, Set<PatternInstance>> suggestionMap) {
@@ -137,7 +211,8 @@ public class PatternSuggestions {
     }
 
     private PatternInstance getPatternInstanceInPersistentStorage(PatternInstance patternInstance) {
-        ProjectPersistedState projectPersistedState = PluginState.getInstance().getProjectPersistedState();
+        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
+        ProjectPersistedState projectPersistedState = projectDetails.getActiveProjectPersistedState();
         ConcurrentHashMap<String, PatternInstance> patternInstanceById = projectPersistedState.getPatternInstanceById();
 
         for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {

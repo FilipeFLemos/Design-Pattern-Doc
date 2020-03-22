@@ -12,6 +12,7 @@ import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import storage.PluginState;
+import storage.ProjectDetails;
 import storage.ProjectPersistedState;
 
 import java.awt.*;
@@ -99,7 +100,8 @@ public class PatternHints extends EditorLinePainter {
     }
 
     private void setPatternInstanceById() {
-        ProjectPersistedState projectPersistedState = PluginState.getInstance().getProjectPersistedState();
+        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
+        ProjectPersistedState projectPersistedState = projectDetails.getActiveProjectPersistedState();
         patternInstanceById = projectPersistedState.getPatternInstanceById();
     }
 

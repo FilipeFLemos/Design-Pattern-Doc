@@ -3,6 +3,10 @@ package detection;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiIdentifier;
+import com.intellij.psi.impl.source.tree.java.PsiIdentifierImpl;
 import models.PatternInstance;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -32,5 +36,14 @@ public class PatternSuggestionQuickFix implements LocalQuickFix {
         patternSuggestions.acceptAvailableSuggestion(patternInstance);
         PatternInstance copyPatternInstance = new PatternInstance(patternInstance);
         PluginState.getInstance().updateStorage(copyPatternInstance);
+
+    }
+
+    public void removeFixSuggestion(PsiElement psiElement){
+
+    }
+
+    public PatternInstance getPatternInstance() {
+        return patternInstance;
     }
 }

@@ -80,7 +80,7 @@ public class ProjectDetails {
         persistedState = projectsPersistedState.getProjectState(name);
     }
 
-    private Project getActiveProject() {
+    public Project getActiveProject() {
         Project activeProject = null;
         Project[] projects = ProjectManager.getInstance().getOpenProjects();
         for (Project project : projects) {

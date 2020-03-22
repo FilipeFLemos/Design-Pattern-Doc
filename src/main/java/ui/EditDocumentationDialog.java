@@ -1,17 +1,18 @@
 package ui;
 
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.ui.JBUI;
 import models.CollaborationListItem;
 import models.PatternInstance;
 import models.PatternParticipant;
 import org.jetbrains.annotations.Nullable;
+import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 
 public class EditDocumentationDialog extends DocumentationDialog{
 
@@ -33,7 +34,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
             setJComboListener();
             setSelectedPatternInstanceNumCollaborationRows();
 
-            addElementToPanel(getLabel("Stored Pattern Instances"));
+            addRowElementToPanel(getLabel("Stored Pattern Instances"));
             addPatternInstancesHeaderToPanel();
             addDocumentationDialogInvariableBody();
 
@@ -128,13 +129,48 @@ public class EditDocumentationDialog extends DocumentationDialog{
         }
     }
 
+    @Nullable
+    @Override
+    protected ValidationInfo doValidate() {
+        ValidationInfo commonValidationInfo = getCommonValidationInfo();
+        if(failedCommonValidation(commonValidationInfo)){
+            return commonValidationInfo;
+        }
+
+        String id = getSelectedPatternInstanceId();
+        PatternInstance patternInstance = generatePatternInstanceFromUserInput();
+        if(existsOtherDocumentationForPatternInstance(id, patternInstance)){
+            return new ValidationInfo("Your edition has result in a new pattern instance, which has already been documented. Consider editing the existing one.");
+        }
+
+        return null;
+    }
+
+    private boolean existsOtherDocumentationForPatternInstance(String id, PatternInstance patternInstance) {
+        boolean existsPatternInstance = false;
+
+        for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
+            String persistedPatternInstanceId = entry.getKey();
+            PatternInstance persistedPatternInstance = entry.getValue();
+            if (patternInstance.areTheSamePatternInstance(persistedPatternInstance) && !id.equals(persistedPatternInstanceId)) {
+                existsPatternInstance = true;
+                break;
+            }
+        }
+        return existsPatternInstance;
+    }
+
     @Override
     protected void doOKAction() {
         PatternInstance patternInstance = generatePatternInstanceFromUserInput();
-        String id = getSelectedPatternInstanceId();
-
-        projectPersistedState.updatePatternInstance(id, patternInstance);
+        updatePatternInstance(patternInstance);
+        updatePatternSuggestions(patternInstance);
         close(OK_EXIT_CODE);
+    }
+
+    private void updatePatternInstance(PatternInstance patternInstance) {
+        String id = getSelectedPatternInstanceId();
+        projectPersistedState.updatePatternInstance(id, patternInstance);
     }
 
     private String getSelectedPatternInstanceId() throws NullPointerException {

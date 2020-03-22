@@ -4,6 +4,7 @@ import models.PatternCandidate;
 import models.PatternInstance;
 import models.PatternParticipant;
 import storage.PluginState;
+import storage.ProjectDetails;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +26,8 @@ public class DPCORE implements DetectionTool {
     @Override
     public Set<PatternInstance> scanForPatterns() {
 
-        String projectPath = PluginState.getInstance().getProjectPath().replace("/","\\");
+        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
+        String projectPath = projectDetails.getPath().replace("/","\\");
         projectPath = " -project=\"" + projectPath + "\\src\" ";
 
         String pattern = "Abstract Factory.pattern\"";
