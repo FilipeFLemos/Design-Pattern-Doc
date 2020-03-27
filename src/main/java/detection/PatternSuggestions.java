@@ -1,10 +1,5 @@
 package detection;
 
-import com.intellij.codeInspection.ProblemDescriptor;
-import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.codeInspection.QuickFix;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
 import models.PatternInstance;
 import models.PatternParticipant;
 import storage.PluginState;
@@ -48,7 +43,6 @@ public class PatternSuggestions {
     }
 
     public void updateSuggestionsAfterManualDocumentation(PatternInstance patternInstance){
-        updateQuickFixes();
         Set<PatternParticipant> patternParticipants = patternInstance.getPatternParticipants();
 
         for (PatternParticipant patternParticipant : patternParticipants) {
@@ -76,36 +70,6 @@ public class PatternSuggestions {
                     updateAcceptedSuggestionsMap(patternInstance);
                 } catch (NullPointerException ignored) {
                 }
-            }
-        }
-    }
-
-    private void updateQuickFixes(){
-        ProblemsHolder problemsHolder = PluginState.getInstance().getProblemsHolder();
-        ArrayList<ProblemDescriptor> problemDescriptors = (ArrayList<ProblemDescriptor>) problemsHolder.getResults();
-        for(ProblemDescriptor problemDescriptor : problemDescriptors){
-            QuickFix[] quickFixes = problemDescriptor.getFixes();
-
-            for(QuickFix quickFix : quickFixes){
-
-                if(!(quickFix instanceof PatternSuggestionQuickFix)){
-                    continue;
-                }
-                PatternSuggestionQuickFix patternSuggestionQuickFix = (PatternSuggestionQuickFix) quickFix;
-                PsiElement psiElement = problemDescriptor.getPsiElement();
-                String[] parsedObject = psiElement.toString().split(":");
-                String object = parsedObject[1];
-
-                PatternInstance patternInstance = ((PatternSuggestionQuickFix) quickFix).getPatternInstance();
-                Set<PatternInstance> patternInstances = availableSuggestions.get(object);
-
-                for(PatternInstance patternInstanceAvailable : patternInstances){
-                    if(patternInstance.areTheSamePatternInstance(patternInstanceAvailable)){
-                        patternSuggestionQuickFix.removeFixSuggestion(psiElement);
-                        break;
-                    }
-                }
-
             }
         }
     }

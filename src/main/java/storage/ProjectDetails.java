@@ -2,11 +2,15 @@ package storage;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.WindowManager;
 import models.PatternInstance;
 import utils.Utils;
 
 import java.awt.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ProjectDetails {
 
@@ -91,6 +95,19 @@ public class ProjectDetails {
             }
         }
         return activeProject;
+    }
+
+    public Set<String> getAllFileNamesFromProject(){
+        Project activeProject = getActiveProject();
+        Set<String> filesName = new HashSet<>();
+        Collection<VirtualFile> files = Utils.getVirtualFilesInProject(activeProject);
+        
+        for(VirtualFile virtualFile : files){
+            String fileName = virtualFile.getName();
+            String[] parsedFileName = fileName.split(".java");
+            filesName.add(parsedFileName[0]);
+        }
+        return filesName;
     }
 
     private void setName(String name) {

@@ -19,7 +19,6 @@ public class PatternSuggestionElementVisitor extends JavaElementVisitor {
         this.holder = holder;
         PatternSuggestions patternSuggestions = PluginState.getInstance().getPatternSuggestions();
         availableSuggestions = patternSuggestions.getAvailableSuggestions();
-        PluginState.getInstance().setHolder(holder);
     }
 
     @Override

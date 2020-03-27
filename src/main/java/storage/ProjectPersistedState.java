@@ -11,7 +11,7 @@ public class ProjectPersistedState implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public ConcurrentHashMap<String, PatternInstance> patternInstanceById = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, PatternInstance> patternInstanceById = new ConcurrentHashMap<>();
 
     public ProjectPersistedState(){}
 
@@ -71,5 +71,9 @@ public class ProjectPersistedState implements Serializable {
                 patternInstance.renameParticipantObject(oldName, newName);
             }
         }
+    }
+
+    public void setPatternInstanceById(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
+        this.patternInstanceById = patternInstanceById;
     }
 }
