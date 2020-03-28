@@ -6,6 +6,7 @@ import com.intellij.util.ui.JBUI;
 import models.PatternInstance;
 import models.PatternParticipant;
 import org.jetbrains.annotations.Nullable;
+import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,6 +33,11 @@ public class EditDocumentationDialog extends DocumentationDialog{
         init();
     }
 
+    public EditDocumentationDialog(boolean canBeParent, String patternInstanceId) {
+        this(canBeParent);
+        patternInstanceComboBox.setSelectedItem(patternInstanceId);
+    }
+
     @Override
     protected Set<String> getSelectedPatternRoles() {
         PatternInstance selectedPatternInstance = getSelectedPatternInstance();
@@ -41,9 +47,9 @@ public class EditDocumentationDialog extends DocumentationDialog{
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        addRowElementToPanel(getFieldLabel("Stored Pattern Instances"));
+        addRowElementToPanel(Utils.getFieldLabel("Stored Pattern Instances"));
         addPatternInstancesHeaderToPanel();
-        addRowElementToPanel(getFieldLabel("Pattern Name"));
+        addRowElementToPanel(Utils.getFieldLabel("Pattern Name"));
         addPatternNameToPanel();
         addDocumentationDialogInvariableBody();
 

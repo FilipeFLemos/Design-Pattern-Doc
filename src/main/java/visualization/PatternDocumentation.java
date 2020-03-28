@@ -1,4 +1,4 @@
-package ui;
+package visualization;
 
 import com.intellij.lang.documentation.DocumentationProvider;
 import com.intellij.psi.PsiElement;

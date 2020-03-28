@@ -45,4 +45,8 @@ public class ProjectsPersistedState {
     public void setSupportedDesignPatterns(Set<DesignPattern> supportedDesignPatterns) {
         this.supportedDesignPatterns = supportedDesignPatterns;
     }
+
+    public void storeDesignPattern(DesignPattern designPattern){
+        supportedDesignPatterns.add(designPattern);
+    }
 }

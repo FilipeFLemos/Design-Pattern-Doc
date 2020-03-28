@@ -16,15 +16,21 @@ public class CreateDocumentationDialog extends DocumentationDialog {
     private ComboBox patternNameComboBox;
     private Map<String, DesignPattern> designPatternByName;
 
-    public CreateDocumentationDialog(boolean canBeParent) {
-        super(canBeParent);
+    private String classParticipant;
 
+    public CreateDocumentationDialog(boolean canBeParent, String className) {
+        super(canBeParent);
+        this.classParticipant = className;
         setDesignPatternByName();
         setPatternNameComboBox();
         setPatternNameComboBoxListener();
         setNumCollaborationRows(MIN_NUM_ROWS);
         setTitle("Document Pattern Instance");
         init();
+    }
+
+    public CreateDocumentationDialog(boolean canBeParent) {
+        this(canBeParent, "");
     }
 
     @Override
@@ -37,11 +43,18 @@ public class CreateDocumentationDialog extends DocumentationDialog {
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        addRowElementToPanel(getFieldLabel("Pattern Name"));
+        addRowElementToPanel(Utils.getFieldLabel("Pattern Name"));
         addRowElementToPanel(patternNameComboBox);
         addDocumentationDialogInvariableBody();
+        fillFirstCollaborationRowWithClassName();
 
         return panel;
+    }
+
+    private void fillFirstCollaborationRowWithClassName() {
+        CollaborationRowItem collaborationRowItem = collaborationRowList.get(0);
+        JTextField className = collaborationRowItem.getClassName();
+        className.setText(classParticipant);
     }
 
     private void setDesignPatternByName(){
@@ -75,6 +88,7 @@ public class CreateDocumentationDialog extends DocumentationDialog {
             removeAllCollaborationRoles();
             setNumCollaborationRows(numRows);
             addCollaborationListToPanel();
+            changeDeleteBtnVisibilityWhenMinNumRows(false);
 
             for(int i=0; i < filledClassNames.size(); i++){
                 String className = filledClassNames.get(i);

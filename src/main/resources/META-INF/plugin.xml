@@ -23,11 +23,11 @@
                           level="WARNING"
                           implementationClass="detection.PatternSuggestionsInspection"/>
 
-        <editor.linePainter implementation="ui.PatternHints"/>
+        <editor.linePainter implementation="visualization.PatternHints"/>
 
         <lang.documentationProvider language="JAVA"
                                     order="first"
-                                    implementationClass="ui.PatternDocumentation"/>
+                                    implementationClass="visualization.PatternDocumentation"/>
 
         <refactoring.elementListenerProvider
                                     order="first"
@@ -35,12 +35,17 @@
     </extensions>
 
     <actions>
-        <!-- Add your actions here -->
         <group id="DesignPatternDoc.menu" text="DesignPatternDoc">
             <add-to-group group-id="MainMenu" anchor="last"/>
             <action class="detection.DetectPatternsAction" id="detectPatterns" text="Scan for Patterns"/>
+            <action class="actions.DefinePatternAction" id="definePattern" text="Define Design Pattern"/>
+        </group>
+        <group id="DesignPatternDoc.popUpMenu" text="DesignPatternDoc" popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
             <action class="actions.DocumentPatternAction" id="documentPattern" text="Document Pattern Instance"/>
-            <action class="actions.EditDocumentationAction" id="editDocumentPattern" text="Edit Pattern Instance Documentation"/>
+            <action class="actions.DocumentPatternByRightClickingElementAction" id="documentPatternRightClickElement" text="Document Pattern Instance Played by Object"/>
+            <action class="actions.EditDocumentationAction" id="editDocumentPatternPopUp" text="Edit Pattern Instance Documentation"/>
+            <action class="actions.EditDocumentationByRightClickingElementAction" id="editDocumentRightClickElement" text="Edit Pattern Instance Played by Object"/>
         </group>
     </actions>
 </idea-plugin>

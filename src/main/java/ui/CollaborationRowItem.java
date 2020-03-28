@@ -1,7 +1,6 @@
 package ui;
 
 import com.intellij.openapi.ui.ComboBox;
-import models.CollaborationListItem;
 
 import javax.swing.*;
 import java.util.Objects;

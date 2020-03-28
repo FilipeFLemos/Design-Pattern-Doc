@@ -1,4 +1,4 @@
-package ui;
+package visualization;
 
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorLinePainter;

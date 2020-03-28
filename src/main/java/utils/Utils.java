@@ -9,7 +9,10 @@ import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.util.indexing.FileBasedIndex;
+import com.intellij.util.ui.JBUI;
+import com.intellij.util.ui.UIUtil;
 import models.DesignPattern;
 import models.PatternInstance;
 
@@ -52,6 +55,14 @@ public class Utils {
                 .toString();
 
         return generatedString;
+    }
+
+    public static JBLabel getFieldLabel(String text) {
+        JBLabel jLabel = new JBLabel(text);
+        jLabel.setComponentStyle(UIUtil.ComponentStyle.SMALL);
+        jLabel.setFontColor(UIUtil.FontColor.BRIGHTER);
+        jLabel.setBorder(JBUI.Borders.empty(0, 5, 2, 0));
+        return jLabel;
     }
 
     public static Collection<VirtualFile> getVirtualFilesInProject(Project project){

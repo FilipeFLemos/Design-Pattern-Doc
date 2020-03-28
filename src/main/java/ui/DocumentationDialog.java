@@ -3,18 +3,18 @@ package ui;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.JBUI;
-import com.intellij.util.ui.UIUtil;
 import detection.PatternSuggestions;
 import models.PatternInstance;
 import models.PatternParticipant;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import storage.PluginState;
 import storage.ProjectDetails;
 import storage.ProjectPersistedState;
+import utils.Utils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,6 +33,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
     protected int gridHeight;
     protected int collaborationGridHeight;
     protected final int MIN_NUM_ROWS = 3;
+    private ArrayList<String> validFileNames;
 
     protected ProjectPersistedState projectPersistedState;
     protected ConcurrentHashMap<String, PatternInstance> patternInstanceById;
@@ -60,6 +61,8 @@ public abstract class DocumentationDialog extends DialogWrapper {
         try {
             setProjectState();
             setPatternInstanceById();
+            Set<String> fileNames = PluginState.getInstance().getProjectDetails().getAllFileNamesFromProject();
+            validFileNames = new ArrayList<>(fileNames);
         } catch (Exception ignored) {
 
         }
@@ -76,20 +79,12 @@ public abstract class DocumentationDialog extends DialogWrapper {
     protected abstract ValidationInfo doValidate();
 
     protected void addDocumentationDialogInvariableBody() {
-        addRowElementToPanel(getFieldLabel("Intent"));
+        addRowElementToPanel(Utils.getFieldLabel("Intent"));
         addRowElementToPanel(patternIntent);
         addCollaborationHeaderToPanel();
         addRowElementToPanel(scrollPane);
         addCollaborationListToPanel();
         changeDeleteBtnVisibilityWhenMinNumRows(false);
-    }
-
-    protected JBLabel getFieldLabel(String text) {
-        JBLabel jLabel = new JBLabel(text);
-        jLabel.setComponentStyle(UIUtil.ComponentStyle.SMALL);
-        jLabel.setFontColor(UIUtil.FontColor.BRIGHTER);
-        jLabel.setBorder(JBUI.Borders.empty(0, 5, 2, 0));
-        return jLabel;
     }
 
     protected void addRowElementToPanel(JComponent jComponent) {
@@ -111,7 +106,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
         c.gridx = 0;
         c.gridy = gridHeight;
         c.insets = JBUI.insets(5, 0, 5, 0);
-        panel.add(getFieldLabel("Collaborations (Class -> Role)"), c);
+        panel.add(Utils.getFieldLabel("Collaborations (Class -> Role)"), c);
 
         c.anchor = GridBagConstraints.EAST;
         c.gridwidth = 1;
@@ -139,9 +134,11 @@ public abstract class DocumentationDialog extends DialogWrapper {
         JTextField object = new JTextField();
         collaborationPanel.add(object, c);
 
+        AutoCompleteDecorator.decorate(object, validFileNames, false);
+
         c.weightx = 0.0;
         c.gridx = 1;
-        JLabel arrow = getFieldLabel("->");
+        JLabel arrow = Utils.getFieldLabel("->");
         collaborationPanel.add(arrow, c);
 
         c.weightx = 0.5;
