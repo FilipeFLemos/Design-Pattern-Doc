@@ -34,6 +34,8 @@ public class DPCORE implements DetectionTool {
         String execJar = getExecuteJAR();
         String patternsDirPath = getPatternsDirPath();
 
+        System.out.println("Again");
+
         for(String patternFile : patternFiles){
             String patternPath = patternsDirPath + patternFile + "\"";
 

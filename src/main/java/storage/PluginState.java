@@ -8,7 +8,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import detection.PatternSuggestions;
-import detection.ScheduledPatternDetection;
+import detection.PatternDetectionScheduler;
 import models.DesignPattern;
 import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
         Utils.getSupportedDesignPatterns();
         projectDetails = new ProjectDetails();
         patternSuggestions = new PatternSuggestions();
-        AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(new ScheduledPatternDetection(), 0, Utils.PATTERN_DETECTION_DELAY, TimeUnit.SECONDS);
+        AppExecutorUtil.getAppScheduledExecutorService().schedule(new PatternDetectionScheduler(), 0, TimeUnit.SECONDS);
     }
 
     public static PluginState getInstance() {

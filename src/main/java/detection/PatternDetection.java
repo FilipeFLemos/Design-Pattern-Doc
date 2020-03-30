@@ -6,7 +6,7 @@ import storage.ProjectDetails;
 
 import java.util.Set;
 
-public class ScheduledPatternDetection implements Runnable{
+public class PatternDetection implements Runnable{
 
     private Set<PatternInstance> patternInstances;
     private Set<String> allFileNamesFromProject;
