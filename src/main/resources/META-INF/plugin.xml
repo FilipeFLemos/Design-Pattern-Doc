@@ -5,12 +5,14 @@
     <vendor>FilipeLemos</vendor>
 
     <description><![CDATA[
-    Plugin for documenting and detecting design patterns.
+    The Design Pattern Doc is a plugin that helps understanding software in terms of its design patterns, by reducing
+    the mutual feedback loop between programming and documenting. 
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="storage.PluginState"/>

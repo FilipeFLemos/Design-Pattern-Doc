@@ -30,6 +30,7 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
     private PatternSuggestions patternSuggestions;
 
     public PluginState() {
+        Utils.getSupportedDesignPatterns();
         projectDetails = new ProjectDetails();
         patternSuggestions = new PatternSuggestions();
         AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay(new ScheduledPatternDetection(), 0, Utils.PATTERN_DETECTION_DELAY, TimeUnit.SECONDS);

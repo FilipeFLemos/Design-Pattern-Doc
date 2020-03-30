@@ -73,6 +73,17 @@ public class Utils {
         });
     }
 
+    public static ArrayList<String>  getPatternFiles(){
+        ArrayList<String> patternFiles = new ArrayList<>();
+        try {
+            String[] fileNames = getResourceListing(Utils.class, "patterns/");
+            patternFiles.addAll(Arrays.asList(fileNames));
+        }catch(Exception ignored){
+
+        }
+        return patternFiles;
+    }
+
     public static Set<DesignPattern> getSupportedDesignPatterns() {
         Set<DesignPattern> designPatterns = new HashSet<>();
         try {

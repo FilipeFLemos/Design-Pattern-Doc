@@ -5,22 +5,23 @@ import models.PatternInstance;
 import models.PatternParticipant;
 import storage.PluginState;
 import storage.ProjectDetails;
+import utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.*;
 
 public class DPCORE implements DetectionTool {
 
-    private final String executeJAR = "java -Dfile.encoding=windows-1252 -jar \"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\out\\artifacts\\DP_CORE_jar\\DP-CORE.jar\"";
-    private final String patternRepoPath = "-pattern=\"C:\\Users\\filip\\IdeaProjects\\DP-CORE\\patterns\\";
-
     private String patternName = "";
     private Set<PatternInstance> patternInstances;
+    private ArrayList<String> patternFiles;
 
     public DPCORE(){
         patternInstances = new HashSet<>();
+        patternFiles = Utils.getPatternFiles();
     }
 
     @Override
@@ -30,51 +31,40 @@ public class DPCORE implements DetectionTool {
         String projectPath = projectDetails.getPath().replace("/","\\");
         projectPath = " -project=\"" + projectPath + "\\src\" ";
 
-        String pattern = "Abstract Factory.pattern\"";
-        try {
-            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
+        String execJar = getExecuteJAR();
+        String patternsDirPath = getPatternsDirPath();
 
-        pattern = "Bridge.pattern\"";
-        try {
-            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
+        for(String patternFile : patternFiles){
+            String patternPath = patternsDirPath + patternFile + "\"";
 
-        pattern = "Builder.pattern\"";
-        try {
-            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
-
-        pattern = "Command.pattern\"";
-        try {
-            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
-
-        pattern = "Observer.pattern\"";
-        try {
-            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
-
-        pattern = "Visitor.pattern\"";
-        try {
-            runProcess(executeJAR + projectPath + patternRepoPath + pattern + " -group=false");
-        } catch (Exception e1) {
-            e1.printStackTrace();
+            try {
+                runProcess(execJar + projectPath + patternPath + " -group=false");
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
         }
 
         System.out.println("Finished scanning!");
 
         return patternInstances;
+    }
+
+    private String getExecuteJAR(){
+        URL resourcesURL = this.getClass().getClassLoader().getResource("patterns/");
+        String resourcesPath = resourcesURL.getPath().replace("file:/","");
+        String[] pathSplit = resourcesPath.split("lib");
+        String jarPath = pathSplit[0] + "lib/DP-CORE.jar";
+        jarPath = jarPath.replace("/","\\");
+        return "java -jar \""+ jarPath +"\"";
+    }
+
+    private String getPatternsDirPath(){
+        URL resourcesURL = this.getClass().getClassLoader().getResource("patterns/");
+        String resourcesPath = resourcesURL.getPath().replace("file:/","");
+        String[] pathSplit = resourcesPath.split("build");
+        String patternsPath = pathSplit[0] + "build/resources/main/patterns/";
+        patternsPath = patternsPath.replace("/","\\");
+        return "-pattern=\"" + patternsPath;
     }
 
     /**
