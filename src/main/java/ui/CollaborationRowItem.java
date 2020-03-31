@@ -12,7 +12,7 @@ public class CollaborationRowItem {
     private final JLabel jLabel;
     private final JButton jButton;
 
-    public CollaborationRowItem(JTextField className, ComboBox role, JLabel jLabel, JButton jButton){
+    public CollaborationRowItem(JTextField className, ComboBox role, JLabel jLabel, JButton jButton) {
         this.className = className;
         this.role = role;
         this.jLabel = jLabel;

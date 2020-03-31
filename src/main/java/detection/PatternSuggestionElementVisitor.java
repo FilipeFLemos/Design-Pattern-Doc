@@ -15,7 +15,7 @@ public class PatternSuggestionElementVisitor extends JavaElementVisitor {
     private Map<String, Set<PatternInstance>> availableSuggestions;
     private String object;
 
-    public PatternSuggestionElementVisitor(final ProblemsHolder holder){
+    public PatternSuggestionElementVisitor(final ProblemsHolder holder) {
         this.holder = holder;
         PatternSuggestions patternSuggestions = PluginState.getInstance().getPatternSuggestions();
         availableSuggestions = patternSuggestions.getAvailableSuggestions();
@@ -25,12 +25,12 @@ public class PatternSuggestionElementVisitor extends JavaElementVisitor {
     public void visitElement(PsiElement element) {
 
         String[] parsedObject = element.toString().split(":");
-        if(parsedObject.length != 2 || !isPsiIdentifier(parsedObject[0])){
+        if (parsedObject.length != 2 || !isPsiIdentifier(parsedObject[0])) {
             return;
         }
 
         object = parsedObject[1];
-        if(!isElementAClass(element) || !areSuggestionsAvailableForClass()){
+        if (!isElementAClass(element) || !areSuggestionsAvailableForClass()) {
             return;
         }
 
@@ -52,7 +52,7 @@ public class PatternSuggestionElementVisitor extends JavaElementVisitor {
     private void registerDocumentationSuggestion(PsiElement element) {
         Set<PatternInstance> patternInstancesAvailableForObject = availableSuggestions.get(object);
 
-        for(PatternInstance patternInstance : patternInstancesAvailableForObject){
+        for (PatternInstance patternInstance : patternInstancesAvailableForObject) {
             registerPatternInstanceDocumentationSuggestion(element, patternInstance);
         }
     }
@@ -61,20 +61,20 @@ public class PatternSuggestionElementVisitor extends JavaElementVisitor {
         String patternName = patternInstance.getPatternName();
         String objectRolesText = getObjectRolesText(patternInstance);
 
-        String suggestionText = "We believe that this class plays the role(s) " + objectRolesText +" of the " + patternName + " Design Pattern.";
+        String suggestionText = "We believe that this class plays the role(s) " + objectRolesText + " of the " + patternName + " Design Pattern.";
         PatternSuggestionQuickFix patternSuggestionQuickFix = new PatternSuggestionQuickFix(patternInstance);
         holder.registerProblem(element, suggestionText, patternSuggestionQuickFix);
     }
 
-    private String getObjectRolesText(PatternInstance patternInstance){
+    private String getObjectRolesText(PatternInstance patternInstance) {
         Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
         Set<String> roles = objectRoles.get(object);
         StringBuilder stringBuilder = new StringBuilder();
         int i = 0;
 
-        for(String role : roles){
+        for (String role : roles) {
             stringBuilder.append(role);
-            if(i != roles.size() - 1){
+            if (i != roles.size() - 1) {
                 stringBuilder.append(", ");
             }
             i++;

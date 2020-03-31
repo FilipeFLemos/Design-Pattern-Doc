@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-public class EditDocumentationDialog extends DocumentationDialog{
+public class EditDocumentationDialog extends DocumentationDialog {
 
     private ComboBox patternInstanceComboBox;
     private JButton deletePatternInstance;
@@ -77,7 +77,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
     }
 
     private void setPatternInstanceComboListener() {
-        patternInstanceComboBox.addActionListener(e->
+        patternInstanceComboBox.addActionListener(e ->
         {
             setSelectedPatternInstanceNumCollaborationRows();
 
@@ -110,7 +110,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
         c.gridwidth = 1;
         c.gridx = 3;
         c.ipadx = 0;
-        panel.add(deletePatternInstance,c);
+        panel.add(deletePatternInstance, c);
 
         gridHeight++;
     }
@@ -124,7 +124,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
         });
     }
 
-    private void fillFields(){
+    private void fillFields() {
         String id = getSelectedPatternInstanceId();
         PatternInstance patternInstance = projectPersistedState.getPatternInstance(id);
 
@@ -136,7 +136,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
     private void fillCollaborationRows(PatternInstance patternInstance) {
         ArrayList<PatternParticipant> patternParticipants = new ArrayList<>(patternInstance.getPatternParticipants());
         int index = 0;
-        for(CollaborationRowItem listItem : collaborationRowList){
+        for (CollaborationRowItem listItem : collaborationRowList) {
             JTextField classNameField = listItem.getClassName();
             ComboBox roleField = listItem.getRole();
 
@@ -155,14 +155,14 @@ public class EditDocumentationDialog extends DocumentationDialog{
     @Override
     protected ValidationInfo doValidate() {
         ValidationInfo commonValidationInfo = getCommonValidationInfo();
-        if(failedCommonValidation(commonValidationInfo)){
+        if (failedCommonValidation(commonValidationInfo)) {
             return commonValidationInfo;
         }
 
         String id = getSelectedPatternInstanceId();
         String name = selectedPatternName.getText();
         PatternInstance patternInstance = generatePatternInstanceFromUserInput(name);
-        if(existsOtherDocumentationForPatternInstance(id, patternInstance)){
+        if (existsOtherDocumentationForPatternInstance(id, patternInstance)) {
             return new ValidationInfo("Your edition has result in a new pattern instance, which has already been documented. Consider editing the existing one.");
         }
 
@@ -204,7 +204,7 @@ public class EditDocumentationDialog extends DocumentationDialog{
         return id;
     }
 
-    private PatternInstance getSelectedPatternInstance(){
+    private PatternInstance getSelectedPatternInstance() {
         String id = getSelectedPatternInstanceId();
         return projectPersistedState.getPatternInstance(id);
     }

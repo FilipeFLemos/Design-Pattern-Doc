@@ -12,11 +12,11 @@ public class PatternParticipant implements Serializable, Comparable<PatternParti
     private String object;
     private String role;
 
-    public PatternParticipant(){
-        
+    public PatternParticipant() {
+
     }
 
-    public PatternParticipant(String object, String role){
+    public PatternParticipant(String object, String role) {
         this.object = object;
         this.role = role;
     }

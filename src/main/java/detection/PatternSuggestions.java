@@ -20,15 +20,11 @@ public class PatternSuggestions {
         availableSuggestions = new ConcurrentHashMap<>();
     }
 
-    public Map<String, Set<PatternInstance>> getAvailableSuggestions() {
-        return availableSuggestions;
-    }
-
     public void updateClassNameInSuggestions(String oldName, String newName) {
-        if(acceptedSuggestions.containsKey(oldName)){
+        if (acceptedSuggestions.containsKey(oldName)) {
             updateClassNameInSuggestionMap(oldName, newName, acceptedSuggestions);
         }
-        if(availableSuggestions.containsKey(oldName)){
+        if (availableSuggestions.containsKey(oldName)) {
             updateClassNameInSuggestionMap(oldName, newName, availableSuggestions);
         }
     }
@@ -42,7 +38,7 @@ public class PatternSuggestions {
         suggestionsMap.remove(oldName);
     }
 
-    public void updateSuggestionsAfterManualDocumentation(PatternInstance patternInstance){
+    public void updateSuggestionsAfterManualDocumentation(PatternInstance patternInstance) {
         Set<PatternParticipant> patternParticipants = patternInstance.getPatternParticipants();
 
         for (PatternParticipant patternParticipant : patternParticipants) {
@@ -79,13 +75,13 @@ public class PatternSuggestions {
         for (PatternParticipant patternParticipant : patternInstances) {
             try {
                 String object = patternParticipant.getObject();
-                moveAvailablePatternInstanceToAccepted(object,patternInstance);
+                moveAvailablePatternInstanceToAccepted(object, patternInstance);
             } catch (NullPointerException ignored) {
             }
         }
     }
 
-    private void moveAvailablePatternInstanceToAccepted(String object, PatternInstance patternInstance){
+    private void moveAvailablePatternInstanceToAccepted(String object, PatternInstance patternInstance) {
         removeSuggestionMapEntry(object, patternInstance, availableSuggestions);
         addSuggestionMapEntry(object, patternInstance, acceptedSuggestions);
     }
@@ -206,5 +202,7 @@ public class PatternSuggestions {
         throw new NullPointerException();
     }
 
-
+    public Map<String, Set<PatternInstance>> getAvailableSuggestions() {
+        return availableSuggestions;
+    }
 }

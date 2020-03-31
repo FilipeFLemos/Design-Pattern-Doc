@@ -11,18 +11,18 @@ public class ProjectsPersistedState {
     private ConcurrentHashMap<String, ProjectPersistedState> projectsPersistedStateByProjectName = new ConcurrentHashMap<>();
     private Set<DesignPattern> supportedDesignPatterns = new HashSet<>();
 
-    public ProjectsPersistedState(){
+    public ProjectsPersistedState() {
     }
 
-    public boolean containsProject(String projectName){
+    public boolean containsProject(String projectName) {
         return projectsPersistedStateByProjectName.containsKey(projectName);
     }
 
-    public ProjectPersistedState getProjectState(String projectName){
+    public ProjectPersistedState getProjectState(String projectName) {
         return projectsPersistedStateByProjectName.get(projectName);
     }
 
-    public void putProjectState(String projectName){
+    public void putProjectState(String projectName) {
         projectsPersistedStateByProjectName.put(projectName, new ProjectPersistedState());
     }
 
@@ -38,7 +38,7 @@ public class ProjectsPersistedState {
         return supportedDesignPatterns;
     }
 
-    public boolean areSupportDesignPatternsNotInitialized(){
+    public boolean areSupportDesignPatternsNotInitialized() {
         return supportedDesignPatterns.isEmpty();
     }
 
@@ -46,7 +46,7 @@ public class ProjectsPersistedState {
         this.supportedDesignPatterns = supportedDesignPatterns;
     }
 
-    public void storeDesignPattern(DesignPattern designPattern){
+    public void storeDesignPattern(DesignPattern designPattern) {
         supportedDesignPatterns.add(designPattern);
     }
 }

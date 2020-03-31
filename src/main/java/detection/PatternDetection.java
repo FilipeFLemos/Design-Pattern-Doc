@@ -6,20 +6,20 @@ import storage.ProjectDetails;
 
 import java.util.Set;
 
-public class PatternDetection implements Runnable{
+public class PatternDetection implements Runnable {
 
     private Set<PatternInstance> patternInstances;
     private Set<String> allFileNamesFromProject;
 
     @Override
     public void run() {
-        DetectionTool detectionTool = getDetectionTool("DPCORE");
+        DetectionTool detectionTool = new DPCORE();
         patternInstances = detectionTool.scanForPatterns();
 
         ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
         allFileNamesFromProject = projectDetails.getAllFileNamesFromProject();
 
-        if(wasRefactorHappeningAtSameTime()){
+        if (wasRefactorHappeningAtSameTime()) {
             return;
         }
 
@@ -27,15 +27,11 @@ public class PatternDetection implements Runnable{
         patternSuggestions.updateSuggestions(patternInstances);
     }
 
-    public DetectionTool getDetectionTool(String toolName){
-        return new DPCORE();
-    }
-
-    private boolean wasRefactorHappeningAtSameTime(){
-        for(PatternInstance patternInstance : patternInstances){
+    private boolean wasRefactorHappeningAtSameTime() {
+        for (PatternInstance patternInstance : patternInstances) {
             Set<String> detectedObjects = patternInstance.getObjectRoles().keySet();
-            for(String detectedObject : detectedObjects){
-                if(!allFileNamesFromProject.contains(detectedObject)){
+            for (String detectedObject : detectedObjects) {
+                if (!allFileNamesFromProject.contains(detectedObject)) {
                     return true;
                 }
             }

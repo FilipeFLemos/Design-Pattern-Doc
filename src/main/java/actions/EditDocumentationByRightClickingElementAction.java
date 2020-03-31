@@ -18,10 +18,9 @@ public class EditDocumentationByRightClickingElementAction extends EditDocumenta
     @Override
     public void update(AnActionEvent e) {
         PsiElement psiElement = e.getData(LangDataKeys.PSI_ELEMENT);
-        if(psiElement instanceof PsiClass && existsPatternInstanceForObject(psiElement)){
+        if (psiElement instanceof PsiClass && existsPatternInstanceForObject(psiElement)) {
             e.getPresentation().setEnabledAndVisible(true);
-        }
-        else{
+        } else {
             e.getPresentation().setEnabledAndVisible(false);
         }
     }
@@ -30,11 +29,11 @@ public class EditDocumentationByRightClickingElementAction extends EditDocumenta
         ConcurrentHashMap<String, PatternInstance> patternInstanceById = getStringPatternInstanceConcurrentHashMap();
         String className = getClassName((PsiClass) psiElement);
 
-        for(Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()){
+        for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
             String id = entry.getKey();
             PatternInstance patternInstance = entry.getValue();
             Set<String> objects = patternInstance.getObjectRoles().keySet();
-            if(objects.contains(className)){
+            if (objects.contains(className)) {
                 patternInstanceId = id;
                 return true;
             }

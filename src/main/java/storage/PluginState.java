@@ -55,22 +55,28 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
         persistentState = state;
     }
 
-    public void updateStorage(PatternInstance patternInstance){
+    public void updateStorage(PatternInstance patternInstance) {
         projectDetails.updateProjectPersistedState(patternInstance);
     }
 
-    public Set<DesignPattern> getSupportedDesignPatterns(){
+    public Set<DesignPattern> getSupportedDesignPatterns() {
         Set<DesignPattern> designPatterns = new HashSet<>();
         ProjectsPersistedState projectsPersistedState = getState();
-        if(projectsPersistedState == null){
+        if (projectsPersistedState == null) {
             return designPatterns;
         }
 
-        if(projectsPersistedState.areSupportDesignPatternsNotInitialized()){
+        if (projectsPersistedState.areSupportDesignPatternsNotInitialized()) {
             projectsPersistedState.setSupportedDesignPatterns(Utils.getSupportedDesignPatterns());
         }
 
         return projectsPersistedState.getSupportedDesignPatterns();
+    }
+
+    public void restartHighlighting() {
+        Project project = projectDetails.getActiveProject();
+        final DaemonCodeAnalyzer analyzer = DaemonCodeAnalyzer.getInstance(project);
+        analyzer.restart();
     }
 
     public PatternSuggestions getPatternSuggestions() {
@@ -81,18 +87,15 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
         return projectDetails;
     }
 
-    public void restartHighlighting(){
-        Project project = projectDetails.getActiveProject();
-        final DaemonCodeAnalyzer analyzer = DaemonCodeAnalyzer.getInstance(project);
-        analyzer.restart();
+    public ArrayList<File> getPatternDescriptions() {
+        return patternDescriptions;
     }
 
-
-    private void setPatternDescriptions(){
+    private void setPatternDescriptions() {
         ArrayList<File> patternDescriptions = new ArrayList<>();
         ArrayList<String> patternFileNames = Utils.getPatternFileNames();
 
-        for(String patternFileName : patternFileNames) {
+        for (String patternFileName : patternFileNames) {
             File file;
             String resource = "patterns/" + patternFileName;
 
@@ -104,7 +107,7 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
                 int read;
                 byte[] bytes = new byte[1024];
 
-                while ((read = input.read(bytes)) != -1) {
+                while ((read = input != null ? input.read(bytes) : 0) != -1) {
                     out.write(bytes, 0, read);
                 }
                 out.close();
@@ -117,9 +120,5 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
             }
         }
         this.patternDescriptions = patternDescriptions;
-    }
-
-    public ArrayList<File> getPatternDescriptions(){
-        return patternDescriptions;
     }
 }

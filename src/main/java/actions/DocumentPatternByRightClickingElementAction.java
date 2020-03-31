@@ -14,11 +14,10 @@ public class DocumentPatternByRightClickingElementAction extends AnAction {
     @Override
     public void update(AnActionEvent e) {
         PsiElement psiElement = e.getData(LangDataKeys.PSI_ELEMENT);
-        if(psiElement instanceof PsiClass){
+        if (psiElement instanceof PsiClass) {
             className = psiElement.toString().split(":")[1];
             e.getPresentation().setEnabledAndVisible(true);
-        }
-        else{
+        } else {
             e.getPresentation().setEnabledAndVisible(false);
         }
     }

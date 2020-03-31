@@ -21,8 +21,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
@@ -31,7 +29,7 @@ import java.util.jar.JarFile;
 public class Utils {
 
     public static final int MIN_PATTERN_PARTICIPANTS_IN_COMMON = 2;
-    public static final int PATTERN_DETECTION_DELAY = 10;
+    public static final int PATTERN_DETECTION_DELAY = 30;
 
     public static String generatePatternInstanceId(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
         String id;
@@ -42,7 +40,7 @@ public class Utils {
         return id;
     }
 
-    private static String generateAlphaNumericString(){
+    private static String generateAlphaNumericString() {
         int leftLimit = 48;
         int rightLimit = 122;
         int targetLength = 10;
@@ -65,7 +63,7 @@ public class Utils {
         return jLabel;
     }
 
-    public static Collection<VirtualFile> getVirtualFilesInProject(Project project){
+    public static Collection<VirtualFile> getVirtualFilesInProject(Project project) {
         Application application = ApplicationManager.getApplication();
         return application.runReadAction((Computable<Collection<VirtualFile>>) () -> {
             FileBasedIndex fileBasedIndex = FileBasedIndex.getInstance();
@@ -73,12 +71,12 @@ public class Utils {
         });
     }
 
-    public static ArrayList<String> getPatternFileNames(){
+    public static ArrayList<String> getPatternFileNames() {
         ArrayList<String> patternFiles = new ArrayList<>();
         try {
             String[] fileNames = getResourceListing(Utils.class, "patterns/");
             patternFiles.addAll(Arrays.asList(fileNames));
-        }catch(Exception ignored){
+        } catch (Exception ignored) {
 
         }
         return patternFiles;
@@ -88,13 +86,13 @@ public class Utils {
         Set<DesignPattern> designPatterns = new HashSet<>();
         try {
             String[] fileNames = getResourceListing(Utils.class, "patterns/");
-            for(String fileName : fileNames){
+            for (String fileName : fileNames) {
                 ArrayList<String> fileLines = new ArrayList<>();
                 InputStream inputStream = Utils.class.getClassLoader().getResourceAsStream("/patterns/" + fileName);
                 InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                 BufferedReader reader = new BufferedReader(streamReader);
-                for (String line; (line = reader.readLine()) != null;) {
-                    if(line.equals("End_Members")){
+                for (String line; (line = reader.readLine()) != null; ) {
+                    if (line.equals("End_Members")) {
                         break;
                     }
                     fileLines.add(line);
@@ -105,7 +103,7 @@ public class Utils {
                 streamReader.close();
                 reader.close();
             }
-        }catch(Exception ignored){
+        } catch (Exception ignored) {
 
         }
         return designPatterns;
@@ -116,12 +114,12 @@ public class Utils {
      * This is basically a brute-force implementation.
      * Works for regular files and also JARs.
      *
-     * @author Greg Briggs
      * @param clazz Any java class that lives in the same place as the resources you want.
-     * @param path Should end with "/", but not start with one.
+     * @param path  Should end with "/", but not start with one.
      * @return Just the name of each member item, not the full paths.
      * @throws URISyntaxException
      * @throws IOException
+     * @author Greg Briggs
      */
     private static String[] getResourceListing(Class clazz, String path) throws URISyntaxException, IOException {
         URL dirURL = clazz.getClassLoader().getResource(path);
@@ -134,7 +132,7 @@ public class Utils {
              * In case of a jar file, we can't actually find a directory.
              * Have to assume the same jar as clazz.
              */
-            String me = clazz.getName().replace(".", "/")+".class";
+            String me = clazz.getName().replace(".", "/") + ".class";
             dirURL = clazz.getClassLoader().getResource(me);
         }
 
@@ -143,7 +141,7 @@ public class Utils {
             JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
             Enumeration<JarEntry> entries = jar.entries();
             Set<String> result = new HashSet<>();
-            while(entries.hasMoreElements()) {
+            while (entries.hasMoreElements()) {
                 String name = entries.nextElement().getName();
                 if (name.startsWith(path) && !name.equals(path)) {
                     String entry = name.substring(path.length());
@@ -153,19 +151,19 @@ public class Utils {
             return result.toArray(new String[0]);
         }
 
-        throw new UnsupportedOperationException("Cannot list files for URL "+dirURL);
+        throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
     }
 
     private static DesignPattern createDesignPatternFromFileLines(ArrayList<String> fileLines) {
         String name = fileLines.get(0);
         Set<String> roles = new HashSet<>();
-        for(int i = 1; i < fileLines.size(); i++){
+        for (int i = 1; i < fileLines.size(); i++) {
             String line = fileLines.get(i);
             String[] stringSplit = line.split(" ");
             StringBuilder role = new StringBuilder();
-            for(int j = 2; j < stringSplit.length; j++){
+            for (int j = 2; j < stringSplit.length; j++) {
                 role.append(stringSplit[j]);
-                if(j != stringSplit.length - 1){
+                if (j != stringSplit.length - 1) {
                     role.append(" ");
                 }
             }

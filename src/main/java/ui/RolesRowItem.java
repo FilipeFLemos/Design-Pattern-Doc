@@ -8,7 +8,7 @@ public class RolesRowItem {
     private final JTextField role;
     private final JButton jButton;
 
-    public RolesRowItem(JTextField role, JButton jButton){
+    public RolesRowItem(JTextField role, JButton jButton) {
         this.role = role;
         this.jButton = jButton;
     }

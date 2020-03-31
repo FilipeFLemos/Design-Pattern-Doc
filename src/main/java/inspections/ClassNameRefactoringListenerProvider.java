@@ -11,7 +11,7 @@ public class ClassNameRefactoringListenerProvider implements RefactoringElementL
     @Nullable
     @Override
     public RefactoringElementListener getListener(PsiElement element) {
-        if(element instanceof PsiClass){
+        if (element instanceof PsiClass) {
             PsiClass psiClass = (PsiClass) element;
             String oldName = psiClass.toString().split(":")[1];
             if (oldName != null) {

@@ -6,7 +6,7 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.psi.PsiElement;
 import ui.DefinePatternDialog;
 
-public class DefinePatternAction extends AnAction{
+public class DefinePatternAction extends AnAction {
 
     @Override
     public void update(AnActionEvent e) {

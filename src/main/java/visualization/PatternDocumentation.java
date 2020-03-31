@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PatternDocumentation implements DocumentationProvider{
+public class PatternDocumentation implements DocumentationProvider {
 
     private String documentationText;
     private String className;
@@ -53,7 +53,7 @@ public class PatternDocumentation implements DocumentationProvider{
         return null;
     }
 
-    private String getDocumentationText(PsiElement psiElement){
+    private String getDocumentationText(PsiElement psiElement) {
 
         try {
             documentationText = null;
@@ -62,17 +62,17 @@ public class PatternDocumentation implements DocumentationProvider{
             persistedPatternInstances = getPersistedPatternInstances();
 
             generatePatternInstancesDocumentationForClass();
-            if(!documentationTextBuilder.toString().equals("")){
+            if (!documentationTextBuilder.toString().equals("")) {
                 documentationText = documentationTextBuilder.toString();
             }
-        }catch (Exception ignored){
+        } catch (Exception ignored) {
 
         }
 
         return documentationText;
     }
 
-    private ConcurrentHashMap<String, PatternInstance> getPersistedPatternInstances() throws NullPointerException{
+    private ConcurrentHashMap<String, PatternInstance> getPersistedPatternInstances() throws NullPointerException {
         ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
         ProjectPersistedState projectPersistedState = projectDetails.getActiveProjectPersistedState();
         return projectPersistedState.getPatternInstanceById();
@@ -92,14 +92,14 @@ public class PatternDocumentation implements DocumentationProvider{
                 includePatternInstanceIntent(patternInstance);
                 includePatternInstanceRolesHeader();
                 includePatternInstanceCollaborations(patternInstance);
-            }catch (Exception ignored){
+            } catch (Exception ignored) {
 
             }
         }
     }
 
     private void classPlaysRoleInPatternInstance(Map<String, Set<String>> objectRoles) throws NullPointerException {
-        if(!objectRoles.containsKey(className)){
+        if (!objectRoles.containsKey(className)) {
             throw new NullPointerException();
         }
     }
@@ -111,18 +111,18 @@ public class PatternDocumentation implements DocumentationProvider{
     }
 
     private void includeSeparationBetweenPatternInstances() {
-        if(!documentationTextBuilder.toString().equals("")){
+        if (!documentationTextBuilder.toString().equals("")) {
             documentationTextBuilder.append("\n\n\n<br><br><br>");
         }
     }
 
-    private void includePatternName(String patternName){
+    private void includePatternName(String patternName) {
         documentationTextBuilder.append("</b></u> of the <b><u>").append(patternName).append("</b></u> Design Pattern.");
     }
 
     private void includePatternInstanceIntent(PatternInstance patternInstance) {
         String patternIntent = patternInstance.getIntent();
-        if(!patternIntent.equals("")){
+        if (!patternIntent.equals("")) {
             includeSeparationBetweenPatternInstanceFields();
             documentationTextBuilder.append("<b>Intent: </b>").append(patternIntent);
         }
@@ -133,7 +133,7 @@ public class PatternDocumentation implements DocumentationProvider{
         documentationTextBuilder.append("<b>Roles:</b>");
     }
 
-    private void includeSeparationBetweenPatternInstanceFields(){
+    private void includeSeparationBetweenPatternInstanceFields() {
         documentationTextBuilder.append("\n\n<br><br>");
     }
 
@@ -156,11 +156,11 @@ public class PatternDocumentation implements DocumentationProvider{
         includeSetObjectsSeparatedByComma(objectsPlayingRole);
     }
 
-    private void includeSetObjectsSeparatedByComma(Set<String> objectsSet){
+    private void includeSetObjectsSeparatedByComma(Set<String> objectsSet) {
         int i = 0;
-        for(String object : objectsSet){
+        for (String object : objectsSet) {
             documentationTextBuilder.append(object);
-            if(i != objectsSet.size() - 1){
+            if (i != objectsSet.size() - 1) {
                 documentationTextBuilder.append(", ");
             }
             i++;

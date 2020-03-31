@@ -32,7 +32,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
     protected int numCollaborationRows;
     protected int gridHeight;
     protected int collaborationGridHeight;
-    protected final int MIN_NUM_ROWS = 3;
+    protected int MIN_NUM_ROWS;
     private ArrayList<String> validFileNames;
 
     protected ProjectPersistedState projectPersistedState;
@@ -165,7 +165,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
 
     protected void changeDeleteBtnVisibilityWhenMinNumRows(boolean b) {
         if (collaborationRowList.size() == MIN_NUM_ROWS) {
-            for(int i=0; i < MIN_NUM_ROWS; i++) {
+            for (int i = 0; i < MIN_NUM_ROWS; i++) {
                 CollaborationRowItem collaborationRowItem = collaborationRowList.get(i);
                 JButton deleteBtn = collaborationRowItem.getjButton();
                 deleteBtn.setVisible(b);
@@ -194,7 +194,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
     }
 
     private void scrollToBottomCollaborationPanel() {
-        SwingUtilities.invokeLater( () -> {
+        SwingUtilities.invokeLater(() -> {
             JScrollBar vertical = scrollPane.getVerticalScrollBar();
             vertical.setValue(Integer.MAX_VALUE);
         });
@@ -231,7 +231,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
         collaborationPanel.remove(jButton);
     }
 
-    protected ValidationInfo getCommonValidationInfo(){
+    protected ValidationInfo getCommonValidationInfo() {
         if (collaborationRowList.isEmpty()) {
             return new ValidationInfo("There must be at least one collaboration row!", addCollaborationRowBtn);
         }
@@ -250,7 +250,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
         return null;
     }
 
-    protected boolean failedCommonValidation(ValidationInfo validationInfo){
+    protected boolean failedCommonValidation(ValidationInfo validationInfo) {
         return validationInfo != null;
     }
 

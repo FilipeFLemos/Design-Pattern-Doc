@@ -82,16 +82,16 @@ public class PatternInstance implements Serializable {
         this.patternParticipants.add(new PatternParticipant(object, role));
     }
 
-    public void renameParticipantObject(String oldName, String newName){
+    public void renameParticipantObject(String oldName, String newName) {
         updateRoleObjects(oldName, newName);
         updateObjectRoles(oldName, newName);
         updatePatternParticipants(oldName, newName);
     }
 
     private void updateRoleObjects(String oldName, String newName) {
-        for (Map.Entry<String, Set<String>> entry : roleObjects.entrySet()){
+        for (Map.Entry<String, Set<String>> entry : roleObjects.entrySet()) {
             Set<String> objects = entry.getValue();
-            if(objects.contains(oldName)){
+            if (objects.contains(oldName)) {
                 objects.remove(oldName);
                 objects.add(newName);
                 break;
@@ -100,7 +100,7 @@ public class PatternInstance implements Serializable {
     }
 
     private void updateObjectRoles(String oldName, String newName) {
-        if(objectRoles.containsKey(oldName)) {
+        if (objectRoles.containsKey(oldName)) {
             Set<String> roles = objectRoles.get(oldName);
             objectRoles.remove(oldName);
             objectRoles.put(newName, roles);
@@ -109,9 +109,9 @@ public class PatternInstance implements Serializable {
     }
 
     private void updatePatternParticipants(String oldName, String newName) {
-        for(PatternParticipant patternParticipant : patternParticipants){
+        for (PatternParticipant patternParticipant : patternParticipants) {
             String object = patternParticipant.getObject();
-            if(object.equals(oldName)){
+            if (object.equals(oldName)) {
                 patternParticipant.setObject(newName);
                 break;
             }

@@ -5,7 +5,6 @@ import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.JBUI;
 import models.DesignPattern;
-import models.PatternInstance;
 import org.jetbrains.annotations.Nullable;
 import storage.PluginState;
 import storage.ProjectsPersistedState;
@@ -26,7 +25,7 @@ public class DefinePatternDialog extends DialogWrapper {
     private JButton addRoleBtn;
     private ArrayList<RolesRowItem> rolesRowList;
     private int gridHeight;
-    private final int MIN_NUM_ROWS = 3;
+    private final int MIN_NUM_ROWS = 1;
 
     private ProjectsPersistedState projectsPersistedState;
 
@@ -54,9 +53,9 @@ public class DefinePatternDialog extends DialogWrapper {
 
         setResizable(false);
 
-        try{
+        try {
             projectsPersistedState = PluginState.getInstance().getState();
-        }catch(NullPointerException ignored){
+        } catch (NullPointerException ignored) {
 
         }
 
@@ -76,7 +75,7 @@ public class DefinePatternDialog extends DialogWrapper {
         return panel;
     }
 
-    private void addRowElement(JComponent jComponent){
+    private void addRowElement(JComponent jComponent) {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridwidth = 2;
@@ -104,8 +103,8 @@ public class DefinePatternDialog extends DialogWrapper {
         gridHeight++;
     }
 
-    private void addRoleListToPanel(){
-        for(int i=0; i < MIN_NUM_ROWS; i++){
+    private void addRoleListToPanel() {
+        for (int i = 0; i < MIN_NUM_ROWS; i++) {
             addRolesRowToPanel();
         }
     }
@@ -155,7 +154,7 @@ public class DefinePatternDialog extends DialogWrapper {
     @Override
     protected ValidationInfo doValidate() {
         String name = patternName.getText();
-        if(name.equals("")){
+        if (name.equals("")) {
             return new ValidationInfo("This field is mandatory!", patternName);
         }
 
@@ -167,9 +166,9 @@ public class DefinePatternDialog extends DialogWrapper {
         }
 
         Set<DesignPattern> supportedDesignPatterns = projectsPersistedState.getSupportedDesignPatterns();
-        for(DesignPattern designPattern : supportedDesignPatterns){
+        for (DesignPattern designPattern : supportedDesignPatterns) {
             String supportedPatternName = designPattern.getName();
-            if(supportedPatternName.equals(name)){
+            if (supportedPatternName.equals(name)) {
                 return new ValidationInfo("This design pattern is already supported.");
             }
         }
@@ -184,7 +183,7 @@ public class DefinePatternDialog extends DialogWrapper {
         close(OK_EXIT_CODE);
     }
 
-    private DesignPattern generateDesignPatternFromUserInput(){
+    private DesignPattern generateDesignPatternFromUserInput() {
         String name = patternName.getText();
         Set<String> roles = new HashSet<>();
 

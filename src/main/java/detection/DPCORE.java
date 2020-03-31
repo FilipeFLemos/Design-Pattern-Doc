@@ -16,7 +16,7 @@ public class DPCORE implements DetectionTool {
     private Set<PatternInstance> patternInstances;
     private ArrayList<File> patternDescriptions;
 
-    public DPCORE(){
+    public DPCORE() {
         patternInstances = new HashSet<>();
         patternDescriptions = PluginState.getInstance().getPatternDescriptions();
     }
@@ -25,16 +25,15 @@ public class DPCORE implements DetectionTool {
     public Set<PatternInstance> scanForPatterns() {
 
         ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
-        String projectPath = projectDetails.getPath().replace("/","\\");
+        String projectPath = projectDetails.getPath().replace("/", "\\");
         projectPath = " -project=\"" + projectPath + "\\src\" ";
 
         String execJar = getExecuteJAR();
 
-        for(File file : patternDescriptions){
+        for (File file : patternDescriptions) {
             String patternPath = "-pattern=\"" + file.getAbsolutePath() + "\"";
-            System.out.println(patternPath);
             try {
-                runProcess(execJar + projectPath + patternPath + " -group=false");
+                runsToolForSpecificPattern(execJar + projectPath + patternPath + " -group=false");
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -45,22 +44,16 @@ public class DPCORE implements DetectionTool {
         return patternInstances;
     }
 
-    private String getExecuteJAR(){
+    private String getExecuteJAR() {
         URL resourcesURL = this.getClass().getClassLoader().getResource("patterns/");
-        String resourcesPath = resourcesURL.getPath().replace("file:/","");
+        String resourcesPath = resourcesURL.getPath().replace("file:/", "");
         String[] pathSplit = resourcesPath.split("lib");
         String jarPath = pathSplit[0] + "lib/DP-CORE.jar";
-        jarPath = jarPath.replace("/","\\");
-        return "java -jar \""+ jarPath +"\"";
+        jarPath = jarPath.replace("/", "\\");
+        return "java -jar \"" + jarPath + "\"";
     }
 
-    /**
-     * Executes the DP-CORE tool for a specific pattern. Aborts if no pattern candidates are found.
-     *
-     * @param command - The DP-CORE tool command for a specific pattern
-     * @throws Exception - Any exception while executing the process or reading the text output
-     */
-    private void runProcess(String command) throws Exception {
+    private void runsToolForSpecificPattern(String command) throws Exception {
         Process pro = Runtime.getRuntime().exec(command);
         BufferedReader in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
 
@@ -90,17 +83,10 @@ public class DPCORE implements DetectionTool {
         groupPatternObjects(patternInstances, patternCandidates);
     }
 
-    /**
-     * Groups all the objects that play a role in the same pattern
-     *
-     * @param patternInstances - Set with all the pattern instances detected
-     * @param patternCandidates   - The list of objects and their roles
-     */
     private void groupPatternObjects(Set<PatternInstance> patternInstances, ArrayList<PatternCandidate> patternCandidates) {
         PatternInstance currentPatternInstance = null;
         PatternCandidate currentPatternCandidate = null;
         boolean unsavedPatternInstance = false;
-
 
         for (PatternCandidate candidate : patternCandidates) {
             if (isTheFirstCandidate(currentPatternInstance)) {
@@ -130,16 +116,6 @@ public class DPCORE implements DetectionTool {
         return currentPatternInstance == null;
     }
 
-    /**
-     * Parses the output from the DP-CORE tool, extracting the roles and objects of each pattern candidate.
-     * Also retrieves the name of the pattern where the object is inserted.
-     *
-     * @param in                - The tool's output text
-     * @param numCandidates     - The number of retrieved candidates
-     * @param patternCandidates - A list where each element contains the roles and objects of each pattern candidate
-     * @return false if it could not parse the pattern name and true if all the candidates were correctly parsed
-     * @throws IOException - Any exception retrieved while reading the text output
-     */
     private boolean parsedPatternCandidates(BufferedReader in, int numCandidates, ArrayList<PatternCandidate> patternCandidates) throws IOException {
         String line;
         for (int i = 0; i < numCandidates; i++) {
@@ -170,22 +146,14 @@ public class DPCORE implements DetectionTool {
         return true;
     }
 
-    /**
-     * Checks if two pattern candidates belong to the same pattern. This is done by checking if at least two objects
-     * play the same roles in both candidates.
-     *
-     * @param thisPatternCandidate               - One of the candidates
-     * @param thatPatternCandidate - The other candidate
-     * @return true if they belong to the same pattern and false if otherwise
-     */
     private boolean belongToSamePattern(PatternCandidate thisPatternCandidate, PatternCandidate thatPatternCandidate) {
         int objectsInCommon = 0;
         Set<PatternParticipant> thisPatternParticipants = thisPatternCandidate.getPatternParticipants();
         Set<PatternParticipant> thatPatternParticipants = thatPatternCandidate.getPatternParticipants();
-        for(PatternParticipant thisPatternParticipant : thisPatternParticipants){
+        for (PatternParticipant thisPatternParticipant : thisPatternParticipants) {
 
-            for(PatternParticipant thatPatternParticipant : thatPatternParticipants){
-                if(thisPatternParticipant.equals(thatPatternParticipant)){
+            for (PatternParticipant thatPatternParticipant : thatPatternParticipants) {
+                if (thisPatternParticipant.equals(thatPatternParticipant)) {
                     objectsInCommon++;
                 }
             }
@@ -194,23 +162,10 @@ public class DPCORE implements DetectionTool {
         return objectsInCommon >= 2;
     }
 
-    /**
-     * Discards the following line. Used to ignore the empty lines on the DP-CORE tool's text output.
-     *
-     * @param in - The tool's output text
-     * @throws IOException - Any exception retrieved while reading the text output
-     */
     private void discardLine(BufferedReader in) throws IOException {
         in.readLine();
     }
-
-    /**
-     * Retrieves the pattern name.
-     *
-     * @param in - The tool's output text
-     * @return the pattern name or the empty string
-     * @throws IOException - Any exception retrieved while reading the text output
-     */
+    
     private String retrievePatternName(BufferedReader in) throws IOException {
         String line = in.readLine();
         if (line == null) {

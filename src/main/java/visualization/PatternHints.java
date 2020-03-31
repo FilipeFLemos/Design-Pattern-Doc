@@ -96,7 +96,6 @@ public class PatternHints extends EditorLinePainter {
 
     private void setLineEnd(int lineNumber) {
         this.lineEnd = document.getLineEndOffset(lineNumber);
-        ;
     }
 
     private void setPatternInstanceById() {

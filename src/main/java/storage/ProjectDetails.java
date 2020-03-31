@@ -18,20 +18,20 @@ public class ProjectDetails {
     private String path;
     private ProjectPersistedState persistedState;
 
-    public ProjectDetails(){
+    public ProjectDetails() {
         try {
             Project activeProject = getActiveProject();
             String activeProjectName = activeProject.getName();
             String activeProjectPath = activeProject.getBasePath();
             setName(activeProjectName);
             setPath(activeProjectPath);
-        }catch (Exception e){
+        } catch (Exception e) {
             setName("");
             setPath("");
         }
     }
 
-    public ProjectPersistedState getActiveProjectPersistedState(){
+    public ProjectPersistedState getActiveProjectPersistedState() {
         Project activeProject = getActiveProject();
         String activeProjectName = activeProject.getName();
         if (!existsProjectState() || !name.equals(activeProjectName)) {
@@ -40,15 +40,15 @@ public class ProjectDetails {
         return persistedState;
     }
 
-    public void updateProjectPersistedState(PatternInstance patternInstance){
+    public void updateProjectPersistedState(PatternInstance patternInstance) {
         String id = persistedState.getPatternInstanceId(patternInstance);
-        if(isPatternInstanceNotStored(id)){
+        if (isPatternInstanceNotStored(id)) {
             id = Utils.generatePatternInstanceId(persistedState.getPatternInstanceById());
         }
         persistedState.updatePatternInstance(id, patternInstance);
     }
 
-    private boolean isPatternInstanceNotStored(String id){
+    private boolean isPatternInstanceNotStored(String id) {
         return id.equals("");
     }
 
@@ -67,14 +67,14 @@ public class ProjectDetails {
             setName(activeProjectName);
             setPath(activeProjectPath);
             setPersistedState();
-        }catch (Exception ignored){
+        } catch (Exception ignored) {
 
         }
     }
 
-    private void setPersistedState() throws NullPointerException{
+    private void setPersistedState() throws NullPointerException {
         ProjectsPersistedState projectsPersistedState = PluginState.getInstance().getState();
-        if(projectsPersistedState == null){
+        if (projectsPersistedState == null) {
             throw new NullPointerException();
         }
 
@@ -97,12 +97,12 @@ public class ProjectDetails {
         return activeProject;
     }
 
-    public Set<String> getAllFileNamesFromProject(){
+    public Set<String> getAllFileNamesFromProject() {
         Project activeProject = getActiveProject();
         Set<String> filesName = new HashSet<>();
         Collection<VirtualFile> files = Utils.getVirtualFilesInProject(activeProject);
-        
-        for(VirtualFile virtualFile : files){
+
+        for (VirtualFile virtualFile : files) {
             String fileName = virtualFile.getName();
             String[] parsedFileName = fileName.split(".java");
             filesName.add(parsedFileName[0]);

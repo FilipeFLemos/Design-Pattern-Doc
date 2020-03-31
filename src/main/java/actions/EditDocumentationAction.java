@@ -13,10 +13,9 @@ public class EditDocumentationAction extends EditDocumentation {
     @Override
     public void update(AnActionEvent e) {
         PsiElement psiElement = e.getData(LangDataKeys.PSI_ELEMENT);
-        if(psiElement == null && existsPatternInstanceStored()) {
+        if (psiElement == null && existsPatternInstanceStored()) {
             e.getPresentation().setEnabledAndVisible(true);
-        }
-        else{
+        } else {
             e.getPresentation().setEnabledAndVisible(false);
         }
     }
@@ -32,7 +31,7 @@ public class EditDocumentationAction extends EditDocumentation {
         checkDialogCloseAction(e);
     }
 
-    private void displayEditDocumentationDialog(){
+    private void displayEditDocumentationDialog() {
         editDocumentationDialog = new EditDocumentationDialog(true);
         editDocumentationDialog.show();
     }

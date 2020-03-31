@@ -13,11 +13,11 @@ public class DesignPattern implements Serializable, Comparable<DesignPattern> {
     private String name;
     private Set<String> roles;
 
-    public DesignPattern(){
+    public DesignPattern() {
 
     }
 
-    public DesignPattern(String name, Set<String> roles){
+    public DesignPattern(String name, Set<String> roles) {
         this.name = name;
         this.roles = roles;
     }

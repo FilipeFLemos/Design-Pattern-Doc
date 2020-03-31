@@ -24,9 +24,23 @@ public class CreateDocumentationDialog extends DocumentationDialog {
         setDesignPatternByName();
         setPatternNameComboBox();
         setPatternNameComboBoxListener();
-        setNumCollaborationRows(MIN_NUM_ROWS);
+
+        int minNumRoles = getMinNumRoles();
+        setNumCollaborationRows(minNumRoles);
         setTitle("Document Pattern Instance");
         init();
+    }
+
+    private int getMinNumRoles() {
+        int min = Integer.MAX_VALUE;
+        for(Map.Entry<String, DesignPattern> entry : designPatternByName.entrySet()){
+            DesignPattern designPattern = entry.getValue();
+            int numRoles = designPattern.getRoles().size();
+            if(numRoles < min){
+                min = numRoles;
+            }
+        }
+        return min;
     }
 
     public CreateDocumentationDialog(boolean canBeParent) {
@@ -57,10 +71,10 @@ public class CreateDocumentationDialog extends DocumentationDialog {
         className.setText(classParticipant);
     }
 
-    private void setDesignPatternByName(){
+    private void setDesignPatternByName() {
         designPatternByName = new HashMap<>();
         Set<DesignPattern> supportedDesignPatterns = PluginState.getInstance().getSupportedDesignPatterns();
-        for(DesignPattern designPattern : supportedDesignPatterns){
+        for (DesignPattern designPattern : supportedDesignPatterns) {
             designPatternByName.put(designPattern.getName(), designPattern);
         }
     }
@@ -76,11 +90,11 @@ public class CreateDocumentationDialog extends DocumentationDialog {
         patternNameComboBox = new ComboBox(designPatterns);
     }
 
-    private void setPatternNameComboBoxListener(){
-        patternNameComboBox.addActionListener(e->
+    private void setPatternNameComboBoxListener() {
+        patternNameComboBox.addActionListener(e ->
         {
             ArrayList<String> filledClassNames = new ArrayList<>();
-            for(CollaborationRowItem listItem : collaborationRowList){
+            for (CollaborationRowItem listItem : collaborationRowList) {
                 String className = listItem.getClassName().getText();
                 filledClassNames.add(className);
             }
@@ -90,7 +104,7 @@ public class CreateDocumentationDialog extends DocumentationDialog {
             addCollaborationListToPanel();
             changeDeleteBtnVisibilityWhenMinNumRows(false);
 
-            for(int i=0; i < filledClassNames.size(); i++){
+            for (int i = 0; i < filledClassNames.size(); i++) {
                 String className = filledClassNames.get(i);
                 CollaborationRowItem listItem = collaborationRowList.get(i);
                 JTextField jTextField = listItem.getClassName();
@@ -104,13 +118,13 @@ public class CreateDocumentationDialog extends DocumentationDialog {
     @Override
     protected ValidationInfo doValidate() {
         ValidationInfo commonValidationInfo = getCommonValidationInfo();
-        if(failedCommonValidation(commonValidationInfo)){
+        if (failedCommonValidation(commonValidationInfo)) {
             return commonValidationInfo;
         }
 
         String name = (String) patternNameComboBox.getSelectedItem();
         PatternInstance patternInstance = generatePatternInstanceFromUserInput(name);
-        if(projectPersistedState.hasAlreadyStored(patternInstance)){
+        if (projectPersistedState.hasAlreadyStored(patternInstance)) {
             return new ValidationInfo("This pattern instance has already been documented. Consider editing the existing one.");
         }
 

@@ -29,8 +29,8 @@ public abstract class EditDocumentation extends AnAction {
         return projectPersistedState.getPatternInstanceById();
     }
 
-    protected void checkDialogCloseAction(AnActionEvent e){
-        if(isPatternInstanceDocDeleted()){
+    protected void checkDialogCloseAction(AnActionEvent e) {
+        if (isPatternInstanceDocDeleted()) {
             Messages.showMessageDialog(e.getProject(), "The selected pattern instance documentation was deleted from the persistent storage!", "Info", Messages.getInformationIcon());
         }
     }
