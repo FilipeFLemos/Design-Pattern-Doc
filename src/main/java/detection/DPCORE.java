@@ -5,11 +5,8 @@ import models.PatternInstance;
 import models.PatternParticipant;
 import storage.PluginState;
 import storage.ProjectDetails;
-import utils.Utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 
@@ -17,11 +14,11 @@ public class DPCORE implements DetectionTool {
 
     private String patternName = "";
     private Set<PatternInstance> patternInstances;
-    private ArrayList<String> patternFiles;
+    private ArrayList<File> patternDescriptions;
 
     public DPCORE(){
         patternInstances = new HashSet<>();
-        patternFiles = Utils.getPatternFiles();
+        patternDescriptions = PluginState.getInstance().getPatternDescriptions();
     }
 
     @Override
@@ -32,13 +29,10 @@ public class DPCORE implements DetectionTool {
         projectPath = " -project=\"" + projectPath + "\\src\" ";
 
         String execJar = getExecuteJAR();
-        String patternsDirPath = getPatternsDirPath();
 
-        System.out.println("Again");
-
-        for(String patternFile : patternFiles){
-            String patternPath = patternsDirPath + patternFile + "\"";
-
+        for(File file : patternDescriptions){
+            String patternPath = "-pattern=\"" + file.getAbsolutePath() + "\"";
+            System.out.println(patternPath);
             try {
                 runProcess(execJar + projectPath + patternPath + " -group=false");
             } catch (Exception e1) {
@@ -58,15 +52,6 @@ public class DPCORE implements DetectionTool {
         String jarPath = pathSplit[0] + "lib/DP-CORE.jar";
         jarPath = jarPath.replace("/","\\");
         return "java -jar \""+ jarPath +"\"";
-    }
-
-    private String getPatternsDirPath(){
-        URL resourcesURL = this.getClass().getClassLoader().getResource("patterns/");
-        String resourcesPath = resourcesURL.getPath().replace("file:/","");
-        String[] pathSplit = resourcesPath.split("build");
-        String patternsPath = pathSplit[0] + "build/resources/main/patterns/";
-        patternsPath = patternsPath.replace("/","\\");
-        return "-pattern=\"" + patternsPath;
     }
 
     /**
@@ -118,7 +103,7 @@ public class DPCORE implements DetectionTool {
 
 
         for (PatternCandidate candidate : patternCandidates) {
-            if (currentPatternInstance == null) {
+            if (isTheFirstCandidate(currentPatternInstance)) {
                 currentPatternInstance = new PatternInstance(patternName, candidate);
                 currentPatternCandidate = candidate;
                 continue;
@@ -139,6 +124,10 @@ public class DPCORE implements DetectionTool {
         if (unsavedPatternInstance) {
             patternInstances.add(currentPatternInstance);
         }
+    }
+
+    private boolean isTheFirstCandidate(PatternInstance currentPatternInstance) {
+        return currentPatternInstance == null;
     }
 
     /**

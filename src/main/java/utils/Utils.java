@@ -73,7 +73,7 @@ public class Utils {
         });
     }
 
-    public static ArrayList<String>  getPatternFiles(){
+    public static ArrayList<String> getPatternFileNames(){
         ArrayList<String> patternFiles = new ArrayList<>();
         try {
             String[] fileNames = getResourceListing(Utils.class, "patterns/");

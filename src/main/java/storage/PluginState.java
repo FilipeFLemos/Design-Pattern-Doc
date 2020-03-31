@@ -15,6 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.Utils;
 
+import java.io.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -28,11 +30,13 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
     private ProjectsPersistedState persistentState = new ProjectsPersistedState();
     private ProjectDetails projectDetails;
     private PatternSuggestions patternSuggestions;
+    private ArrayList<File> patternDescriptions;
 
     public PluginState() {
         Utils.getSupportedDesignPatterns();
         projectDetails = new ProjectDetails();
         patternSuggestions = new PatternSuggestions();
+        setPatternDescriptions();
         AppExecutorUtil.getAppScheduledExecutorService().schedule(new PatternDetectionScheduler(), 0, TimeUnit.SECONDS);
     }
 
@@ -81,5 +85,41 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
         Project project = projectDetails.getActiveProject();
         final DaemonCodeAnalyzer analyzer = DaemonCodeAnalyzer.getInstance(project);
         analyzer.restart();
+    }
+
+
+    private void setPatternDescriptions(){
+        ArrayList<File> patternDescriptions = new ArrayList<>();
+        ArrayList<String> patternFileNames = Utils.getPatternFileNames();
+
+        for(String patternFileName : patternFileNames) {
+            File file;
+            String resource = "patterns/" + patternFileName;
+
+            try {
+                String[] fileNameParsed = patternFileName.split(".pattern");
+                InputStream input = getClass().getClassLoader().getResourceAsStream(resource);
+                file = File.createTempFile(fileNameParsed[0], ".pattern");
+                OutputStream out = new FileOutputStream(file);
+                int read;
+                byte[] bytes = new byte[1024];
+
+                while ((read = input.read(bytes)) != -1) {
+                    out.write(bytes, 0, read);
+                }
+                out.close();
+                file.deleteOnExit();
+
+                patternDescriptions.add(file);
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        this.patternDescriptions = patternDescriptions;
+    }
+
+    public ArrayList<File> getPatternDescriptions(){
+        return patternDescriptions;
     }
 }
