@@ -70,6 +70,25 @@ public class PatternSuggestions {
         }
     }
 
+    public void updateSuggestionsAfterPatternInstanceDeletion(PatternInstance patternInstance){
+        Set<PatternParticipant> patternParticipants = patternInstance.getPatternParticipants();
+
+        for (PatternParticipant patternParticipant : patternParticipants) {
+            this.patternParticipant = patternParticipant;
+            String object = patternParticipant.getObject();
+
+            if (availableSuggestions.containsKey(object)) {
+                Set<PatternInstance> patternInstances = availableSuggestions.get(object);
+                patternInstances.remove(patternInstance);
+            }
+
+            if (acceptedSuggestions.containsKey(object)) {
+                Set<PatternInstance> patternInstances = acceptedSuggestions.get(object);
+                patternInstances.remove(patternInstance);
+            }
+        }
+    }
+
     void acceptAvailableSuggestion(PatternInstance patternInstance) {
         Set<PatternParticipant> patternInstances = patternInstance.getPatternParticipants();
         for (PatternParticipant patternParticipant : patternInstances) {

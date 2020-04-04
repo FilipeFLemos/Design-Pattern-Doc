@@ -63,7 +63,8 @@ public class PatternSuggestionElementVisitor extends JavaElementVisitor {
 
         String suggestionText = "We believe that this class plays the role(s) " + objectRolesText + " of the " + patternName + " Design Pattern.";
         PatternSuggestionQuickFix patternSuggestionQuickFix = new PatternSuggestionQuickFix(patternInstance);
-        holder.registerProblem(element, suggestionText, patternSuggestionQuickFix);
+        PatternSuggestionIgnoreQuickFix patternSuggestionIgnoreQuickFix = new PatternSuggestionIgnoreQuickFix(patternInstance);
+        holder.registerProblem(element, suggestionText, patternSuggestionQuickFix, patternSuggestionIgnoreQuickFix);
     }
 
     private String getObjectRolesText(PatternInstance patternInstance) {

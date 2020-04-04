@@ -29,7 +29,7 @@ import java.util.jar.JarFile;
 public class Utils {
 
     public static final int MIN_PATTERN_PARTICIPANTS_IN_COMMON = 2;
-    public static final int PATTERN_DETECTION_DELAY = 30;
+    public static final int PATTERN_DETECTION_DELAY = 25;
 
     public static String generatePatternInstanceId(ConcurrentHashMap<String, PatternInstance> patternInstanceById) {
         String id;

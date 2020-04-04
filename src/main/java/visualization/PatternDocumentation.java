@@ -39,6 +39,9 @@ public class PatternDocumentation implements DocumentationProvider {
     @Override
     public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
         return getDocumentationText(element);
+//        return "<div>\n" +
+//                "  <img src=\"http://www.plantuml.com/plantuml/svg/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000\">\n" +
+//                "</div>";
     }
 
     @Nullable
@@ -63,7 +66,7 @@ public class PatternDocumentation implements DocumentationProvider {
 
             generatePatternInstancesDocumentationForClass();
             if (!documentationTextBuilder.toString().equals("")) {
-                documentationText = documentationTextBuilder.toString();
+               documentationText = documentationTextBuilder.toString();
             }
         } catch (Exception ignored) {
 

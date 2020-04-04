@@ -3,9 +3,11 @@ package ui;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.ui.JBUI;
+import detection.PatternSuggestions;
 import models.PatternInstance;
 import models.PatternParticipant;
 import org.jetbrains.annotations.Nullable;
+import storage.PluginState;
 import utils.Utils;
 
 import javax.swing.*;
@@ -119,9 +121,16 @@ public class EditDocumentationDialog extends DocumentationDialog {
         deletePatternInstance.addActionListener(e ->
         {
             String id = getSelectedPatternInstanceId();
+            PatternInstance patternInstance = getSelectedPatternInstance();
+            removePatternInstanceFromSuggestions(patternInstance);
             projectPersistedState.deletePatternInstance(id);
             close(NEXT_USER_EXIT_CODE);
         });
+    }
+
+    private void removePatternInstanceFromSuggestions(PatternInstance patternInstance) {
+        PatternSuggestions patternSuggestions = PluginState.getInstance().getPatternSuggestions();
+        patternSuggestions.updateSuggestionsAfterPatternInstanceDeletion(patternInstance);
     }
 
     private void fillFields() {

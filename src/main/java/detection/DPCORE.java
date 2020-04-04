@@ -25,8 +25,8 @@ public class DPCORE implements DetectionTool {
     public Set<PatternInstance> scanForPatterns() {
 
         ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
-        String projectPath = projectDetails.getPath().replace("/", "\\");
-        projectPath = " -project=\"" + projectPath + "\\src\" ";
+        String projectPath = projectDetails.getPath();
+        projectPath = " -project=\"" + projectPath + "/src\" ";
 
         String execJar = getExecuteJAR();
 
@@ -49,7 +49,6 @@ public class DPCORE implements DetectionTool {
         String resourcesPath = resourcesURL.getPath().replace("file:/", "");
         String[] pathSplit = resourcesPath.split("lib");
         String jarPath = pathSplit[0] + "lib/DP-CORE.jar";
-        jarPath = jarPath.replace("/", "\\");
         return "java -jar \"" + jarPath + "\"";
     }
 
