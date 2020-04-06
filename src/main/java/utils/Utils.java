@@ -202,9 +202,4 @@ public class Utils {
         }
         return classLinks;
     }
-
-    public static String getUMLFilePath(PatternInstance patternInstance) {
-        PlantUmlHelper plantUmlHelper = new PlantUmlHelper(patternInstance);
-        return plantUmlHelper.getUmlFilePath();
-    }
 }

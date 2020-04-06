@@ -119,15 +119,16 @@ public class CreateDocumentationDialog extends DocumentationDialog {
 
     @Override
     protected void doOKAction() {
+        String id = Utils.generatePatternInstanceId(patternInstanceById);
         String name = (String) patternNameComboBox.getSelectedItem();
         PatternInstance patternInstance = generatePatternInstanceFromUserInput(name);
-        storePatternInstance(patternInstance);
+        storePatternInstance(id, patternInstance);
         updatePatternSuggestions(patternInstance);
+        updatePatternInstanceUml(id);
         close(OK_EXIT_CODE);
     }
 
-    private void storePatternInstance(PatternInstance patternInstance) {
-        String id = Utils.generatePatternInstanceId(patternInstanceById);
+    private void storePatternInstance(String id, PatternInstance patternInstance) {
         projectPersistedState.storePatternInstanceIfAbsent(id, patternInstance);
     }
 }

@@ -5,6 +5,7 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.WindowManager;
 import models.PatternInstance;
+import utils.PlantUmlHelper;
 import utils.Utils;
 
 import java.awt.*;
@@ -125,13 +126,28 @@ public class ProjectDetails {
         for(Map.Entry<String, PatternInstance> entry : patternInstances.entrySet()){
             String id = entry.getKey();
             PatternInstance patternInstance = entry.getValue();
-            String umlFileName = Utils.getUMLFilePath(patternInstance);
-            umlFilePathByPatternInstanceId.put(id, umlFileName);
+            generateUmlAndUpdateUmlMap(id, patternInstance);
         }
+    }
+
+    private void generateUmlAndUpdateUmlMap(String id, PatternInstance patternInstance) {
+        String umlFileName = new PlantUmlHelper(patternInstance).getUmlFilePath();
+        umlFilePathByPatternInstanceId.put(id, umlFileName);
     }
 
     public String getPatternInstanceUmlFilePath(String id){
         return umlFilePathByPatternInstanceId.get(id);
+    }
+
+    public void updateUmlFileByPatternInstanceId(String id){
+        PatternInstance patternInstance = persistedState.getPatternInstance(id);
+        generateUmlAndUpdateUmlMap(id, patternInstance);
+    }
+
+    public void updateUmlFileByPatternInstance(PatternInstance patternInstance){
+        String id = persistedState.getPatternInstanceId(patternInstance);
+        String umlFileName = new PlantUmlHelper(patternInstance).getUmlFilePath();
+        umlFilePathByPatternInstanceId.put(id, umlFileName);
     }
 
 }

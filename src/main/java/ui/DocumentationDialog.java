@@ -37,6 +37,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
 
     protected ProjectPersistedState projectPersistedState;
     protected ConcurrentHashMap<String, PatternInstance> patternInstanceById;
+    protected ProjectDetails projectDetails;
 
     public DocumentationDialog(boolean canBeParent) {
         super(canBeParent);
@@ -61,7 +62,8 @@ public abstract class DocumentationDialog extends DialogWrapper {
         try {
             setProjectState();
             setPatternInstanceById();
-            Set<String> fileNames = PluginState.getInstance().getProjectDetails().getAllFileNamesFromProject();
+            projectDetails = PluginState.getInstance().getProjectDetails();
+            Set<String> fileNames = projectDetails.getAllFileNamesFromProject();
             validFileNames = new ArrayList<>(fileNames);
         } catch (Exception ignored) {
 
@@ -164,7 +166,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
     }
 
     protected void changeDeleteBtnVisibilityWhenMinNumRows(boolean b) {
-        if (collaborationRowList.size() == MIN_NUM_ROWS) {
+        if (collaborationRowList.size() == 1) {
             for (int i = 0; i < MIN_NUM_ROWS; i++) {
                 CollaborationRowItem collaborationRowItem = collaborationRowList.get(i);
                 JButton deleteBtn = collaborationRowItem.getjButton();
@@ -276,6 +278,10 @@ public abstract class DocumentationDialog extends DialogWrapper {
         PatternSuggestions patternSuggestions = PluginState.getInstance().getPatternSuggestions();
         patternSuggestions.updateSuggestionsAfterManualDocumentation(patternInstance);
         PluginState.getInstance().restartHighlighting();
+    }
+
+    protected void updatePatternInstanceUml(String id) {
+        projectDetails.updateUmlFileByPatternInstanceId(id);
     }
 
     protected void setProjectState() throws NullPointerException {

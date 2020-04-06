@@ -4,9 +4,11 @@ import models.ClassLink;
 import models.DesignPattern;
 import models.PatternInstance;
 import net.sourceforge.plantuml.SourceStringReader;
+import org.jetbrains.annotations.NotNull;
 import storage.PluginState;
 
 import java.io.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,11 +22,21 @@ public class PlantUmlHelper {
     private StringBuilder stringBuilder;
 
     public PlantUmlHelper(PatternInstance patternInstance){
+        setVariables(patternInstance);
+        init(patternInstance);
+    }
+
+    public PlantUmlHelper(PatternInstance patternInstance, String path){
+        setVariables(patternInstance);
+        this.umlFilePath = path;
+        init(patternInstance);
+    }
+
+    private void setVariables(PatternInstance patternInstance){
         supportedDesignPatterns = PluginState.getInstance().getSupportedDesignPatterns();
         roles = patternInstance.getRoleObjects().keySet();
         patternName = patternInstance.getPatternName();
         stringBuilder = new StringBuilder();
-        init(patternInstance);
     }
 
     private void init(PatternInstance patternInstance) {
@@ -79,7 +91,13 @@ public class PlantUmlHelper {
             String role2 = classLink.getRole2();
             //TODO LINK correcto
             Set<String> role1Objects = roleObjects.get(role1);
+            if(role1Objects == null){
+                role1Objects = new HashSet<>();
+            }
             Set<String> role2Objects = roleObjects.get(role2);
+            if(role2Objects == null){
+                role1Objects = new HashSet<>();
+            }
             for(String role1Object : role1Objects){
                 for(String role2Object : role2Objects){
                     stringBuilder.append("\n").append(role2Object).append(" -- ").append(role1Object);
@@ -96,8 +114,7 @@ public class PlantUmlHelper {
         DesignPattern designPattern = new DesignPattern();
         for(DesignPattern supportedDesignPattern : supportedDesignPatterns){
             String supportedPatternName = supportedDesignPattern.getName();
-            Set<String> supportedPatternRoles = supportedDesignPattern.getRoles();
-            if(supportedPatternName.equals(patternName) && supportedPatternRoles.equals(roles)){
+            if(supportedPatternName.equals(patternName)){
                 designPattern = supportedDesignPattern;
                 break;
             }
@@ -108,17 +125,34 @@ public class PlantUmlHelper {
     private void runPlantUmlOnPath() {
 
         try {
-            File file = File.createTempFile("temp", ".png");
+            File file = getUmlFile();
             OutputStream png = new FileOutputStream(file);
             SourceStringReader reader = new SourceStringReader(stringBuilder.toString());
             reader.outputImage(png).getDescription();
             png.close();
-            file.deleteOnExit();
 
-            umlFilePath = file.getAbsolutePath();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @NotNull
+    private File getUmlFile() throws IOException {
+        File file;
+
+        if(isUMLNotAvailable()){
+            file = File.createTempFile("temp", ".png");
+            umlFilePath = file.getAbsolutePath();
+        }
+        else{
+            file = new File(umlFilePath);
+        }
+        file.deleteOnExit();
+        return file;
+    }
+
+    private boolean isUMLNotAvailable(){
+        return umlFilePath == null;
     }
 
     public String getUmlFilePath() {
