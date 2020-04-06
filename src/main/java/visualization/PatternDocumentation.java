@@ -9,6 +9,7 @@ import storage.PluginState;
 import storage.ProjectDetails;
 import storage.ProjectPersistedState;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +40,6 @@ public class PatternDocumentation implements DocumentationProvider {
     @Override
     public String generateDoc(PsiElement element, @Nullable PsiElement originalElement) {
         return getDocumentationText(element);
-//        return "<div>\n" +
-//                "  <img src=\"http://www.plantuml.com/plantuml/svg/SyfFKj2rKt3CoKnELR1Io4ZDoSa70000\">\n" +
-//                "</div>";
     }
 
     @Nullable
@@ -93,12 +91,24 @@ public class PatternDocumentation implements DocumentationProvider {
                 includeClassPlayedRoles(objectRoles);
                 includePatternName(patternName);
                 includePatternInstanceIntent(patternInstance);
+                includePatternInstanceUML(patternInstanceEntry.getKey());
                 includePatternInstanceRolesHeader();
                 includePatternInstanceCollaborations(patternInstance);
             } catch (Exception ignored) {
 
             }
         }
+    }
+
+    private void includePatternInstanceUML(String patternInstanceId) {
+        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
+        String path = projectDetails.getPatternInstanceUmlFilePath(patternInstanceId);
+        System.out.println(path);
+        File file = new File(path);
+        String imageDiv = "\n<br>\n<br>\n" +
+                "  <img src=\"file:/" +  file.getAbsolutePath() + "\">\n" +
+                "";
+        documentationTextBuilder.append(imageDiv);
     }
 
     private void classPlaysRoleInPatternInstance(Map<String, Set<String>> objectRoles) throws NullPointerException {

@@ -8,15 +8,14 @@ import models.PatternInstance;
 import utils.Utils;
 
 import java.awt.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ProjectDetails {
 
     private String name;
     private String path;
     private ProjectPersistedState persistedState;
+    private Map<String, String> umlFilePathByPatternInstanceId;
 
     public ProjectDetails() {
         try {
@@ -67,8 +66,9 @@ public class ProjectDetails {
             setName(activeProjectName);
             setPath(activeProjectPath);
             setPersistedState();
-        } catch (Exception ignored) {
-
+            setUmlFilePathByPatternInstanceId();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -116,6 +116,22 @@ public class ProjectDetails {
 
     private void setPath(String path) {
         this.path = path;
+    }
+
+    private void setUmlFilePathByPatternInstanceId(){
+        umlFilePathByPatternInstanceId = new HashMap<>();
+        Map<String, PatternInstance> patternInstances = persistedState.getPatternInstanceById();
+
+        for(Map.Entry<String, PatternInstance> entry : patternInstances.entrySet()){
+            String id = entry.getKey();
+            PatternInstance patternInstance = entry.getValue();
+            String umlFileName = Utils.getUMLFilePath(patternInstance);
+            umlFilePathByPatternInstanceId.put(id, umlFileName);
+        }
+    }
+
+    public String getPatternInstanceUmlFilePath(String id){
+        return umlFilePathByPatternInstanceId.get(id);
     }
 
 }

@@ -24,23 +24,9 @@ public class CreateDocumentationDialog extends DocumentationDialog {
         setDesignPatternByName();
         setPatternNameComboBox();
         setPatternNameComboBoxListener();
-
-        int minNumRoles = getMinNumRoles();
-        setNumCollaborationRows(minNumRoles);
+        setNumCollaborationRows(MIN_NUM_ROWS);
         setTitle("Document Pattern Instance");
         init();
-    }
-
-    private int getMinNumRoles() {
-        int min = Integer.MAX_VALUE;
-        for(Map.Entry<String, DesignPattern> entry : designPatternByName.entrySet()){
-            DesignPattern designPattern = entry.getValue();
-            int numRoles = designPattern.getRoles().size();
-            if(numRoles < min){
-                min = numRoles;
-            }
-        }
-        return min;
     }
 
     public CreateDocumentationDialog(boolean canBeParent) {

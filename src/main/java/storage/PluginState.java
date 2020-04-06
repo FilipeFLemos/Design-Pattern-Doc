@@ -33,7 +33,7 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
     private ArrayList<File> patternDescriptions;
 
     public PluginState() {
-        Utils.getSupportedDesignPatterns();
+        //Utils.getSupportedDesignPatterns();
         projectDetails = new ProjectDetails();
         patternSuggestions = new PatternSuggestions();
         setPatternDescriptions();

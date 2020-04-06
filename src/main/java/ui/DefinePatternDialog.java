@@ -25,7 +25,7 @@ public class DefinePatternDialog extends DialogWrapper {
     private JButton addRoleBtn;
     private ArrayList<RolesRowItem> rolesRowList;
     private int gridHeight;
-    private final int MIN_NUM_ROWS = 1;
+    private final int MIN_NUM_ROWS = 3;
 
     private ProjectsPersistedState projectsPersistedState;
 
@@ -192,6 +192,6 @@ public class DefinePatternDialog extends DialogWrapper {
             roles.add(role);
         }
 
-        return new DesignPattern(name, roles);
+        return new DesignPattern(name, roles, new ArrayList<>());
     }
 }

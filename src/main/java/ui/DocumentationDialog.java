@@ -32,7 +32,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
     protected int numCollaborationRows;
     protected int gridHeight;
     protected int collaborationGridHeight;
-    protected int MIN_NUM_ROWS;
+    protected int MIN_NUM_ROWS = 3;
     private ArrayList<String> validFileNames;
 
     protected ProjectPersistedState projectPersistedState;

@@ -13,6 +13,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import models.ClassLink;
 import models.DesignPattern;
 import models.PatternInstance;
 
@@ -87,17 +88,17 @@ public class Utils {
         try {
             String[] fileNames = getResourceListing(Utils.class, "patterns/");
             for (String fileName : fileNames) {
-                ArrayList<String> fileLines = new ArrayList<>();
                 InputStream inputStream = Utils.class.getClassLoader().getResourceAsStream("/patterns/" + fileName);
                 InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                 BufferedReader reader = new BufferedReader(streamReader);
-                for (String line; (line = reader.readLine()) != null; ) {
-                    if (line.equals("End_Members")) {
-                        break;
-                    }
-                    fileLines.add(line);
-                }
-                DesignPattern designPattern = createDesignPatternFromFileLines(fileLines);
+
+                ArrayList<String> fileLines = getFileLinesUntilString(reader, "End_Members");
+                String name = fileLines.get(0);
+                ArrayList<String> roles = createDesignPatternRolesFromFileLines(fileLines);
+                fileLines = getFileLinesUntilString(reader, "End_Connections");
+                List<ClassLink> classLinks = createDesignPatternClassLinksFromFileLines(fileLines, roles);
+
+                DesignPattern designPattern = new DesignPattern(name, new HashSet<>(roles), classLinks);
                 designPatterns.add(designPattern);
                 inputStream.close();
                 streamReader.close();
@@ -154,9 +155,19 @@ public class Utils {
         throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
     }
 
-    private static DesignPattern createDesignPatternFromFileLines(ArrayList<String> fileLines) {
-        String name = fileLines.get(0);
-        Set<String> roles = new HashSet<>();
+    private static ArrayList<String> getFileLinesUntilString(BufferedReader reader, String endString) throws IOException {
+        ArrayList<String> fileLines = new ArrayList<>();
+        for (String line; (line = reader.readLine()) != null; ) {
+            if (line.equals(endString)) {
+                break;
+            }
+            fileLines.add(line);
+        }
+        return fileLines;
+    }
+
+    private static ArrayList<String> createDesignPatternRolesFromFileLines(ArrayList<String> fileLines) {
+        ArrayList<String> roles = new ArrayList<>();
         for (int i = 1; i < fileLines.size(); i++) {
             String line = fileLines.get(i);
             String[] stringSplit = line.split(" ");
@@ -169,6 +180,31 @@ public class Utils {
             }
             roles.add(role.toString());
         }
-        return new DesignPattern(name, roles);
+        return roles;
+    }
+
+    private static List<ClassLink> createDesignPatternClassLinksFromFileLines(ArrayList<String> fileLines, ArrayList<String> roles) {
+        List<ClassLink> classLinks = new ArrayList<>();
+        for (int i = 0; i < fileLines.size(); i++) {
+            String line = fileLines.get(i);
+            String[] stringSplit = line.split(" ");
+            String role1Letter = stringSplit[0];
+            String classLinkType = stringSplit[1];
+            String role2Letter = stringSplit[2];
+
+            int role1Index = role1Letter.toCharArray()[0] - 'A';
+            int role2Index = role2Letter.toCharArray()[0] - 'A';
+
+            String role1 = roles.get(role1Index);
+            String role2 = roles.get(role2Index);
+            ClassLink classLink = new ClassLink(role1, role2, classLinkType);
+            classLinks.add(classLink);
+        }
+        return classLinks;
+    }
+
+    public static String getUMLFilePath(PatternInstance patternInstance) {
+        PlantUmlHelper plantUmlHelper = new PlantUmlHelper(patternInstance);
+        return plantUmlHelper.getUmlFilePath();
     }
 }
