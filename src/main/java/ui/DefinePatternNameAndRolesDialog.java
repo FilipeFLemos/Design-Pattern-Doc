@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DefinePatternDialog extends DialogWrapper {
+public class DefinePatternNameAndRolesDialog extends DialogWrapper {
 
     private JPanel panel;
     private JPanel rolesPanel;
@@ -26,10 +26,13 @@ public class DefinePatternDialog extends DialogWrapper {
     private ArrayList<RolesRowItem> rolesRowList;
     private int gridHeight;
     private final int MIN_NUM_ROWS = 3;
+    public final int NEXT_STEP_DIALOG = 3;
 
     private ProjectsPersistedState projectsPersistedState;
+    private String name;
+    private Set<String> roles;
 
-    public DefinePatternDialog(boolean canBeParent) {
+    public DefinePatternNameAndRolesDialog(boolean canBeParent) {
         super(canBeParent);
 
         panel = new JPanel(new GridBagLayout());
@@ -41,7 +44,7 @@ public class DefinePatternDialog extends DialogWrapper {
         rolesRowList = new ArrayList<>();
 
         rolesScrollPane = new JBScrollPane(rolesPanel);
-        rolesScrollPane.setPreferredSize(new Dimension(200, 100));
+        rolesScrollPane.setPreferredSize(new Dimension(350, 100));
         rolesScrollPane.createVerticalScrollBar();
 
         addRoleBtn = new JButton("Add Role");
@@ -59,6 +62,7 @@ public class DefinePatternDialog extends DialogWrapper {
 
         }
 
+        setTitle("Define Design Pattern - Step 1");
         init();
     }
 
@@ -158,11 +162,18 @@ public class DefinePatternDialog extends DialogWrapper {
             return new ValidationInfo("This field is mandatory!", patternName);
         }
 
+        Set<String> roles = new HashSet<>();
+
         for (RolesRowItem listItem : rolesRowList) {
             String role = listItem.getRole().getText();
             if (role.equals("")) {
                 return new ValidationInfo("This field is mandatory! If you do not need the row, consider removing it.", listItem.getRole());
             }
+
+            if(roles.contains(role)){
+                return new ValidationInfo("This role has already been specified above!", listItem.getRole());
+            }
+            roles.add(role);
         }
 
         Set<DesignPattern> supportedDesignPatterns = projectsPersistedState.getSupportedDesignPatterns();
@@ -178,20 +189,25 @@ public class DefinePatternDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        DesignPattern designPattern = generateDesignPatternFromUserInput();
-        projectsPersistedState.storeDesignPattern(designPattern);
-        close(OK_EXIT_CODE);
+        setDesignPatternNameAndRolesFromUserInput();
+        close(NEXT_STEP_DIALOG);
     }
 
-    private DesignPattern generateDesignPatternFromUserInput() {
-        String name = patternName.getText();
-        Set<String> roles = new HashSet<>();
+    private void setDesignPatternNameAndRolesFromUserInput() {
+        name = patternName.getText();
+        roles = new HashSet<>();
 
         for (RolesRowItem listItem : rolesRowList) {
             String role = listItem.getRole().getText();
             roles.add(role);
         }
+    }
 
-        return new DesignPattern(name, roles, new ArrayList<>());
+    public String getName() {
+        return name;
+    }
+
+    public Set<String> getRoles() {
+        return roles;
     }
 }

@@ -13,7 +13,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
-import models.ClassLink;
+import models.RolesLink;
 import models.DesignPattern;
 import models.PatternInstance;
 
@@ -96,9 +96,9 @@ public class Utils {
                 String name = fileLines.get(0);
                 ArrayList<String> roles = createDesignPatternRolesFromFileLines(fileLines);
                 fileLines = getFileLinesUntilString(reader, "End_Connections");
-                List<ClassLink> classLinks = createDesignPatternClassLinksFromFileLines(fileLines, roles);
+                List<RolesLink> rolesLinks = createDesignPatternClassLinksFromFileLines(fileLines, roles);
 
-                DesignPattern designPattern = new DesignPattern(name, new HashSet<>(roles), classLinks);
+                DesignPattern designPattern = new DesignPattern(name, new HashSet<>(roles), rolesLinks);
                 designPatterns.add(designPattern);
                 inputStream.close();
                 streamReader.close();
@@ -183,8 +183,8 @@ public class Utils {
         return roles;
     }
 
-    private static List<ClassLink> createDesignPatternClassLinksFromFileLines(ArrayList<String> fileLines, ArrayList<String> roles) {
-        List<ClassLink> classLinks = new ArrayList<>();
+    private static List<RolesLink> createDesignPatternClassLinksFromFileLines(ArrayList<String> fileLines, ArrayList<String> roles) {
+        List<RolesLink> rolesLinks = new ArrayList<>();
         for (int i = 0; i < fileLines.size(); i++) {
             String line = fileLines.get(i);
             String[] stringSplit = line.split(" ");
@@ -197,9 +197,9 @@ public class Utils {
 
             String role1 = roles.get(role1Index);
             String role2 = roles.get(role2Index);
-            ClassLink classLink = new ClassLink(role1, role2, classLinkType);
-            classLinks.add(classLink);
+            RolesLink rolesLink = new RolesLink(role1, role2, classLinkType);
+            rolesLinks.add(rolesLink);
         }
-        return classLinks;
+        return rolesLinks;
     }
 }

@@ -1,10 +1,9 @@
 package utils;
 
-import models.ClassLink;
+import models.RolesLink;
 import models.DesignPattern;
 import models.PatternInstance;
 import net.sourceforge.plantuml.SourceStringReader;
-import org.jetbrains.annotations.NotNull;
 import storage.PluginState;
 
 import java.io.*;
@@ -40,6 +39,7 @@ public class PlantUmlHelper {
 
     private void createPlantUMLString(PatternInstance patternInstance) {
         includePlantUmlHeader();
+        includeHideClassIconCommand();
         includeObjects(patternInstance);
         includeRelations(patternInstance);
         includePlantUmlClose();
@@ -47,6 +47,10 @@ public class PlantUmlHelper {
 
     private void includePlantUmlHeader() {
         stringBuilder.append("@startuml").append("\n").append("!pragma graphviz_dot jdot");
+    }
+
+    private void includeHideClassIconCommand(){
+        stringBuilder.append("\n").append("hide circle");
     }
 
     private void includeObjects(PatternInstance patternInstance) {
@@ -90,10 +94,10 @@ public class PlantUmlHelper {
     private void includeRelations(PatternInstance patternInstance) {
         Map<String, Set<String>> roleObjects = patternInstance.getRoleObjects();
         DesignPattern designPattern = getDesignPattern();
-        List<ClassLink> rolesLinks = designPattern.getRolesLinks();
-        for(ClassLink classLink : rolesLinks){
-            String role1 = classLink.getRole1();
-            String role2 = classLink.getRole2();
+        List<RolesLink> rolesLinks = designPattern.getRolesLinks();
+        for(RolesLink rolesLink : rolesLinks){
+            String role1 = rolesLink.getRole1();
+            String role2 = rolesLink.getRole2();
             //TODO LINK correcto
             Set<String> role1Objects = roleObjects.get(role1);
             if(role1Objects == null){

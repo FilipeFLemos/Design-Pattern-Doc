@@ -11,13 +11,13 @@ public class DesignPattern implements Serializable, Comparable<DesignPattern> {
 
     private String name;
     private Set<String> roles;
-    private List<ClassLink> rolesLinks;
+    private List<RolesLink> rolesLinks;
 
     public DesignPattern() {
 
     }
 
-    public DesignPattern(String name, Set<String> roles, List<ClassLink> rolesLinks) {
+    public DesignPattern(String name, Set<String> roles, List<RolesLink> rolesLinks) {
         this.name = name;
         this.roles = roles;
         this.rolesLinks = rolesLinks;
@@ -39,11 +39,11 @@ public class DesignPattern implements Serializable, Comparable<DesignPattern> {
         this.roles = roles;
     }
 
-    public List<ClassLink> getRolesLinks() {
+    public List<RolesLink> getRolesLinks() {
         return rolesLinks;
     }
 
-    public void setRolesLinks(List<ClassLink> rolesLinks) {
+    public void setRolesLinks(List<RolesLink> rolesLinks) {
         this.rolesLinks = rolesLinks;
     }
 
