@@ -92,8 +92,7 @@ public class PatternDocumentation implements DocumentationProvider {
                 includePatternName(patternName);
                 includePatternInstanceIntent(patternInstance);
                 includePatternInstanceUML(patternInstanceEntry.getKey());
-                includePatternInstanceRolesHeader();
-                includePatternInstanceCollaborations(patternInstance);
+                includeSeparationBetweenPatternInstanceFields();
             } catch (Exception ignored) {
 
             }
@@ -103,7 +102,6 @@ public class PatternDocumentation implements DocumentationProvider {
     private void includePatternInstanceUML(String patternInstanceId) {
         ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
         String path = projectDetails.getPatternInstanceUmlFilePath(patternInstanceId);
-        System.out.println(path);
         File file = new File(path);
         String imageDiv = "\n<br>\n<br>\n" +
                 "  <img src=\"file:/" +  file.getAbsolutePath() + "\">\n" +
@@ -148,25 +146,6 @@ public class PatternDocumentation implements DocumentationProvider {
 
     private void includeSeparationBetweenPatternInstanceFields() {
         documentationTextBuilder.append("\n\n<br><br>");
-    }
-
-    private void includePatternInstanceCollaborations(PatternInstance patternInstance) {
-        Map<String, Set<String>> objectsByRole = patternInstance.getRoleObjects();
-        for (Map.Entry<String, Set<String>> objectsByRoleEntry : objectsByRole.entrySet()) {
-            String patternRole = objectsByRoleEntry.getKey();
-            Set<String> objectsPlayingRole = objectsByRoleEntry.getValue();
-
-            includePatternInstanceRole(patternRole);
-            includeObjectsPlayingRole(objectsPlayingRole);
-        }
-    }
-
-    private void includePatternInstanceRole(String patternRole) {
-        documentationTextBuilder.append("\n<br><u>").append(patternRole).append("</u> - ");
-    }
-
-    private void includeObjectsPlayingRole(Set<String> objectsPlayingRole) {
-        includeSetObjectsSeparatedByComma(objectsPlayingRole);
     }
 
     private void includeSetObjectsSeparatedByComma(Set<String> objectsSet) {

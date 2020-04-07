@@ -26,12 +26,6 @@ public class PlantUmlHelper {
         init(patternInstance);
     }
 
-    public PlantUmlHelper(PatternInstance patternInstance, String path){
-        setVariables(patternInstance);
-        this.umlFilePath = path;
-        init(patternInstance);
-    }
-
     private void setVariables(PatternInstance patternInstance){
         supportedDesignPatterns = PluginState.getInstance().getSupportedDesignPatterns();
         roles = patternInstance.getRoleObjects().keySet();
@@ -79,6 +73,17 @@ public class PlantUmlHelper {
             }else{
                 stringBuilder.append("\n").append("class ").append(object);
             }
+
+            stringBuilder.append(" << ");
+            int i = 0;
+            for(String role : roles){
+                stringBuilder.append(role);
+                if(i != roles.size()-1){
+                    stringBuilder.append(", ");
+                }
+                i++;
+            }
+            stringBuilder.append(" >>");
         }
     }
 
@@ -125,7 +130,9 @@ public class PlantUmlHelper {
     private void runPlantUmlOnPath() {
 
         try {
-            File file = getUmlFile();
+            File file = File.createTempFile("temp", ".png");
+            file.deleteOnExit();
+            umlFilePath = file.getAbsolutePath();
             OutputStream png = new FileOutputStream(file);
             SourceStringReader reader = new SourceStringReader(stringBuilder.toString());
             reader.outputImage(png).getDescription();
@@ -134,25 +141,6 @@ public class PlantUmlHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @NotNull
-    private File getUmlFile() throws IOException {
-        File file;
-
-        if(isUMLNotAvailable()){
-            file = File.createTempFile("temp", ".png");
-            umlFilePath = file.getAbsolutePath();
-        }
-        else{
-            file = new File(umlFilePath);
-        }
-        file.deleteOnExit();
-        return file;
-    }
-
-    private boolean isUMLNotAvailable(){
-        return umlFilePath == null;
     }
 
     public String getUmlFilePath() {
