@@ -17,6 +17,7 @@ public class ProjectDetails {
     private String path;
     private ProjectPersistedState persistedState;
     private Map<String, String> umlFilePathByPatternInstanceId;
+    private Project activeProject;
 
     public ProjectDetails() {
         try {
@@ -32,7 +33,7 @@ public class ProjectDetails {
     }
 
     public ProjectPersistedState getActiveProjectPersistedState() {
-        Project activeProject = getActiveProject();
+        activeProject = getActiveProject();
         String activeProjectName = activeProject.getName();
         if (!existsProjectState() || !name.equals(activeProjectName)) {
             setActiveProject(activeProject);
@@ -86,7 +87,6 @@ public class ProjectDetails {
     }
 
     public Project getActiveProject() {
-        Project activeProject = null;
         Project[] projects = ProjectManager.getInstance().getOpenProjects();
         for (Project project : projects) {
             Window window = WindowManager.getInstance().suggestParentWindow(project);
@@ -99,7 +99,7 @@ public class ProjectDetails {
     }
 
     public Set<String> getAllFileNamesFromProject() {
-        Project activeProject = getActiveProject();
+        activeProject = getActiveProject();
         Set<String> filesName = new HashSet<>();
         Collection<VirtualFile> files = Utils.getVirtualFilesInProject(activeProject);
 

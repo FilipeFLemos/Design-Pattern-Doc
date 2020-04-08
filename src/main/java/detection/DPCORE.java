@@ -39,8 +39,6 @@ public class DPCORE implements DetectionTool {
             }
         }
 
-        System.out.println("Finished scanning!");
-
         return patternInstances;
     }
 

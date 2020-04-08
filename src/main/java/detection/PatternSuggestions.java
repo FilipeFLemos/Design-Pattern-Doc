@@ -132,6 +132,7 @@ public class PatternSuggestions {
                 if (availableSuggestions.containsKey(object)) {
                     try {
                         updateAvailableSuggestionsMap(patternInstance);
+                        PluginState.getInstance().restartHighlighting();
                         continue;
                     } catch (NullPointerException ignored) {
                     }
@@ -152,6 +153,7 @@ public class PatternSuggestions {
                 }
 
                 addSuggestionMapEntry(object, patternInstance, availableSuggestions);
+                PluginState.getInstance().restartHighlighting();
             }
         }
     }
@@ -171,6 +173,7 @@ public class PatternSuggestions {
             patternInstanceInSuggestionMap.updatePatternParticipantsContainers(patternInstance.getPatternParticipants());
             String object = patternParticipant.getObject();
             moveAcceptedPatternInstanceToAvailable(object, patternInstanceInSuggestionMap);
+            PluginState.getInstance().restartHighlighting();
         } else if (!patternInstance.equals(patternInstanceInSuggestionMap)) {
             patternInstanceInSuggestionMap.updatePatternParticipantsContainers(patternInstance.getPatternParticipants());
         }
@@ -185,6 +188,7 @@ public class PatternSuggestions {
 
         if (!patternParticipants.contains(patternParticipant)) {
             addSuggestionMapEntry(object, patternInstanceCopy, availableSuggestions);
+            PluginState.getInstance().restartHighlighting();
         } else {
             addSuggestionMapEntry(object, patternInstanceCopy, acceptedSuggestions);
         }
