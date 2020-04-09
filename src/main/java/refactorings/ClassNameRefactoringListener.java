@@ -1,4 +1,4 @@
-package inspections;
+package refactorings;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
@@ -44,11 +44,12 @@ public class ClassNameRefactoringListener extends RefactoringElementAdapter {
 
     private void updateClassNameInSuggestionsAndPersistedState(String oldName, String newName) {
         PluginState pluginState = PluginState.getInstance();
-        PatternSuggestions patternSuggestions = pluginState.getPatternSuggestions();
-        patternSuggestions.updateClassNameInSuggestions(oldName, newName);
-
         ProjectDetails projectDetails = pluginState.getProjectDetails();
         ProjectPersistedState projectPersistedState = projectDetails.getActiveProjectPersistedState();
+        PatternSuggestions patternSuggestions = pluginState.getPatternSuggestions();
+
         projectPersistedState.updateClassNameInPersistedState(oldName, newName);
+        projectDetails.updateAllUmlWithFollowingClassName(newName);
+        patternSuggestions.updateClassNameInSuggestions(oldName, newName);
     }
 }

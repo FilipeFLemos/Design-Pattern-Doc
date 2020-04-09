@@ -16,7 +16,6 @@ public class PlantUmlHelper {
 
     private String umlFilePath;
     private Set<DesignPattern> supportedDesignPatterns;
-    private Set<String> roles;
     private String patternName;
     private StringBuilder stringBuilder;
 
@@ -27,7 +26,6 @@ public class PlantUmlHelper {
 
     private void setVariables(PatternInstance patternInstance){
         supportedDesignPatterns = PluginState.getInstance().getSupportedDesignPatterns();
-        roles = patternInstance.getRoleObjects().keySet();
         patternName = patternInstance.getPatternName();
         stringBuilder = new StringBuilder();
     }
@@ -39,6 +37,7 @@ public class PlantUmlHelper {
 
     private void createPlantUMLString(PatternInstance patternInstance) {
         includePlantUmlHeader();
+        includeDefaultGraphViz();
         includeHideClassIconCommand();
         includeObjects(patternInstance);
         includeRelations(patternInstance);
@@ -46,7 +45,11 @@ public class PlantUmlHelper {
     }
 
     private void includePlantUmlHeader() {
-        stringBuilder.append("@startuml").append("\n").append("!pragma graphviz_dot jdot");
+        stringBuilder.append("@startuml");
+    }
+
+    private void includeDefaultGraphViz(){
+        stringBuilder.append("\n").append("!pragma graphviz_dot jdot");
     }
 
     private void includeHideClassIconCommand(){
@@ -98,7 +101,7 @@ public class PlantUmlHelper {
         for(RolesLink rolesLink : rolesLinks){
             String role1 = rolesLink.getRole1();
             String role2 = rolesLink.getRole2();
-            //TODO LINK correcto
+            String linkType = rolesLink.getLinkType();
             Set<String> role1Objects = roleObjects.get(role1);
             if(role1Objects == null){
                 role1Objects = new HashSet<>();
@@ -109,7 +112,14 @@ public class PlantUmlHelper {
             }
             for(String role1Object : role1Objects){
                 for(String role2Object : role2Objects){
-                    stringBuilder.append("\n").append(role2Object).append(" -- ").append(role1Object);
+                    stringBuilder.append("\n").append(role2Object);
+                    if(linkType.equals("inherits")){
+                        stringBuilder.append(" <|-- ");
+                    }
+                    else{
+                        stringBuilder.append(" -- ");
+                    }
+                    stringBuilder.append(role1Object);
                 }
             }
         }

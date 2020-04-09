@@ -1,4 +1,4 @@
-package inspections;
+package refactorings;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;

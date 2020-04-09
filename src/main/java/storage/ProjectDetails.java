@@ -150,4 +150,17 @@ public class ProjectDetails {
         umlFilePathByPatternInstanceId.put(id, umlFileName);
     }
 
+    public void updateAllUmlWithFollowingClassName(String newName){
+        Map<String, PatternInstance> patternInstances = persistedState.getPatternInstanceById();
+
+        for (Map.Entry<String, PatternInstance> entry : patternInstances.entrySet()) {
+            String id = entry.getKey();
+            PatternInstance patternInstance = entry.getValue();
+            Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
+            if (objectRoles.containsKey(newName)) {
+                updateUmlFileByPatternInstanceId(id);
+            }
+        }
+    }
+
 }

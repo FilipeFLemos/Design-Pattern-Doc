@@ -66,8 +66,8 @@ public class PatternDocumentation implements DocumentationProvider {
             if (!documentationTextBuilder.toString().equals("")) {
                documentationText = documentationTextBuilder.toString();
             }
-        } catch (Exception ignored) {
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return documentationText;
