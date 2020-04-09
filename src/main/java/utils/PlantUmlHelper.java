@@ -37,7 +37,7 @@ public class PlantUmlHelper {
 
     private void createPlantUMLString(PatternInstance patternInstance) {
         includePlantUmlHeader();
-        includeDefaultGraphViz();
+        //includeDefaultGraphViz();
         includeHideClassIconCommand();
         includeObjects(patternInstance);
         includeRelations(patternInstance);

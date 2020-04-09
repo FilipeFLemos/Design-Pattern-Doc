@@ -5,6 +5,8 @@
     <vendor>FilipeLemos</vendor>
 
     <description><![CDATA[
+    Note: This is still an experimental version.
+
     The Design Pattern Doc is a plugin that helps understanding software in terms of its design patterns, by reducing
     the mutual feedback loop between programming and documenting.
 
@@ -17,6 +19,9 @@
     - Manual creation and edition of pattern instance's documentation.
     - Definition of other design patterns, not initially supported by the plugin. These definitions will not be used in
     the automatic detection of design patterns by the DP-CORE.
+
+    Requires:
+    - Graphviz installed in the OS to view the UML class diagrams
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
