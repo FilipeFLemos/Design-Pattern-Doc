@@ -1,6 +1,9 @@
 package storage;
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
@@ -13,6 +16,7 @@ import models.DesignPattern;
 import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.PlantUmlHelper;
 import utils.Utils;
 
 import java.io.*;
@@ -33,11 +37,11 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
     private ArrayList<File> patternDescriptions;
 
     public PluginState() {
-        //Utils.getSupportedDesignPatterns();
         projectDetails = new ProjectDetails();
         patternSuggestions = new PatternSuggestions();
         setPatternDescriptions();
-        AppExecutorUtil.getAppScheduledExecutorService().schedule(new PatternDetectionScheduler(), 0, TimeUnit.SECONDS);
+        sendNotificationIfGraphvizNotInstalled();
+        AppExecutorUtil.getAppScheduledExecutorService().schedule(new PatternDetectionScheduler(), 10, TimeUnit.SECONDS);
     }
 
     public static PluginState getInstance() {
@@ -120,5 +124,11 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
             }
         }
         this.patternDescriptions = patternDescriptions;
+    }
+
+    private void sendNotificationIfGraphvizNotInstalled() {
+        if(!PlantUmlHelper.isGraphvizInstalled()){
+            Notifications.Bus.notify(new Notification("Design Pattern Doc", "Please Install Graphviz", "Graphviz must be installed to fully experience the plugin!", NotificationType.WARNING));
+        }
     }
 }

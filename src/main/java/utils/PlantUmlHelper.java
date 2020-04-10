@@ -4,6 +4,7 @@ import models.RolesLink;
 import models.DesignPattern;
 import models.PatternInstance;
 import net.sourceforge.plantuml.SourceStringReader;
+import net.sourceforge.plantuml.cucadiagram.dot.GraphvizUtils;
 import storage.PluginState;
 
 import java.io.*;
@@ -37,7 +38,7 @@ public class PlantUmlHelper {
 
     private void createPlantUMLString(PatternInstance patternInstance) {
         includePlantUmlHeader();
-        //includeDefaultGraphViz();
+        includeDefaultGraphViz();
         includeHideClassIconCommand();
         includeObjects(patternInstance);
         includeRelations(patternInstance);
@@ -49,7 +50,20 @@ public class PlantUmlHelper {
     }
 
     private void includeDefaultGraphViz(){
-        stringBuilder.append("\n").append("!pragma graphviz_dot jdot");
+        if(!isGraphvizInstalled()) {
+            stringBuilder.append("\n").append("!pragma graphviz_dot jdot");
+        }
+    }
+
+    public static boolean isGraphvizInstalled(){
+        boolean isInstalled = false;
+        try {
+            int version = GraphvizUtils.getDotVersion();
+            isInstalled = (version != -1);
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return isInstalled;
     }
 
     private void includeHideClassIconCommand(){
