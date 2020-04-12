@@ -9,7 +9,10 @@ import storage.PluginState;
 import storage.ProjectDetails;
 import storage.ProjectPersistedState;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -103,9 +106,16 @@ public class PatternDocumentation implements DocumentationProvider {
         ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
         String path = projectDetails.getPatternInstanceUmlFilePath(patternInstanceId);
         File file = new File(path);
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int width = image.getWidth();
+        int height = image.getHeight();
         String imageDiv = "\n<br>\n<br>\n" +
-                "  <img src=\"file:/" +  file.getAbsolutePath() + "\">\n" +
-                "";
+        "<img width=\""+width+"\" height=\""+(height)+"\"src=\"file:/" +  file.getAbsolutePath() + "\">\n";
         documentationTextBuilder.append(imageDiv);
     }
 
@@ -123,7 +133,7 @@ public class PatternDocumentation implements DocumentationProvider {
 
     private void includeSeparationBetweenPatternInstances() {
         if (!documentationTextBuilder.toString().equals("")) {
-            documentationTextBuilder.append("\n\n\n<br><br><br>");
+            documentationTextBuilder.append("\n<br>");
         }
     }
 
@@ -137,11 +147,6 @@ public class PatternDocumentation implements DocumentationProvider {
             includeSeparationBetweenPatternInstanceFields();
             documentationTextBuilder.append("<b>Intent: </b>").append(patternIntent);
         }
-    }
-
-    private void includePatternInstanceRolesHeader() {
-        includeSeparationBetweenPatternInstanceFields();
-        documentationTextBuilder.append("<b>Roles:</b>");
     }
 
     private void includeSeparationBetweenPatternInstanceFields() {

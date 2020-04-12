@@ -128,7 +128,7 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
 
     private void sendNotificationIfGraphvizNotInstalled() {
         if(!PlantUmlHelper.isGraphvizInstalled()){
-            Notifications.Bus.notify(new Notification("Design Pattern Doc", "Please Install Graphviz", "Graphviz must be installed to fully experience the plugin!", NotificationType.WARNING));
+            Notifications.Bus.notify(new Notification("Design Pattern Doc", "Design Pattern Doc: Please Install Graphviz", "Graphviz must be installed to fully experience the plugin!", NotificationType.WARNING));
         }
     }
 }

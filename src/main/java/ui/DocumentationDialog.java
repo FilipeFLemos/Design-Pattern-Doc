@@ -23,15 +23,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class DocumentationDialog extends DialogWrapper {
 
-    protected JPanel panel;
+    protected JPanel panel, collaborationPanel;
     protected JTextArea patternIntent;
     protected JButton addCollaborationRowBtn;
     protected ArrayList<CollaborationRowItem> collaborationRowList;
-    protected JPanel collaborationPanel;
     protected JBScrollPane scrollPane;
-    protected int numCollaborationRows;
-    protected int gridHeight;
-    protected int collaborationGridHeight;
+    protected int numCollaborationRows, gridHeight, collaborationGridHeight;
     protected int MIN_NUM_ROWS = 3;
     private ArrayList<String> validFileNames;
 
