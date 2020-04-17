@@ -45,6 +45,18 @@ public class PatternInstance implements Serializable {
         }
     }
 
+    public Set<String> getEmptyRoles(){
+        Set<String> emptyRoles = new HashSet<>();
+        for(Map.Entry<String, Set<String>> entry : roleObjects.entrySet()){
+            String role = entry.getKey();
+            Set<String> objects = entry.getValue();
+            if(objects.isEmpty()){
+                emptyRoles.add(role);
+            }
+        }
+        return  emptyRoles;
+    }
+
     public void updatePatternParticipantsContainers(Set<PatternParticipant> patternParticipants) {
         for (PatternParticipant patternParticipant : patternParticipants) {
             updateContainers(patternParticipant);

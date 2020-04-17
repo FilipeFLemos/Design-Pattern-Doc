@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.softeng.Design-Pattern-Doc</id>
     <name>Design Pattern Doc</name>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.6-SNAPSHOT</version>
     <vendor>FilipeLemos</vendor>
 
     <description><![CDATA[
@@ -43,6 +43,14 @@
                           enabledByDefault="true"
                           level="WARNING"
                           implementationClass="detection.PatternSuggestionsInspection"/>
+
+        <localInspection language="JAVA"
+                         displayName="Incomplete Documentation"
+                         groupName="Example refactorings"
+                         groupPath="Java"
+                         enabledByDefault="true"
+                         level="WARNING"
+                         implementationClass="inspections.IncompleteDocumentationInspection"/>
 
         <editor.linePainter implementation="visualization.PatternHints"/>
 

@@ -257,16 +257,16 @@ public abstract class DocumentationDialog extends DialogWrapper {
     protected PatternInstance generatePatternInstanceFromUserInput(String patternName) {
         String intent = patternIntent.getText();
 
-        Set<String> roles = new HashSet<>();
         Set<PatternParticipant> patternParticipants = new HashSet<>();
 
         for (CollaborationRowItem listItem : collaborationRowList) {
             String object = listItem.getClassName().getText();
             String role = (String) listItem.getRole().getSelectedItem();
 
-            roles.add(role);
             patternParticipants.add(new PatternParticipant(object, role));
         }
+
+        Set<String> roles = getSelectedPatternRoles();
 
         return new PatternInstance(patternName, intent, roles, patternParticipants);
     }

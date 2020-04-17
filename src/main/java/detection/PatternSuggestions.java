@@ -228,4 +228,8 @@ public class PatternSuggestions {
     public Map<String, Set<PatternInstance>> getAvailableSuggestions() {
         return availableSuggestions;
     }
+
+    public ConcurrentHashMap<String, Set<PatternInstance>> getAcceptedSuggestions() {
+        return acceptedSuggestions;
+    }
 }

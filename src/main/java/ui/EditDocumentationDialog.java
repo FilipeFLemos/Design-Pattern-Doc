@@ -124,6 +124,7 @@ public class EditDocumentationDialog extends DocumentationDialog {
             PatternInstance patternInstance = getSelectedPatternInstance();
             removePatternInstanceFromSuggestions(patternInstance);
             projectPersistedState.deletePatternInstance(id);
+            PluginState.getInstance().restartHighlighting();
             close(NEXT_USER_EXIT_CODE);
         });
     }
