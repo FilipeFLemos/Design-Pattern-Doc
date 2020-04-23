@@ -1,17 +1,20 @@
 package inspections;
 
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.JavaElementVisitor;
 import com.intellij.psi.PsiElement;
 import models.PatternInstance;
 import storage.PluginState;
 import storage.ProjectDetails;
 import storage.ProjectPersistedState;
+import storage.ProjectsPersistedState;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 
 public class IncompleteDocumentationElementVisitor extends JavaElementVisitor {
 
@@ -21,9 +24,6 @@ public class IncompleteDocumentationElementVisitor extends JavaElementVisitor {
 
     public IncompleteDocumentationElementVisitor(final ProblemsHolder holder) {
         this.holder = holder;
-        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
-        ProjectPersistedState projectPersistedState = projectDetails.getActiveProjectPersistedState();
-        patternInstanceById = projectPersistedState.getPatternInstanceById();
     }
 
     @Override
@@ -39,7 +39,14 @@ public class IncompleteDocumentationElementVisitor extends JavaElementVisitor {
             return;
         }
 
-        registerIncompleteDocumentationWarning(element);
+        Project project = element.getProject();
+        ProjectsPersistedState projectsPersistedState = PluginState.getInstance().getState();
+
+        if (projectsPersistedState != null) {
+            ProjectPersistedState persistedState = projectsPersistedState.getProjectState(project.getName());
+            patternInstanceById = persistedState.getPatternInstanceById();
+            registerIncompleteDocumentationWarning(element);
+        }
     }
 
     private boolean isPsiIdentifier(String s) {
@@ -85,11 +92,5 @@ public class IncompleteDocumentationElementVisitor extends JavaElementVisitor {
             i++;
         }
         return stringBuilder.toString();
-    }
-
-    private String getPatternInstanceId(PatternInstance patternInstance) {
-        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
-        ProjectPersistedState projectPersistedState = projectDetails.getActiveProjectPersistedState();
-        return projectPersistedState.getPatternInstanceId(patternInstance);
     }
 }

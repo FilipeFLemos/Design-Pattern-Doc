@@ -42,7 +42,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
         panel = new JPanel(new GridBagLayout());
         patternIntent = new JTextArea();
         patternIntent.setLineWrap(true);
-        addCollaborationRowBtn = new JButton("Add Row");
+        addCollaborationRowBtn = new JButton("Add Pattern Role");
         collaborationPanel = new JPanel(new GridBagLayout());
 
         scrollPane = new JBScrollPane(collaborationPanel);
@@ -105,7 +105,9 @@ public abstract class DocumentationDialog extends DialogWrapper {
         c.gridx = 0;
         c.gridy = gridHeight;
         c.insets = JBUI.insets(5, 0, 5, 0);
-        panel.add(Utils.getFieldLabel("Collaborations (Class -> Role)"), c);
+        char rightArrow = '\u2192';
+        String arrowIcon = " " + rightArrow + " ";
+        panel.add(Utils.getFieldLabel("Collaborations (Class" + arrowIcon + "Role)"), c);
 
         c.anchor = GridBagConstraints.EAST;
         c.gridwidth = 1;
@@ -137,7 +139,9 @@ public abstract class DocumentationDialog extends DialogWrapper {
 
         c.weightx = 0.0;
         c.gridx = 1;
-        JLabel arrow = Utils.getFieldLabel("->");
+        char rightArrow = '\u2192';
+        String arrowIcon = " " + rightArrow + " ";
+        JLabel arrow = Utils.getFieldLabel(arrowIcon);
         collaborationPanel.add(arrow, c);
 
         c.weightx = 0.5;
@@ -164,11 +168,9 @@ public abstract class DocumentationDialog extends DialogWrapper {
 
     protected void changeDeleteBtnVisibilityWhenMinNumRows(boolean b) {
         if (collaborationRowList.size() == 1) {
-            for (int i = 0; i < MIN_NUM_ROWS; i++) {
-                CollaborationRowItem collaborationRowItem = collaborationRowList.get(i);
-                JButton deleteBtn = collaborationRowItem.getjButton();
-                deleteBtn.setVisible(b);
-            }
+            CollaborationRowItem collaborationRowItem = collaborationRowList.get(0);
+            JButton deleteBtn = collaborationRowItem.getjButton();
+            deleteBtn.setVisible(b);
         }
     }
 

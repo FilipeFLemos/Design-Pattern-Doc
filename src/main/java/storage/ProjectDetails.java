@@ -32,7 +32,7 @@ public class ProjectDetails {
         }
     }
 
-    public ProjectPersistedState getActiveProjectPersistedState() {
+    public ProjectPersistedState getActiveProjectPersistedState(){
         activeProject = getActiveProject();
         String activeProjectName = activeProject.getName();
         if (!existsProjectState() || !name.equals(activeProjectName)) {

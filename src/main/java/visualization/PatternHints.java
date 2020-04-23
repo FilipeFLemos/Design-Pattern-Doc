@@ -188,7 +188,8 @@ public class PatternHints extends EditorLinePainter {
             }
 
             if (!alreadyAddedPatternInstanceForClassName) {
-                lineHint.append("  ").append(className).append(" -> ");
+                char rightArrow = '\u2192';
+                lineHint.append("  ").append(className).append(" ").append(rightArrow).append(" ");
                 alreadyAddedPatternInstanceForClassName = true;
             } else {
                 lineHint.append(", ");
