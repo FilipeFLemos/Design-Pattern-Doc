@@ -114,9 +114,17 @@ public class PatternDocumentation implements DocumentationProvider {
         }
         int width = image.getWidth();
         int height = image.getHeight();
+        String filePath = file.getAbsolutePath();
+        if(isNotWindowsPath(filePath)){
+            filePath = '/' + filePath;
+        }
         String imageDiv = "\n<br>\n<br>\n" +
-        "<img width=\""+width+"\" height=\""+(height)+"\"src=\"file:/" +  file.getAbsolutePath() + "\">\n";
+        "<img width=\""+width+"\" height=\""+(height)+"\"src=\"file:/" +  filePath + "\">\n";
         documentationTextBuilder.append(imageDiv);
+    }
+
+    private boolean isNotWindowsPath(String filePath) {
+        return filePath.charAt(0) == '/';
     }
 
     private void classPlaysRoleInPatternInstance(Map<String, Set<String>> objectRoles) throws NullPointerException {

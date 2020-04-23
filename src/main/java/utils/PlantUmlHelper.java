@@ -157,8 +157,6 @@ public class PlantUmlHelper {
 
     private void runPlantUmlOnPath() {
 
-        System.out.println(stringBuilder.toString());
-
         try {
             File file = File.createTempFile("temp", ".png");
             file.deleteOnExit();
@@ -167,8 +165,6 @@ public class PlantUmlHelper {
             SourceStringReader reader = new SourceStringReader(stringBuilder.toString());
             reader.outputImage(png).getDescription();
             png.close();
-
-            System.out.println("Success png generation. Path: " + umlFilePath);
 
         } catch (IOException e) {
             e.printStackTrace();
