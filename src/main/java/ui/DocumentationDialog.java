@@ -27,7 +27,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
     protected JTextArea patternIntent;
     protected JButton addCollaborationRowBtn;
     protected ArrayList<CollaborationRowItem> collaborationRowList;
-    protected JBScrollPane scrollPane;
+    protected JBScrollPane rolesScrollPane, intentScrollPane;
     protected int numCollaborationRows, gridHeight, collaborationGridHeight;
     protected int MIN_NUM_ROWS = 3;
     private ArrayList<String> validFileNames;
@@ -42,12 +42,16 @@ public abstract class DocumentationDialog extends DialogWrapper {
         panel = new JPanel(new GridBagLayout());
         patternIntent = new JTextArea();
         patternIntent.setLineWrap(true);
+        intentScrollPane = new JBScrollPane(patternIntent);
+        intentScrollPane.setPreferredSize(new Dimension(400, 50));
+
+
         addCollaborationRowBtn = new JButton("Add Pattern Role");
         collaborationPanel = new JPanel(new GridBagLayout());
 
-        scrollPane = new JBScrollPane(collaborationPanel);
-        scrollPane.setPreferredSize(new Dimension(400, 100));
-        scrollPane.createVerticalScrollBar();
+        rolesScrollPane = new JBScrollPane(collaborationPanel);
+        rolesScrollPane.setPreferredSize(new Dimension(400, 100));
+        rolesScrollPane.createVerticalScrollBar();
 
         collaborationRowList = new ArrayList<>();
         gridHeight = 0;
@@ -79,9 +83,9 @@ public abstract class DocumentationDialog extends DialogWrapper {
 
     protected void addDocumentationDialogInvariableBody() {
         addRowElementToPanel(Utils.getFieldLabel("Intent"));
-        addRowElementToPanel(patternIntent);
+        addRowElementToPanel(intentScrollPane);
         addCollaborationHeaderToPanel();
-        addRowElementToPanel(scrollPane);
+        addRowElementToPanel(rolesScrollPane);
         addCollaborationListToPanel();
         changeDeleteBtnVisibilityWhenMinNumRows(false);
     }
@@ -151,7 +155,8 @@ public abstract class DocumentationDialog extends DialogWrapper {
 
         c.weightx = 0.0;
         c.gridx = 3;
-        JButton deleteRowBtn = new JButton("X");
+        char xIcon = '\u2717';
+        JButton deleteRowBtn = new JButton(xIcon + "");
         collaborationPanel.add(deleteRowBtn, c);
 
         CollaborationRowItem listItem = new CollaborationRowItem(object, roleComboBox, arrow, deleteRowBtn);
@@ -196,7 +201,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
 
     private void scrollToBottomCollaborationPanel() {
         SwingUtilities.invokeLater(() -> {
-            JScrollBar vertical = scrollPane.getVerticalScrollBar();
+            JScrollBar vertical = rolesScrollPane.getVerticalScrollBar();
             vertical.setValue(Integer.MAX_VALUE);
         });
     }
