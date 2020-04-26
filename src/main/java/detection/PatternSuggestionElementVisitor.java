@@ -4,8 +4,11 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.JavaElementVisitor;
 import com.intellij.psi.PsiElement;
 import models.PatternInstance;
+import org.jetbrains.annotations.NotNull;
 import storage.PluginState;
+import utils.Utils;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,34 +55,38 @@ public class PatternSuggestionElementVisitor extends JavaElementVisitor {
     private void registerDocumentationSuggestion(PsiElement element) {
         Set<PatternInstance> patternInstancesAvailableForObject = availableSuggestions.get(object);
 
-        for (PatternInstance patternInstance : patternInstancesAvailableForObject) {
-            registerPatternInstanceDocumentationSuggestion(element, patternInstance);
+        if(patternInstancesAvailableForObject.size() == 1){
+            registerWithoutDialogAction(element, patternInstancesAvailableForObject);
+        }
+        else{
+            for (PatternInstance patternInstance : patternInstancesAvailableForObject) {
+                registerWithDialog(element, patternInstance, patternInstancesAvailableForObject);
+            }
         }
     }
 
-    private void registerPatternInstanceDocumentationSuggestion(PsiElement element, PatternInstance patternInstance) {
-        String patternName = patternInstance.getPatternName();
-        String objectRolesText = getObjectRolesText(patternInstance);
+    private void registerWithoutDialogAction(PsiElement element, Set<PatternInstance> patternInstancesAvailableForObject) {
+        ArrayList<PatternInstance> patternInstances = new ArrayList<>(patternInstancesAvailableForObject);
+        PatternInstance patternInstance = patternInstances.get(0);
+        String suggestionText = getSuggestionText(patternInstance);
 
-        String suggestionText = "We believe that this class plays the role(s) " + objectRolesText + " of the " + patternName + " Design Pattern.";
-        PatternSuggestionQuickFix patternSuggestionQuickFix = new PatternSuggestionQuickFix(patternInstance);
         PatternSuggestionIgnoreQuickFix patternSuggestionIgnoreQuickFix = new PatternSuggestionIgnoreQuickFix(patternInstance);
+        PatternSuggestionQuickFix patternSuggestionQuickFix = new PatternSuggestionQuickFix(patternInstance);
         holder.registerProblem(element, suggestionText, patternSuggestionQuickFix, patternSuggestionIgnoreQuickFix);
     }
 
-    private String getObjectRolesText(PatternInstance patternInstance) {
-        Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
-        Set<String> roles = objectRoles.get(object);
-        StringBuilder stringBuilder = new StringBuilder();
-        int i = 0;
+    private void registerWithDialog(PsiElement element, PatternInstance patternInstance, Set<PatternInstance> patternInstancesAvailableForObject) {
+        String suggestionText = getSuggestionText(patternInstance);
 
-        for (String role : roles) {
-            stringBuilder.append(role);
-            if (i != roles.size() - 1) {
-                stringBuilder.append(", ");
-            }
-            i++;
-        }
-        return stringBuilder.toString();
+        PatternSuggestionMultipleActionQuickFix patternSuggestionQuickFix = new PatternSuggestionMultipleActionQuickFix(patternInstancesAvailableForObject, object, false);
+        PatternSuggestionMultipleActionQuickFix patternSuggestionIgnoreFix = new PatternSuggestionMultipleActionQuickFix(patternInstancesAvailableForObject, object, true);
+        holder.registerProblem(element, suggestionText, patternSuggestionQuickFix, patternSuggestionIgnoreFix);
+    }
+
+    @NotNull
+    private String getSuggestionText(PatternInstance patternInstance) {
+        String patternName = patternInstance.getPatternName();
+        String objectRolesText = Utils.getObjectRolesText(patternInstance, object);
+        return "This class may play the role(s) " + objectRolesText + " of the " + patternName + " Design Pattern.";
     }
 }

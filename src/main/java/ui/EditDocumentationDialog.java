@@ -11,6 +11,7 @@ import storage.PluginState;
 import utils.Utils;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -18,15 +19,16 @@ import java.util.Set;
 
 public class EditDocumentationDialog extends DocumentationDialog {
 
-    private ComboBox patternInstanceComboBox;
     private JButton deletePatternInstance;
-    private JLabel selectedPatternName;
+    private JLabel selectedPatternName, numberOfInstances;
+    private ArrayList<String> patternInstancesIds;
+    private int currentIndex;
+    private BasicArrowButton leftArrow, rightArrow;
 
     public EditDocumentationDialog(boolean canBeParent) {
         super(canBeParent);
 
-        setPatternInstanceComboBox();
-        setPatternInstanceComboListener();
+        setPatternInstanceSlider();
         setSelectedPatternInstanceNumCollaborationRows();
 
         deletePatternInstance = new JButton("DELETE");
@@ -35,9 +37,10 @@ public class EditDocumentationDialog extends DocumentationDialog {
         init();
     }
 
-    public EditDocumentationDialog(boolean canBeParent, String patternInstanceId) {
+    public EditDocumentationDialog(boolean canBeParent, String className) {
         this(canBeParent);
-        patternInstanceComboBox.setSelectedItem(patternInstanceId);
+        setPatternInstanceSlider(className);
+        updatePanelOnPatternInstanceChange();
     }
 
     @Override
@@ -49,7 +52,6 @@ public class EditDocumentationDialog extends DocumentationDialog {
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
-        addRowElementToPanel(Utils.getFieldLabel("Stored Pattern Instances"));
         addPatternInstancesHeaderToPanel();
         addRowElementToPanel(Utils.getFieldLabel("Pattern Name"));
         addPatternNameToPanel();
@@ -68,26 +70,34 @@ public class EditDocumentationDialog extends DocumentationDialog {
         addRowElementToPanel(selectedPatternName);
     }
 
-    private void setPatternInstanceComboBox() {
-        String[] patternInstancesIds = new String[patternInstanceById.size()];
-        int index = 0;
-        for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
-            patternInstancesIds[index] = entry.getKey();
-            index++;
-        }
-        patternInstanceComboBox = new ComboBox(patternInstancesIds);
+    private void setPatternInstanceSlider() {
+        patternInstancesIds = new ArrayList<>(patternInstanceById.keySet());
+        currentIndex = 0;
     }
 
-    private void setPatternInstanceComboListener() {
-        patternInstanceComboBox.addActionListener(e ->
-        {
-            setSelectedPatternInstanceNumCollaborationRows();
+    private void setPatternInstanceSlider(String object) {
+        patternInstancesIds = new ArrayList<>();
+        for(Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()){
+            String id = entry.getKey();
+            PatternInstance patternInstance = entry.getValue();
+            Set<String> objects = patternInstance.getObjectRoles().keySet();
 
-            removeAllCollaborationRoles();
-            addCollaborationListToPanel();
-            fillFields();
-            updatePanel();
-        });
+            if (objects.contains(object)) {
+                patternInstancesIds.add(id);
+            }
+        }
+        currentIndex = 0;
+    }
+
+    private void updatePanelOnPatternInstanceChange(){
+        setSelectedPatternInstanceNumCollaborationRows();
+        numberOfInstances.setText("    " + (currentIndex + 1) + "/" + patternInstancesIds.size());
+        hidePatternSlider();
+
+        removeAllCollaborationRoles();
+        addCollaborationListToPanel();
+        fillFields();
+        updatePanel();
     }
 
     private void setSelectedPatternInstanceNumCollaborationRows() {
@@ -98,23 +108,56 @@ public class EditDocumentationDialog extends DocumentationDialog {
 
     private void addPatternInstancesHeaderToPanel() {
         GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridwidth = 3;
-        c.weightx = 1.0;
         c.gridx = 0;
+        c.weighty = 1;
         c.gridy = gridHeight;
-        c.insets = JBUI.insetsBottom(5);
-        c.ipadx = 200;
-        panel.add(patternInstanceComboBox, c);
+        c.insets = JBUI.insets(0,5,5,0);
+
+        leftArrow = new BasicArrowButton(BasicArrowButton.WEST);
+        leftArrow.addActionListener(e ->
+        {
+            currentIndex--;
+            if(currentIndex < 0){
+                currentIndex = patternInstancesIds.size() - 1;
+            }
+            updatePanelOnPatternInstanceChange();
+        });
+        panel.add(leftArrow, c);
+
+        String labelValue = "    " + (currentIndex + 1) + "/" + patternInstancesIds.size();
+        numberOfInstances = Utils.getFieldLabel(labelValue);
+        c.gridx = 1;
+        panel.add(numberOfInstances, c);
+
+        rightArrow = new BasicArrowButton(BasicArrowButton.EAST);
+        rightArrow.addActionListener(e ->
+        {
+            currentIndex++;
+            if(currentIndex >= patternInstancesIds.size()){
+                currentIndex = 0;
+            }
+            updatePanelOnPatternInstanceChange();
+        });
+        c.gridx = 2;
+        c.insets = JBUI.insets(0,-25,5,0);
+        panel.add(rightArrow, c);
+
+        hidePatternSlider();
 
         c.anchor = GridBagConstraints.EAST;
         c.fill = GridBagConstraints.EAST;
-        c.gridwidth = 1;
         c.gridx = 3;
-        c.ipadx = 0;
         panel.add(deletePatternInstance, c);
 
         gridHeight++;
+    }
+
+    private void hidePatternSlider() {
+        if(patternInstancesIds.size() == 1){
+            rightArrow.setVisible(false);
+            leftArrow.setVisible(false);
+            numberOfInstances.setVisible(false);
+        }
     }
 
     private void setDeletePatternInstanceDocListener() {
@@ -205,19 +248,16 @@ public class EditDocumentationDialog extends DocumentationDialog {
     }
 
     private void updatePatternInstance(PatternInstance patternInstance) {
-        String id = getSelectedPatternInstanceId();
+        String id = patternInstancesIds.get(currentIndex);
         projectPersistedState.updatePatternInstance(id, patternInstance);
     }
 
-    private String getSelectedPatternInstanceId() throws NullPointerException {
-        String id = (String) patternInstanceComboBox.getSelectedItem();
-        if (id == null)
-            throw new NullPointerException();
-        return id;
+    private String getSelectedPatternInstanceId(){
+        return patternInstancesIds.get(currentIndex);
     }
 
     private PatternInstance getSelectedPatternInstance() {
-        String id = getSelectedPatternInstanceId();
+        String id = patternInstancesIds.get(currentIndex);
         return projectPersistedState.getPatternInstance(id);
     }
 }

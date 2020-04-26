@@ -19,9 +19,16 @@ public class PlantUmlHelper {
     private Set<DesignPattern> supportedDesignPatterns;
     private String patternName;
     private StringBuilder stringBuilder;
+    private String object;
 
     public PlantUmlHelper(PatternInstance patternInstance){
         setVariables(patternInstance);
+        init(patternInstance);
+    }
+
+    public PlantUmlHelper(PatternInstance patternInstance, String object){
+        setVariables(patternInstance);
+        this.object = object;
         init(patternInstance);
     }
 
@@ -105,6 +112,10 @@ public class PlantUmlHelper {
                 i++;
             }
             stringBuilder.append(" >>");
+
+            if(this.object != null && this.object.equals(object)){
+                stringBuilder.append(" #PaleGreen");
+            }
         }
     }
 

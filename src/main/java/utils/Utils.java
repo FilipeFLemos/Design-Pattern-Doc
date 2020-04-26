@@ -56,6 +56,22 @@ public class Utils {
         return generatedString;
     }
 
+    public static String getObjectRolesText(PatternInstance patternInstance, String object) {
+        Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
+        Set<String> roles = objectRoles.get(object);
+        StringBuilder stringBuilder = new StringBuilder();
+        int i = 0;
+
+        for (String role : roles) {
+            stringBuilder.append(role);
+            if (i != roles.size() - 1) {
+                stringBuilder.append(", ");
+            }
+            i++;
+        }
+        return stringBuilder.toString();
+    }
+
     public static JBLabel getFieldLabel(String text) {
         JBLabel jLabel = new JBLabel(text);
         jLabel.setComponentStyle(UIUtil.ComponentStyle.SMALL);

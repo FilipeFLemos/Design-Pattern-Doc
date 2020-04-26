@@ -1,14 +1,23 @@
 package detection;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import models.PatternCandidate;
 import models.PatternInstance;
 import models.PatternParticipant;
+import parser.ProjectASTParser;
+import patterns.Pattern;
+import patterns.PatternDetectionAlgorithm;
 import storage.PluginState;
 import storage.ProjectDetails;
 
 import java.io.*;
-import java.net.URL;
 import java.util.*;
+
+import gui.MainWindow;
 
 public class DPCORE implements DetectionTool {
 
@@ -25,40 +34,37 @@ public class DPCORE implements DetectionTool {
     public Set<PatternInstance> scanForPatterns() {
 
         ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
-        String projectPath = projectDetails.getPath();
-        projectPath = " -project=\"" + projectPath + "/src\" ";
+        String projectPath = projectDetails.getPath() + "/src";
 
-        String execJar = getExecuteJAR();
-
+        sendNotification("Starting DP-CORE...");
         for (File file : patternDescriptions) {
-            String patternPath = "-pattern=\"" + file.getAbsolutePath() + "\"";
-            try {
-                runsToolForSpecificPattern(execJar + projectPath + patternPath + " -group=false");
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
+            Pattern pat = MainWindow.extractPattern(new File(file.getAbsolutePath()));
+            ProjectASTParser.parse(projectPath);
+            String toolOutput = PatternDetectionAlgorithm.DetectPattern_Results(pat, false);
+            runsToolForSpecificPattern(toolOutput);
+            sendNotification(toolOutput);
         }
+        sendNotification("Finished DP-CORE with " + patternInstances.size() + " results");
 
         return patternInstances;
     }
 
-    private String getExecuteJAR() {
-        URL resourcesURL = this.getClass().getClassLoader().getResource("patterns/");
-        String resourcesPath = resourcesURL.getPath().replace("file:/", "");
-        String[] pathSplit = resourcesPath.split("lib");
-        String jarPath = pathSplit[0] + "lib/DP-CORE.jar";
-        return "java -jar \"" + jarPath + "\"";
+    private void sendNotification(String notificationText){
+        final Application application = ApplicationManager.getApplication();
+        application.invokeLater(() -> {
+            Notifications.Bus.notify(new Notification("Design Pattern Doc", "Debug", notificationText, NotificationType.INFORMATION));
+
+        });
     }
 
-    private void runsToolForSpecificPattern(String command) throws Exception {
-        Process pro = Runtime.getRuntime().exec(command);
-        BufferedReader in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
-
-        int numCandidates;
-        String line = in.readLine();
-        if (line == null) {
+    private void runsToolForSpecificPattern(String toolOutput){
+        String[] lines = toolOutput.split("\\r?\\n");
+        if(lines.length == 0){
             return;
         }
+
+        int numCandidates;
+        String line = lines[0];
 
         String number = line.split(": ")[1];
         numCandidates = Integer.parseInt(number);
@@ -67,17 +73,44 @@ public class DPCORE implements DetectionTool {
             return;
         }
 
-        discardLine(in);
-
         ArrayList<PatternCandidate> patternCandidates = new ArrayList<>();
 
-        if (!parsedPatternCandidates(in, numCandidates, patternCandidates)) {
+        if (!parsedPatternCandidates(lines, numCandidates, patternCandidates)) {
             return;
         }
 
-        pro.waitFor();
-
         groupPatternObjects(patternInstances, patternCandidates);
+    }
+
+    private boolean parsedPatternCandidates(String[] lines, int numCandidates, ArrayList<PatternCandidate> patternCandidates) {
+        String line;
+        int index = 2;
+        for (int i = 0; i < numCandidates; i++, index++) {
+            patternName = retrievePatternName(lines[index]);
+            Set<PatternParticipant> patternParticipants = new HashSet<>();
+            Set<String> roles = new HashSet<>();
+
+            for(index++; index < lines.length; index++){
+                line = lines[index];
+                if(line.equals("")){
+                    break;
+                }
+
+                String[] parts = line.split("\\(");
+                String role = parts[1].split("\\)")[0];
+                String object = line.split(": ")[1];
+                patternParticipants.add(new PatternParticipant(object, role));
+                roles.add(role);
+            }
+
+            patternCandidates.add(new PatternCandidate(patternParticipants, roles));
+        }
+        return true;
+    }
+
+    private String retrievePatternName(String patternNameLine){
+        String[] parts = patternNameLine.split("Pattern ");
+        return parts[1].split(":")[0];
     }
 
     private void groupPatternObjects(Set<PatternInstance> patternInstances, ArrayList<PatternCandidate> patternCandidates) {
@@ -113,36 +146,6 @@ public class DPCORE implements DetectionTool {
         return currentPatternInstance == null;
     }
 
-    private boolean parsedPatternCandidates(BufferedReader in, int numCandidates, ArrayList<PatternCandidate> patternCandidates) throws IOException {
-        String line;
-        for (int i = 0; i < numCandidates; i++) {
-            patternName = retrievePatternName(in);
-            if (patternName.equals("")) {
-                return false;
-            }
-
-            Set<PatternParticipant> patternParticipants = new HashSet<>();
-            Set<String> roles = new HashSet<>();
-
-            boolean retrievedAllRoles = false;
-            while (!retrievedAllRoles) {
-                line = in.readLine();
-                if (line == null || line.equals("")) {
-                    retrievedAllRoles = true;
-                } else {
-                    String[] parts = line.split("\\(");
-                    String role = parts[1].split("\\)")[0];
-                    String object = line.split(": ")[1];
-                    patternParticipants.add(new PatternParticipant(object, role));
-                    roles.add(role);
-                }
-            }
-
-            patternCandidates.add(new PatternCandidate(patternParticipants, roles));
-        }
-        return true;
-    }
-
     private boolean belongToSamePattern(PatternCandidate thisPatternCandidate, PatternCandidate thatPatternCandidate) {
         int objectsInCommon = 0;
         Set<PatternParticipant> thisPatternParticipants = thisPatternCandidate.getPatternParticipants();
@@ -157,19 +160,5 @@ public class DPCORE implements DetectionTool {
         }
 
         return objectsInCommon >= 2;
-    }
-
-    private void discardLine(BufferedReader in) throws IOException {
-        in.readLine();
-    }
-    
-    private String retrievePatternName(BufferedReader in) throws IOException {
-        String line = in.readLine();
-        if (line == null) {
-            return "";
-        }
-
-        String[] parts = line.split("Pattern ");
-        return parts[1].split(":")[0];
     }
 }

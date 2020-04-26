@@ -4,6 +4,8 @@ import models.PatternInstance;
 import storage.PluginState;
 import storage.ProjectDetails;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Set;
 
 public class PatternDetection implements Runnable {
@@ -13,10 +15,11 @@ public class PatternDetection implements Runnable {
 
     @Override
     public void run() {
+        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
+
         DetectionTool detectionTool = new DPCORE();
         patternInstances = detectionTool.scanForPatterns();
 
-        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
         allFileNamesFromProject = projectDetails.getAllFileNamesFromProject();
 
         if (wasRefactorHappeningAtSameTime()) {

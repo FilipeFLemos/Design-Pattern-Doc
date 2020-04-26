@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import storage.PluginState;
 import storage.ProjectDetails;
 import storage.ProjectPersistedState;
+import utils.PlantUmlHelper;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -94,7 +95,7 @@ public class PatternDocumentation implements DocumentationProvider {
                 includeClassPlayedRoles(objectRoles);
                 includePatternName(patternName);
                 includePatternInstanceIntent(patternInstance);
-                includePatternInstanceUML(patternInstanceEntry.getKey());
+                includePatternInstanceUML(patternInstance);
                 includeSeparationBetweenPatternInstanceFields();
             } catch (Exception ignored) {
 
@@ -102,9 +103,10 @@ public class PatternDocumentation implements DocumentationProvider {
         }
     }
 
-    private void includePatternInstanceUML(String patternInstanceId) {
-        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
-        String path = projectDetails.getPatternInstanceUmlFilePath(patternInstanceId);
+    private void includePatternInstanceUML(PatternInstance patternInstance) {
+//        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
+//        String path = projectDetails.getPatternInstanceUmlFilePath(patternInstanceId);
+        String path = new PlantUmlHelper(patternInstance, className).getUmlFilePath();
         File file = new File(path);
         BufferedImage image = null;
         try {
