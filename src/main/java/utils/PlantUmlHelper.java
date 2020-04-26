@@ -123,20 +123,30 @@ public class PlantUmlHelper {
         Map<String, Set<String>> roleObjects = patternInstance.getRoleObjects();
         DesignPattern designPattern = getDesignPattern();
         List<RolesLink> rolesLinks = designPattern.getRolesLinks();
+        Set<String> insertedLinks = new HashSet<>();
+
         for(RolesLink rolesLink : rolesLinks){
             String role1 = rolesLink.getRole1();
             String role2 = rolesLink.getRole2();
             String linkType = rolesLink.getLinkType();
+
             Set<String> role1Objects = roleObjects.get(role1);
             if(role1Objects == null){
                 role1Objects = new HashSet<>();
             }
+
             Set<String> role2Objects = roleObjects.get(role2);
             if(role2Objects == null){
                 role1Objects = new HashSet<>();
             }
+
             for(String role1Object : role1Objects){
                 for(String role2Object : role2Objects){
+                    String link = role1Object + role2Object;
+                    if(insertedLinks.contains(link)){
+                        continue;
+                    }
+
                     stringBuilder.append("\n").append(role2Object);
                     if(linkType.equals("inherits")){
                         stringBuilder.append(" <|-- ");
@@ -145,6 +155,7 @@ public class PlantUmlHelper {
                         stringBuilder.append(" -- ");
                     }
                     stringBuilder.append(role1Object);
+                    insertedLinks.add(link);
                 }
             }
         }
