@@ -344,7 +344,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
         generateUML.addActionListener(e -> {
             ValidationInfo validationInfo = getCommonValidationInfo();
             if (validationInfo != null) {
-                //TODO fill all fields first
+                JOptionPane.showMessageDialog(panel, "Please fill all the collaboration rows first. If you do not need the extra rows, consider removing them.");
                 return;
             }
             String name = getPatternName();
