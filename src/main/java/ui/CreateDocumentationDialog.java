@@ -1,14 +1,21 @@
 package ui;
 
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.ValidationInfo;
 import models.DesignPattern;
 import models.PatternInstance;
 import org.jetbrains.annotations.Nullable;
 import storage.PluginState;
+import utils.PlantUmlHelper;
 import utils.Utils;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class CreateDocumentationDialog extends DocumentationDialog {
@@ -38,6 +45,11 @@ public class CreateDocumentationDialog extends DocumentationDialog {
         String selectedPatternName = (String) patternNameComboBox.getSelectedItem();
         DesignPattern selectedDesignPattern = designPatternByName.get(selectedPatternName);
         return selectedDesignPattern.getRoles();
+    }
+
+    @Override
+    protected String getPatternName() {
+        return (String) patternNameComboBox.getSelectedItem();
     }
 
     @Nullable

@@ -49,6 +49,11 @@ public class EditDocumentationDialog extends DocumentationDialog {
         return selectedPatternInstance.getRoleObjects().keySet();
     }
 
+    @Override
+    protected String getPatternName() {
+        return selectedPatternName.getText();
+    }
+
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
@@ -97,6 +102,10 @@ public class EditDocumentationDialog extends DocumentationDialog {
         removeAllCollaborationRoles();
         addCollaborationListToPanel();
         fillFields();
+
+        pictureLabel.setIcon(null);
+        zoomUML.setVisible(false);
+
         updatePanel();
     }
 
