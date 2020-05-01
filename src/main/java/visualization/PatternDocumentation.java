@@ -104,8 +104,6 @@ public class PatternDocumentation implements DocumentationProvider {
     }
 
     private void includePatternInstanceUML(PatternInstance patternInstance) {
-//        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
-//        String path = projectDetails.getPatternInstanceUmlFilePath(patternInstanceId);
         String path = new PlantUmlHelper(patternInstance, className).getUmlFilePath();
         File file = new File(path);
         BufferedImage image = null;

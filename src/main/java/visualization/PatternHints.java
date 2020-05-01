@@ -30,6 +30,7 @@ public class PatternHints extends EditorLinePainter {
     private Document document;
     private int lineStart;
     private int lineEnd;
+    private Set<String> addedObjects;
 
     @Nullable
     @Override
@@ -61,6 +62,7 @@ public class PatternHints extends EditorLinePainter {
         }
         setFileClassesName();
 
+        addedObjects = new HashSet<>();
         lineHint = new StringBuilder();
         appendInitialIndentation();
         generatePatternHintsForAllClassesInLine();
@@ -127,53 +129,21 @@ public class PatternHints extends EditorLinePainter {
 
     private void generatePatternHintsForAllClassesInLine() {
         for (int i = lineStart; i <= lineEnd; i++) {
-            try {
-                String objectName = getObjectName(i);
-                generatePatternHintsForClass(objectName);
-                i += objectName.length();
-            } catch (Exception ignored) {
+            PsiElement psiElement = psiFile.findElementAt(i);
 
+            if(psiElement != null){
+                String objectName = psiElement.getText();
+                if(objectName.equals("import")){
+                    break;
+                }
+
+                if(!addedObjects.contains(objectName)) {
+                    generatePatternHintsForClass(objectName);
+                    addedObjects.add(objectName);
+                }
+                i += objectName.length();
             }
         }
-    }
-
-    private String getObjectName(int i) throws Exception {
-        String elementName;
-        elementName = getFileElementName(i);
-
-        if (!isClassDefinedAtCurrentFile(elementName)) {
-            elementName = getReferencedClassName(i);
-        }
-
-        return elementName;
-    }
-
-    private String getFileElementName(int i) throws Exception {
-        String objectName;
-        PsiElement psiElement = psiFile.findElementAt(i);
-
-        if (psiElement == null) {
-            throw new Exception();
-        }
-
-        objectName = psiElement.getText();
-        return objectName;
-    }
-
-    private boolean isClassDefinedAtCurrentFile(String objectName) {
-        return fileClassesName.contains(objectName);
-    }
-
-    private String getReferencedClassName(int i) throws Exception {
-        String elementName;
-        PsiReference psiReference = psiFile.findReferenceAt(i);
-
-        if (psiReference == null)
-            throw new Exception();
-
-        PsiElement psiElement = psiReference.getElement();
-        elementName = psiElement.getText();
-        return elementName;
     }
 
     private void generatePatternHintsForClass(String className) {

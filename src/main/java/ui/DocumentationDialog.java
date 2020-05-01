@@ -190,6 +190,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
         c.weightx = 0.5;
         c.gridx = 2;
         ComboBox roleComboBox = getRoleComboBox(roles);
+        setRoleComboBoxListener(roleComboBox);
         collaborationPanel.add(roleComboBox, c);
 
         c.weightx = 0.0;
@@ -208,6 +209,17 @@ public abstract class DocumentationDialog extends DialogWrapper {
             changeDeleteBtnVisibilityWhenMinNumRows(false);
             updateCollaborationPanel();
             redrawUML();
+        });
+    }
+
+    private void setRoleComboBoxListener(ComboBox roleComboBox) {
+        roleComboBox.addActionListener(e->{
+            if(t == null){
+                initTimer();
+            }
+            else{
+                t.restart();
+            }
         });
     }
 
