@@ -49,7 +49,6 @@ public class ClassNameRefactoringListener extends RefactoringElementAdapter {
         PatternSuggestions patternSuggestions = pluginState.getPatternSuggestions();
 
         projectPersistedState.updateClassNameInPersistedState(oldName, newName);
-        projectDetails.updateAllUmlWithFollowingClassName(newName);
         patternSuggestions.updateClassNameInSuggestions(oldName, newName);
     }
 }

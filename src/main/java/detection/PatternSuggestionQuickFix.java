@@ -35,6 +35,5 @@ public class PatternSuggestionQuickFix implements LocalQuickFix {
         patternSuggestions.acceptAvailableSuggestion(patternInstance);
         PatternInstance copyPatternInstance = new PatternInstance(patternInstance);
         PluginState.getInstance().updateStorage(copyPatternInstance);
-        projectDetails.updateUmlFileByPatternInstance(patternInstance);
     }
 }

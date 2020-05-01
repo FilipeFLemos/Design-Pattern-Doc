@@ -71,14 +71,12 @@ public class PatternSuggestionsActionDialog  extends DialogWrapper {
 
         PluginState pluginState = PluginState.getInstance();
         PatternSuggestions patternSuggestions = pluginState.getPatternSuggestions();
-        ProjectDetails projectDetails = pluginState.getProjectDetails();
 
         patternSuggestions.acceptAvailableSuggestion(selectedPatternInstance);
 
         if(!isIgnore){
             PatternInstance copyPatternInstance = new PatternInstance(selectedPatternInstance);
             PluginState.getInstance().updateStorage(copyPatternInstance);
-            projectDetails.updateUmlFileByPatternInstance(selectedPatternInstance);
         }
 
         close(OK_EXIT_CODE);

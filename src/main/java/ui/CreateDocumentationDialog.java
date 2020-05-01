@@ -136,7 +136,6 @@ public class CreateDocumentationDialog extends DocumentationDialog {
         PatternInstance patternInstance = generatePatternInstanceFromUserInput(name);
         storePatternInstance(id, patternInstance);
         updatePatternSuggestions(patternInstance);
-        updatePatternInstanceUml(id);
         close(OK_EXIT_CODE);
     }
 

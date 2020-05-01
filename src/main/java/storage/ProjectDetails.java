@@ -68,7 +68,6 @@ public class ProjectDetails {
             setName(activeProjectName);
             setPath(activeProjectPath);
             setPersistedState();
-            setUmlFilePathByPatternInstanceId();
         } catch (Exception e) {
             e.printStackTrace();
         }

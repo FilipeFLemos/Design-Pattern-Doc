@@ -101,10 +101,10 @@ public class EditDocumentationDialog extends DocumentationDialog {
 
         removeAllCollaborationRoles();
         addCollaborationListToPanel();
+        changeDeleteBtnVisibilityWhenMinNumRows(false);
         fillFields();
 
-        pictureLabel.setIcon(null);
-        zoomUML.setVisible(false);
+        redrawUML();
 
         updatePanel();
     }
@@ -252,7 +252,6 @@ public class EditDocumentationDialog extends DocumentationDialog {
         PatternInstance patternInstance = generatePatternInstanceFromUserInput(name);
         updatePatternInstance(patternInstance);
         updatePatternSuggestions(patternInstance);
-        updatePatternInstanceUml(id);
         close(OK_EXIT_CODE);
     }
 
