@@ -51,10 +51,10 @@ public class PatternSuggestions {
                     Set<PatternParticipant> foundPatternParticipants = patternInstanceInSuggestionMap.getPatternParticipants();
 
                     if (foundPatternParticipants.contains(patternParticipant)) {
-                        patternInstanceInSuggestionMap.updatePatternParticipantsContainers(patternInstance.getPatternParticipants());
+                        patternInstanceInSuggestionMap.updatePatternParticipantsContainers(patternParticipants);
                         moveAvailablePatternInstanceToAccepted(object, patternInstanceInSuggestionMap);
                     } else if (!patternInstance.equals(patternInstanceInSuggestionMap)) {
-                        patternInstanceInSuggestionMap.updatePatternParticipantsContainers(patternInstance.getPatternParticipants());
+                        patternInstanceInSuggestionMap.updatePatternParticipantsContainers(patternParticipants);
                     }
                     continue;
                 } catch (NullPointerException ignored) {
@@ -63,6 +63,17 @@ public class PatternSuggestions {
 
             if (acceptedSuggestions.containsKey(object)) {
                 try {
+                    PatternInstance patternInstanceInSuggestionMap = getPatternInstanceInSuggestionMap(patternInstance, acceptedSuggestions);
+                    Set<PatternParticipant> foundPatternParticipants = patternInstanceInSuggestionMap.getPatternParticipants();
+
+                    for(PatternParticipant foundPatternParticipant : foundPatternParticipants){
+                        String foundObject = foundPatternParticipant.getObject();
+                        if(!patternParticipants.contains(foundPatternParticipant)){
+                            Set<PatternInstance> patternInstances = acceptedSuggestions.get(foundObject);
+                            patternInstances.remove(patternInstanceInSuggestionMap);
+                        }
+                    }
+
                     updateAcceptedSuggestionsMap(patternInstance);
                 } catch (NullPointerException ignored) {
                 }

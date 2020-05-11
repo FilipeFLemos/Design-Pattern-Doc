@@ -14,13 +14,11 @@ public class PatternSuggestionQuickFix implements LocalQuickFix {
     public static final String QUICK_FIX_NAME = "Add pattern instance documentation";
     private PatternInstance patternInstance;
     private PatternSuggestions patternSuggestions;
-    private ProjectDetails projectDetails;
 
     public PatternSuggestionQuickFix(PatternInstance patternInstance) {
         this.patternInstance = patternInstance;
         PluginState pluginState = PluginState.getInstance();
         patternSuggestions = pluginState.getPatternSuggestions();
-        projectDetails = pluginState.getProjectDetails();
     }
 
     @Nls(capitalization = Nls.Capitalization.Sentence)

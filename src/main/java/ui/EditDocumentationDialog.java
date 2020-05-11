@@ -247,7 +247,6 @@ public class EditDocumentationDialog extends DocumentationDialog {
 
     @Override
     protected void doOKAction() {
-        String id = getSelectedPatternInstanceId();
         String name = selectedPatternName.getText();
         PatternInstance patternInstance = generatePatternInstanceFromUserInput(name);
         updatePatternInstance(patternInstance);

@@ -1,6 +1,11 @@
 package visualization;
 
 import com.intellij.lang.documentation.DocumentationProvider;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import models.PatternInstance;
@@ -76,6 +81,7 @@ public class PatternDocumentation implements DocumentationProvider {
 
         return documentationText;
     }
+
 
     private ConcurrentHashMap<String, PatternInstance> getPersistedPatternInstances() throws NullPointerException {
         ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();

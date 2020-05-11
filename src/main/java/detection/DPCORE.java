@@ -36,15 +36,12 @@ public class DPCORE implements DetectionTool {
         ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
         String projectPath = projectDetails.getPath() + "/src";
 
-        sendNotification("Starting DP-CORE...");
         for (File file : patternDescriptions) {
             Pattern pat = MainWindow.extractPattern(new File(file.getAbsolutePath()));
             ProjectASTParser.parse(projectPath);
             String toolOutput = PatternDetectionAlgorithm.DetectPattern_Results(pat, false);
             runsToolForSpecificPattern(toolOutput);
-            sendNotification(toolOutput);
         }
-        sendNotification("Finished DP-CORE with " + patternInstances.size() + " results");
 
         return patternInstances;
     }

@@ -5,7 +5,6 @@ import com.intellij.openapi.ui.DialogWrapper;
 import models.PatternInstance;
 import org.jetbrains.annotations.Nullable;
 import storage.PluginState;
-import storage.ProjectDetails;
 import utils.Utils;
 
 import javax.swing.*;
