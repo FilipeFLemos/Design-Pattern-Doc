@@ -4,6 +4,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.ui.JBUI;
 import detection.PatternSuggestions;
+import models.DesignPattern;
 import models.PatternInstance;
 import models.PatternParticipant;
 import org.jetbrains.annotations.Nullable;
@@ -14,44 +15,52 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class EditDocumentationDialog extends DocumentationDialog {
 
+    private ComboBox patternNameComboBox;
+    private Map<String, DesignPattern> designPatternByName;
     private JButton deletePatternInstance;
-    private JLabel selectedPatternName, numberOfInstances;
+    private JLabel numberOfInstances;
     private ArrayList<String> patternInstancesIds;
     private int currentIndex;
     private BasicArrowButton leftArrow, rightArrow;
 
-    public EditDocumentationDialog(boolean canBeParent) {
-        super(canBeParent);
+    public EditDocumentationDialog(boolean canBeParent, String className) {
+        super(canBeParent, className);
 
-        setPatternInstanceSlider();
+        setPatternInstanceSlider(className);
         setSelectedPatternInstanceNumCollaborationRows();
+        setDesignPatternByName();
+        setPatternNameComboBox();
+        setPatternNameComboBoxListener();
 
         deletePatternInstance = new JButton("DELETE");
         setDeletePatternInstanceDocListener();
         setTitle("Edit Pattern Instance Documentation");
+
         init();
     }
 
-    public EditDocumentationDialog(boolean canBeParent, String className) {
-        this(canBeParent);
-        setPatternInstanceSlider(className);
+    public EditDocumentationDialog(String classname, String patternInstanceId){
+        this(true, classname);
+        currentIndex = patternInstancesIds.indexOf(patternInstanceId);
         updatePanelOnPatternInstanceChange();
     }
 
     @Override
     protected Set<String> getSelectedPatternRoles() {
-        PatternInstance selectedPatternInstance = getSelectedPatternInstance();
-        return selectedPatternInstance.getRoleObjects().keySet();
+        String selectedPatternName = (String) patternNameComboBox.getSelectedItem();
+        DesignPattern selectedDesignPattern = designPatternByName.get(selectedPatternName);
+        return selectedDesignPattern.getRoles();
     }
 
     @Override
     protected String getPatternName() {
-        return selectedPatternName.getText();
+        return (String) patternNameComboBox.getSelectedItem();
     }
 
     @Nullable
@@ -59,7 +68,7 @@ public class EditDocumentationDialog extends DocumentationDialog {
     protected JComponent createCenterPanel() {
         addPatternInstancesHeaderToPanel();
         addRowElementToPanel(Utils.getFieldLabel("Pattern Name"));
-        addPatternNameToPanel();
+        addRowElementToPanel(patternNameComboBox);
         addDocumentationDialogInvariableBody();
 
         fillFields();
@@ -67,17 +76,47 @@ public class EditDocumentationDialog extends DocumentationDialog {
         return panel;
     }
 
-    private void addPatternNameToPanel() {
-        selectedPatternName = new JLabel();
-        selectedPatternName.setBorder(JBUI.Borders.empty(0, 5, 2, 0));
-        PatternInstance patternInstance = getSelectedPatternInstance();
-        selectedPatternName.setText(patternInstance.getPatternName());
-        addRowElementToPanel(selectedPatternName);
+    private void setDesignPatternByName() {
+        designPatternByName = new HashMap<>();
+        Set<DesignPattern> supportedDesignPatterns = PluginState.getInstance().getSupportedDesignPatterns();
+        for (DesignPattern designPattern : supportedDesignPatterns) {
+            designPatternByName.put(designPattern.getName(), designPattern);
+        }
     }
 
-    private void setPatternInstanceSlider() {
-        patternInstancesIds = new ArrayList<>(patternInstanceById.keySet());
-        currentIndex = 0;
+    private void setPatternNameComboBox() {
+        Set<String> supportedDesignPatterns = designPatternByName.keySet();
+        String[] designPatterns = new String[supportedDesignPatterns.size()];
+        int index = 0;
+        for (String designPatternName : supportedDesignPatterns) {
+            designPatterns[index] = designPatternName;
+            index++;
+        }
+        patternNameComboBox = new ComboBox(designPatterns);
+    }
+
+    private void setPatternNameComboBoxListener() {
+        patternNameComboBox.addActionListener(e ->
+        {
+            ArrayList<String> filledClassNames = new ArrayList<>();
+            for (CollaborationRowItem listItem : collaborationRowList) {
+                String className = listItem.getClassName().getText();
+                filledClassNames.add(className);
+            }
+            int numRows = collaborationRowList.size();
+            removeAllCollaborationRoles();
+            setNumCollaborationRows(numRows);
+            addCollaborationListToPanel();
+            changeDeleteBtnVisibilityWhenMinNumRows(false);
+
+            for (int i = 0; i < filledClassNames.size(); i++) {
+                String className = filledClassNames.get(i);
+                CollaborationRowItem listItem = collaborationRowList.get(i);
+                JTextField jTextField = listItem.getClassName();
+                jTextField.setText(className);
+            }
+            updateCollaborationPanel();
+        });
     }
 
     private void setPatternInstanceSlider(String object) {
@@ -120,7 +159,7 @@ public class EditDocumentationDialog extends DocumentationDialog {
         c.gridx = 0;
         c.weighty = 1;
         c.gridy = gridHeight;
-        c.insets = JBUI.insets(0,5,5,0);
+        c.insets = JBUI.insets(0,5,0,0);
 
         leftArrow = new BasicArrowButton(BasicArrowButton.WEST);
         leftArrow.addActionListener(e ->
@@ -148,7 +187,7 @@ public class EditDocumentationDialog extends DocumentationDialog {
             updatePanelOnPatternInstanceChange();
         });
         c.gridx = 2;
-        c.insets = JBUI.insets(0,-25,5,0);
+        c.insets = JBUI.insets(0,-25,0,0);
         panel.add(rightArrow, c);
 
         hidePatternSlider();
@@ -190,7 +229,7 @@ public class EditDocumentationDialog extends DocumentationDialog {
         String id = getSelectedPatternInstanceId();
         PatternInstance patternInstance = projectPersistedState.getPatternInstance(id);
 
-        selectedPatternName.setText(patternInstance.getPatternName());
+        patternNameComboBox.setSelectedItem(patternInstance.getPatternName());
         patternIntent.setText(patternInstance.getIntent());
         fillCollaborationRows(patternInstance);
     }
@@ -222,7 +261,7 @@ public class EditDocumentationDialog extends DocumentationDialog {
         }
 
         String id = getSelectedPatternInstanceId();
-        String name = selectedPatternName.getText();
+        String name = getPatternName();
         PatternInstance patternInstance = generatePatternInstanceFromUserInput(name);
         if (existsOtherDocumentationForPatternInstance(id, patternInstance)) {
             return new ValidationInfo("Your edition has result in a new pattern instance, which has already been documented. Consider editing the existing one.");
@@ -247,11 +286,10 @@ public class EditDocumentationDialog extends DocumentationDialog {
 
     @Override
     protected void doOKAction() {
-        String name = selectedPatternName.getText();
+        String name = getPatternName();
         PatternInstance patternInstance = generatePatternInstanceFromUserInput(name);
         updatePatternInstance(patternInstance);
         updatePatternSuggestions(patternInstance);
-        close(OK_EXIT_CODE);
     }
 
     private void updatePatternInstance(PatternInstance patternInstance) {

@@ -71,7 +71,7 @@ public class PatternSuggestionElementVisitor extends JavaElementVisitor {
         String suggestionText = getSuggestionText(patternInstance);
 
         PatternSuggestionIgnoreQuickFix patternSuggestionIgnoreQuickFix = new PatternSuggestionIgnoreQuickFix(patternInstance);
-        PatternSuggestionQuickFix patternSuggestionQuickFix = new PatternSuggestionQuickFix(patternInstance);
+        PatternSuggestionQuickFix patternSuggestionQuickFix = new PatternSuggestionQuickFix(patternInstance, object);
         holder.registerProblem(element, suggestionText, patternSuggestionQuickFix, patternSuggestionIgnoreQuickFix);
     }
 

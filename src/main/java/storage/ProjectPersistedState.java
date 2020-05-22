@@ -33,23 +33,7 @@ public class ProjectPersistedState implements Serializable {
     }
 
     public void storePatternInstanceIfAbsent(String id, PatternInstance patternInstance) {
-        if (!hasAlreadyStored(patternInstance)) {
             patternInstanceById.putIfAbsent(id, patternInstance);
-        }
-    }
-
-    public boolean hasAlreadyStored(PatternInstance patternInstance) {
-        boolean hasAlreadyStored = false;
-
-        for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
-            PatternInstance storedInstance = entry.getValue();
-            if (patternInstance.areTheSamePatternInstance(storedInstance)) {
-                hasAlreadyStored = true;
-                break;
-            }
-        }
-
-        return hasAlreadyStored;
     }
 
     public String getPatternInstanceId(PatternInstance patternInstance) {

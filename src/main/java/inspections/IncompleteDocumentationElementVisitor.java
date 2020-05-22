@@ -69,8 +69,8 @@ public class IncompleteDocumentationElementVisitor extends JavaElementVisitor {
 
                 if (isDocumentationIncomplete(emptyRoles)) {
                     String warningText = "A pattern instance played by this object is incomplete! Consider filling the roles - " + getObjectsSeparatedByComma(emptyRoles) + " - of the " + patternInstance.getPatternName() + " Design Pattern.";
-                    EditPatternInstanceQuickFix editPatternInstanceQuickFix = new EditPatternInstanceQuickFix(patternInstanceId);
-                    DeletePatternInstanceQuickFix deletePatternInstanceQuickFix = new DeletePatternInstanceQuickFix(patternInstanceId);
+                    EditPatternInstanceQuickFix editPatternInstanceQuickFix = new EditPatternInstanceQuickFix(object, patternInstanceId);
+                    DeletePatternInstanceQuickFix deletePatternInstanceQuickFix = new DeletePatternInstanceQuickFix(object, patternInstanceId);
                     holder.registerProblem(element, warningText, editPatternInstanceQuickFix, deletePatternInstanceQuickFix);
                 }
             }

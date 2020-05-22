@@ -5,6 +5,7 @@ import models.PatternParticipant;
 import storage.PluginState;
 import storage.ProjectDetails;
 import storage.ProjectPersistedState;
+import ui.MyToolWindowFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -98,6 +99,7 @@ public class PatternSuggestions {
                 patternInstances.remove(patternInstance);
             }
         }
+        MyToolWindowFactory.resetPanel();
     }
 
     void acceptAvailableSuggestion(PatternInstance patternInstance) {

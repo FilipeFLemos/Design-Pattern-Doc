@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.concurrency.AppExecutorUtil;
 import detection.PatternSuggestions;
 import detection.PatternDetectionScheduler;
+import inspections.CursorInspection;
 import models.DesignPattern;
 import models.PatternInstance;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +43,7 @@ public class PluginState implements PersistentStateComponent<ProjectsPersistedSt
         setPatternDescriptions();
         sendNotificationIfGraphvizNotInstalled();
         AppExecutorUtil.getAppScheduledExecutorService().schedule(new PatternDetectionScheduler(), 10, TimeUnit.SECONDS);
+        AppExecutorUtil.getAppScheduledExecutorService().schedule(new CursorInspection(), 1, TimeUnit.SECONDS);
     }
 
     public static PluginState getInstance() {

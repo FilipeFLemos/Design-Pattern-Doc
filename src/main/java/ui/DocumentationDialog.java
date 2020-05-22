@@ -22,6 +22,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -41,12 +42,13 @@ public abstract class DocumentationDialog extends DialogWrapper {
     protected int numCollaborationRows, gridHeight, collaborationGridHeight;
     private ArrayList<String> validFileNames;
     private Timer t;
+    private String className;
 
     protected ProjectPersistedState projectPersistedState;
     protected ConcurrentHashMap<String, PatternInstance> patternInstanceById;
     protected ProjectDetails projectDetails;
 
-    protected int MIN_NUM_ROWS = 3, DIALOG_WIDTH = 400,  INTENT_HEIGHT = 50, UML_HEIGHT = 200, ROLES_PANEL_HEIGHT = 140;
+    protected int DIALOG_WIDTH = 400,  INTENT_HEIGHT = 50, UML_HEIGHT = 200, ROLES_PANEL_HEIGHT = 140;
 
     public DocumentationDialog(boolean canBeParent) {
         super(canBeParent);
@@ -56,6 +58,7 @@ public abstract class DocumentationDialog extends DialogWrapper {
         patternIntent.setLineWrap(true);
         intentScrollPane = new JBScrollPane(patternIntent);
         intentScrollPane.setPreferredSize(new Dimension(DIALOG_WIDTH, INTENT_HEIGHT));
+        setIntentListener();
 
         pictureLabel = new JLabel("");
         umlImagePanel = new JPanel(new FlowLayout());
@@ -85,6 +88,11 @@ public abstract class DocumentationDialog extends DialogWrapper {
         } catch (Exception ignored) {
 
         }
+    }
+
+    public DocumentationDialog(boolean canBeParent, String className) {
+        this(canBeParent);
+        this.className = className;
     }
 
     protected abstract Set<String> getSelectedPatternRoles();
@@ -209,22 +217,16 @@ public abstract class DocumentationDialog extends DialogWrapper {
             changeDeleteBtnVisibilityWhenMinNumRows(false);
             updateCollaborationPanel();
             redrawUML();
+            doOKAction();
         });
     }
 
-    private void setRoleComboBoxListener(ComboBox roleComboBox) {
-        roleComboBox.addActionListener(e->{
-            if(t == null){
-                initTimer();
-            }
-            else{
-                t.restart();
-            }
-        });
+    private void setIntentListener() {
+        setDocumentListener(patternIntent.getDocument());
     }
 
-    private void setObjectTextFieldListener(JTextField object) {
-        object.getDocument().addDocumentListener(new DocumentListener() {
+    private void setDocumentListener(Document document) {
+        document.addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
                 setTimer();
             }
@@ -246,8 +248,29 @@ public abstract class DocumentationDialog extends DialogWrapper {
         });
     }
 
+    private void setRoleComboBoxListener(ComboBox roleComboBox) {
+        roleComboBox.addActionListener(e->{
+            if(t == null){
+                initTimer();
+            }
+            else{
+                t.restart();
+            }
+        });
+    }
+
+    private void setObjectTextFieldListener(JTextField object) {
+        setDocumentListener(object.getDocument());
+    }
+
     private void initTimer() {
-        t = new Timer(1000, e-> redrawUML());
+        t = new Timer(1000, e-> {
+            redrawUML();
+            ValidationInfo validationInfo = doValidate();
+            if(validationInfo == null){
+                doOKAction();
+            }
+        });
         t.setRepeats(false);
     }
 
@@ -385,7 +408,13 @@ public abstract class DocumentationDialog extends DialogWrapper {
     protected void redrawUML() {
         String name = getPatternName();
         PatternInstance patternInstance = generatePatternInstanceFromUserInput(name);
-        String path = new PlantUmlHelper(patternInstance).getUmlFilePath();
+        String path;
+        if (className == null) {
+            path = new PlantUmlHelper(patternInstance).getUmlFilePath();
+        }
+        else{
+            path = new PlantUmlHelper(patternInstance, className).getUmlFilePath();
+        }
         try {
             ImageIcon resizedUmlImageIcon = getResizedImageIcon(path);
             pictureLabel.setIcon(resizedUmlImageIcon);
@@ -411,5 +440,9 @@ public abstract class DocumentationDialog extends DialogWrapper {
 
     private void setZoomUMLBtnListener(){
         zoomUML.addActionListener(e -> JOptionPane.showMessageDialog(panel, "", "UML Preview", JOptionPane.INFORMATION_MESSAGE, umlImageIcon));
+    }
+
+    public JPanel getPanel() {
+        return panel;
     }
 }

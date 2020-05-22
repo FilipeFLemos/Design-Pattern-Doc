@@ -30,7 +30,8 @@ public class PatternHints extends EditorLinePainter {
     private Document document;
     private int lineStart;
     private int lineEnd;
-    private Set<String> addedObjects;
+    private Set<String> addedObjects, nameRoleAdded;
+    private Map<String, Integer> numberEntriesByNameRoleAdded;
 
     @Nullable
     @Override
@@ -148,6 +149,10 @@ public class PatternHints extends EditorLinePainter {
 
     private void generatePatternHintsForClass(String className) {
         boolean alreadyAddedPatternInstanceForClassName = false;
+        nameRoleAdded = new HashSet<>();
+        numberEntriesByNameRoleAdded = new HashMap<>();
+
+        StringBuilder patternHintsForClass = new StringBuilder();
         for (Map.Entry<String, PatternInstance> entry : patternInstanceById.entrySet()) {
             PatternInstance patternInstance = entry.getValue();
             String patternName = patternInstance.getPatternName();
@@ -159,27 +164,57 @@ public class PatternHints extends EditorLinePainter {
 
             if (!alreadyAddedPatternInstanceForClassName) {
                 char rightArrow = '\u2192';
-                lineHint.append("  ").append(className).append(" ").append(rightArrow).append(" ");
+                patternHintsForClass.append("    ").append(className).append(" ").append(rightArrow).append(" ");
                 alreadyAddedPatternInstanceForClassName = true;
-            } else {
-                lineHint.append(", ");
             }
 
-            appendPatternNameAndClassRoles(className, patternName, objectRoles);
+            String nameAndRoles = getPatternNameAndClassRoles(className, patternName, objectRoles);
+
+            nameRoleAdded.add(nameAndRoles);
+            int times = 1;
+            if(numberEntriesByNameRoleAdded.containsKey(nameAndRoles)){
+                times += numberEntriesByNameRoleAdded.get(nameAndRoles);
+            }
+            numberEntriesByNameRoleAdded.put(nameAndRoles, times);
         }
+
+        int index = 0;
+        for(String nameRole : nameRoleAdded){
+            patternHintsForClass.append(nameRole);
+            int times = numberEntriesByNameRoleAdded.get(nameRole);
+            if(times > 1){
+                patternHintsForClass.append("(").append(times).append("x)");
+            }
+
+            if (index != nameRoleAdded.size() - 1) {
+                patternHintsForClass.append("; ");
+            }
+            index ++;
+        }
+
+        String patternHint = patternHintsForClass.toString();
+
+        if(!patternHint.equals("")){
+            lineHint.append(patternHint);
+        }
+
+
     }
 
-    private void appendPatternNameAndClassRoles(String className, String patternName, Map<String, Set<String>> objectRoles) {
+    private String getPatternNameAndClassRoles(String className, String patternName, Map<String, Set<String>> objectRoles) {
         Set<String> roles = objectRoles.get(className);
         int index = 0;
+        StringBuilder nameAndRoles = new StringBuilder();
+        nameAndRoles.append(patternName).append(":");
 
         for (String role : roles) {
-            lineHint.append(patternName).append(":").append(role);
+            nameAndRoles.append(role);
 
             if (index != roles.size() - 1) {
-                lineHint.append(", ");
+                nameAndRoles.append(", ");
             }
             index++;
         }
+        return nameAndRoles.toString();
     }
 }

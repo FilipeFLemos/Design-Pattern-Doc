@@ -131,6 +131,10 @@ public class PatternInstance implements Serializable {
     }
 
     public boolean areTheSamePatternInstance(PatternInstance thatPatternInstance) {
+        if(this.patternParticipants.size() == 1 || thatPatternInstance.patternParticipants.size() == 1){
+            return false;
+        }
+
         if (this.isSubSet(thatPatternInstance) || thatPatternInstance.isSubSet(this)) {
             return true;
         }

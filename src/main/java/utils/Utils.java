@@ -13,9 +13,11 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import detection.PatternSuggestions;
 import models.RolesLink;
 import models.DesignPattern;
 import models.PatternInstance;
+import storage.PluginState;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -54,6 +56,12 @@ public class Utils {
                 .toString();
 
         return generatedString;
+    }
+
+    public static void updatePatternSuggestions(PatternInstance patternInstance) {
+        PatternSuggestions patternSuggestions = PluginState.getInstance().getPatternSuggestions();
+        patternSuggestions.updateSuggestionsAfterManualDocumentation(patternInstance);
+        PluginState.getInstance().restartHighlighting();
     }
 
     public static String getObjectRolesText(PatternInstance patternInstance, String object) {

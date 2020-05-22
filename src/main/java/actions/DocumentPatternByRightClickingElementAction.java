@@ -6,12 +6,26 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.impl.source.PsiMethodImpl;
-import ui.CreateDocumentationDialog;
+import models.DesignPattern;
+import models.PatternInstance;
+import models.PatternParticipant;
+import storage.PluginState;
+import storage.ProjectDetails;
+import storage.ProjectPersistedState;
+import ui.EditDocumentationDialog;
+import ui.MyToolWindowFactory;
+import utils.Utils;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static utils.Utils.updatePatternSuggestions;
 
 public class DocumentPatternByRightClickingElementAction extends AnAction {
 
     private String className;
+    private ProjectPersistedState projectPersistedState;
 
     @Override
     public void update(AnActionEvent e) {
@@ -32,6 +46,47 @@ public class DocumentPatternByRightClickingElementAction extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        new CreateDocumentationDialog(true, className).showAndGet();
+        DesignPattern defaultDesignPattern = getDefaultDesignPattern();
+        ConcurrentHashMap<String, PatternInstance> patternInstanceById = getPatternInstanceById();
+        String id = Utils.generatePatternInstanceId(patternInstanceById);
+        PatternInstance patternInstance = generateDefaultPatternInstance(defaultDesignPattern);
+        projectPersistedState.storePatternInstanceIfAbsent(id, patternInstance);
+        updatePatternSuggestions(patternInstance);
+        MyToolWindowFactory.updateWindow(new EditDocumentationDialog(true, className));
+    }
+
+    protected ConcurrentHashMap<String, PatternInstance> getPatternInstanceById() {
+        ProjectDetails projectDetails = PluginState.getInstance().getProjectDetails();
+        projectPersistedState = projectDetails.getActiveProjectPersistedState();
+        return projectPersistedState.getPatternInstanceById();
+    }
+
+    private DesignPattern getDefaultDesignPattern(){
+        Set<DesignPattern> supportedDesignPatterns = PluginState.getInstance().getSupportedDesignPatterns();
+        for (DesignPattern designPattern : supportedDesignPatterns) {
+            return designPattern;
+        }
+        return null;
+    }
+
+    private PatternInstance generateDefaultPatternInstance(DesignPattern defaultDesignPattern){
+        String intent = "";
+        String patternName = defaultDesignPattern.getName();
+        Set<String> roles = defaultDesignPattern.getRoles();
+        String role = getDefaultRole(roles);
+
+        Set<PatternParticipant> patternParticipants = new HashSet<>();
+        patternParticipants.add(new PatternParticipant(className, role));
+
+        return new PatternInstance(patternName, intent, roles, patternParticipants);
+    }
+
+    private String getDefaultRole(Set<String> roles){
+        String defaultRole = "";
+        for(String role : roles){
+            defaultRole = role;
+            break;
+        }
+        return defaultRole;
     }
 }

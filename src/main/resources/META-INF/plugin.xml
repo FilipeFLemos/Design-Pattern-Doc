@@ -62,15 +62,14 @@
         <refactoring.elementListenerProvider
                                     order="first"
                                     implementation="refactorings.ClassNameRefactoringListenerProvider"/>
+
+        <toolWindow id="Pattern Instance Documentation Editor" anchor="right" factoryClass="ui.MyToolWindowFactory"/>
     </extensions>
 
     <actions>
-        <group id="DesignPatternDoc.popUpMenu" text="DesignPatternDoc" popup="true">
+        <group id="DesignPatternDoc.popUpMenu" text="DesignPatternDoc" popup="false">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-            <action class="actions.DocumentPatternAction" id="documentPattern" text="Document Pattern Instance"/>
             <action class="actions.DocumentPatternByRightClickingElementAction" id="documentPatternRightClickElement" text="Document Pattern Instance Played by Object"/>
-            <action class="actions.EditDocumentationAction" id="editDocumentPatternPopUp" text="Edit Pattern Instance Documentation"/>
-            <action class="actions.EditDocumentationByRightClickingElementAction" id="editDocumentRightClickElement" text="Edit Pattern Instance Played by Object"/>
             <action class="actions.DefinePatternAction" id="definePattern" text="Define Design Pattern"/>
         </group>
     </actions>

@@ -8,13 +8,16 @@ import org.jetbrains.annotations.NotNull;
 import storage.PluginState;
 import storage.ProjectPersistedState;
 import storage.ProjectsPersistedState;
+import ui.EditDocumentationDialog;
+import ui.MyToolWindowFactory;
 
 public class DeletePatternInstanceQuickFix implements LocalQuickFix {
 
     public static final String QUICK_FIX_NAME = "Remove pattern instance";
-    private String patternInstanceId;
+    private String object, patternInstanceId;
 
-    public DeletePatternInstanceQuickFix(String patternInstanceId){
+    public DeletePatternInstanceQuickFix(String object, String patternInstanceId){
+        this.object = object;
         this.patternInstanceId = patternInstanceId;
     }
 
@@ -32,6 +35,8 @@ public class DeletePatternInstanceQuickFix implements LocalQuickFix {
         if (projectsPersistedState != null) {
             ProjectPersistedState projectPersistedState = projectsPersistedState.getProjectState(project.getName());
             projectPersistedState.deletePatternInstance(patternInstanceId);
+            EditDocumentationDialog editDocumentationDialog = new EditDocumentationDialog(true, object);
+            MyToolWindowFactory.updateWindow(editDocumentationDialog);
         }
     }
 }

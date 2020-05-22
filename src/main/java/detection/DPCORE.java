@@ -119,6 +119,7 @@ public class DPCORE implements DetectionTool {
             if (isTheFirstCandidate(currentPatternInstance)) {
                 currentPatternInstance = new PatternInstance(patternName, candidate);
                 currentPatternCandidate = candidate;
+                unsavedPatternInstance = true;
                 continue;
             }
 
