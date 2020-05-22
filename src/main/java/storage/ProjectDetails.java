@@ -5,7 +5,6 @@ import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.WindowManager;
 import models.PatternInstance;
-import utils.PlantUmlHelper;
 import utils.Utils;
 
 import java.awt.*;
@@ -16,7 +15,6 @@ public class ProjectDetails {
     private String name;
     private String path;
     private ProjectPersistedState persistedState;
-    private Map<String, String> umlFilePathByPatternInstanceId;
     private Project activeProject;
 
     public ProjectDetails() {
@@ -100,6 +98,10 @@ public class ProjectDetails {
     public Set<String> getAllFileNamesFromProject() {
         activeProject = getActiveProject();
         Set<String> filesName = new HashSet<>();
+        if(activeProject.isDisposed()){
+            return new HashSet<>();
+        }
+
         Collection<VirtualFile> files = Utils.getVirtualFilesInProject(activeProject);
 
         for (VirtualFile virtualFile : files) {
@@ -117,49 +119,4 @@ public class ProjectDetails {
     private void setPath(String path) {
         this.path = path;
     }
-
-    private void setUmlFilePathByPatternInstanceId(){
-        umlFilePathByPatternInstanceId = new HashMap<>();
-        Map<String, PatternInstance> patternInstances = persistedState.getPatternInstanceById();
-
-        for(Map.Entry<String, PatternInstance> entry : patternInstances.entrySet()){
-            String id = entry.getKey();
-            PatternInstance patternInstance = entry.getValue();
-            generateUmlAndUpdateUmlMap(id, patternInstance);
-        }
-    }
-
-    private void generateUmlAndUpdateUmlMap(String id, PatternInstance patternInstance) {
-        String umlFileName = new PlantUmlHelper(patternInstance).getUmlFilePath();
-        umlFilePathByPatternInstanceId.put(id, umlFileName);
-    }
-
-    public String getPatternInstanceUmlFilePath(String id){
-        return umlFilePathByPatternInstanceId.get(id);
-    }
-
-    public void updateUmlFileByPatternInstanceId(String id){
-        PatternInstance patternInstance = persistedState.getPatternInstance(id);
-        generateUmlAndUpdateUmlMap(id, patternInstance);
-    }
-
-    public void updateUmlFileByPatternInstance(PatternInstance patternInstance){
-        String id = persistedState.getPatternInstanceId(patternInstance);
-        String umlFileName = new PlantUmlHelper(patternInstance).getUmlFilePath();
-        umlFilePathByPatternInstanceId.put(id, umlFileName);
-    }
-
-    public void updateAllUmlWithFollowingClassName(String newName){
-        Map<String, PatternInstance> patternInstances = persistedState.getPatternInstanceById();
-
-        for (Map.Entry<String, PatternInstance> entry : patternInstances.entrySet()) {
-            String id = entry.getKey();
-            PatternInstance patternInstance = entry.getValue();
-            Map<String, Set<String>> objectRoles = patternInstance.getObjectRoles();
-            if (objectRoles.containsKey(newName)) {
-                updateUmlFileByPatternInstanceId(id);
-            }
-        }
-    }
-
 }
