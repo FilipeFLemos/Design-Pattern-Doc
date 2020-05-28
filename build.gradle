@@ -1,27 +1,61 @@
 plugins {
     id 'java'
+    id "idea"
     id 'org.jetbrains.intellij' version '0.4.16'
 }
 
 group 'org.softeng'
-version '1.0-SNAPSHOT'
-
-sourceCompatibility = 1.8
+version '3.3-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven {
+        name 'gradle-releases'
+        url 'https://repo.gradle.org/gradle/libs-releases'
+    }
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+configurations {
+    provided
+}
+
+idea.module.scopes.COMPILE.plus += [configurations.provided]
+
+sourceSets.main {
+    compileClasspath += configurations.provided
+}
+
+jar {
+    into('META-INF') {
+        from 'META-INF/plugin.xml'
+        from 'LICENSE'
+    }
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation name: 'DP-CORE'
+    implementation group: 'net.sourceforge.plantuml', name: 'plantuml', version: '1.2020.6'
 }
 
 intellij {
     version '2019.3.3'
     plugins 'java'
 }
+
 patchPluginXml {
+    sinceBuild '192'
+    untilBuild '202'
     changeNotes """
       Add change notes here.<br>
       <em>most HTML tags may be used</em>"""
 }
+
+publishPlugin {
+    token = System.getenv("intellijPublishToken")
+    channels 'alpha'
+}
+
