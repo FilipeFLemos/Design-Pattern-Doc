@@ -91,12 +91,12 @@ public class PatternSuggestions {
 
             if (availableSuggestions.containsKey(object)) {
                 Set<PatternInstance> patternInstances = availableSuggestions.get(object);
-                patternInstances.remove(patternInstance);
+                patternInstances.removeIf(patternInstanceInSet -> patternInstanceInSet.areTheSamePatternInstance(patternInstance));
             }
 
             if (acceptedSuggestions.containsKey(object)) {
                 Set<PatternInstance> patternInstances = acceptedSuggestions.get(object);
-                patternInstances.remove(patternInstance);
+                patternInstances.removeIf(patternInstanceInSet -> patternInstanceInSet.areTheSamePatternInstance(patternInstance));
             }
         }
         MyToolWindowFactory.resetPanel();
@@ -120,7 +120,7 @@ public class PatternSuggestions {
 
     private void removeSuggestionMapEntry(String object, PatternInstance patternInstance, Map<String, Set<PatternInstance>> suggestionMap) {
         Set<PatternInstance> patternInstances = suggestionMap.get(object);
-        patternInstances.remove(patternInstance);
+        patternInstances.removeIf(patternInstanceInSet -> patternInstanceInSet.areTheSamePatternInstance(patternInstance));
         suggestionMap.put(object, patternInstances);
     }
 

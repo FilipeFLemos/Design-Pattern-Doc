@@ -179,12 +179,13 @@ public class PatternInstance implements Serializable {
         PatternInstance that = (PatternInstance) o;
         return Objects.equals(patternName, that.patternName) &&
                 Objects.equals(roleObjects, that.roleObjects) &&
-                Objects.equals(objectRoles, that.objectRoles);
+                Objects.equals(objectRoles, that.objectRoles) &&
+                Objects.equals(patternParticipants, that.patternParticipants);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(patternName, intent, roleObjects, objectRoles);
+        return Objects.hash(patternName, roleObjects, objectRoles, patternParticipants);
     }
 
     public String getPatternName() {
